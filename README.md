@@ -4,20 +4,30 @@ Simulador de treino para Android, em português de Portugal. Cozinha visual com 
 
 ## Como jogar
 
-1. Escolhe um produto ou pedidos aleatórios, a duração e o modo: pedido único ou turno de cinco clientes.
+1. No início, abre **Treino** ou toca nos cartões ilustrados. Escolhe a receita, o modo e o tempo nas respetivas abas. Guarda e toca em **Começar treino**.
 2. O pedido aparece no talão, junto ao cliente e à barra de tempo.
-3. Toca nos ingredientes da bancada para os adicionar. O sanduíche ganha camadas ilustrativas. Toca novamente no recipiente ou na etiqueta do ingrediente para o retirar.
-4. Toca em **Servir pedido** antes de acabar o tempo. A revisão mostra o que acertaste, o que faltou e o que estava a mais.
+3. Toca nos ingredientes da bancada para os adicionar. O sanduíche ganha camadas ilustrativas. Toca novamente no recipiente para o retirar.
+4. Toca em **Servir pedido** antes de acabar o tempo. Nos resultados, alterna entre **Resumo** e **Revisão**. Os grupos Corretos, Faltaram e A mais mostram os ingredientes com ilustrações e páginas quando necessário.
 5. No modo turno, avança para o próximo cliente. No fim vês quantos dos cinco pedidos ficaram perfeitos.
 
-A bancada e o botão de servir ficam visíveis no ecrã de telemóvel em posição vertical. Em posição horizontal ou em ecrãs muito pequenos pode ser necessário deslocar a cozinha.
+A interface usa a altura do ecrã e não exige deslocação vertical: início, preparação, ajuda, definições, cozinha e resultados. Os conteúdos mais longos estão divididos em abas e páginas; os testes verificam também se os controlos continuam visíveis e clicáveis, em vez de apenas ocultar o scroll. São verificados ecrãs de 320 × 568, 390 × 844, 740 × 360 e 1024 × 768.
+
+## Abertura e carregamento
+
+A abertura mostra o sanduíche a montar-se, ingredientes flutuantes e a identidade visual do jogo. Avança automaticamente ou através de **Entrar na cozinha**. O arranque nativo Android e o primeiro conteúdo HTML usam a mesma paleta.
+
+Antes de cada pedido, uma transição animada prepara a bancada e aguarda a preparação das fontes locais. O cronómetro só começa quando a cozinha está disponível. A animação pode ser cancelada e respeita as definições de movimento reduzido. Não simula percentagens de downloads.
+
+![Abertura animada](docs/abertura.png)
+
+![Início com navegação sem scroll](docs/inicio.png)
 
 ![Cozinha de treino num telemóvel](docs/cozinha.png)
 
 ## Ajuda, áudio e animações
 
-- **Ajuda:** disponível no menu e no botão de interrogação durante o treino. Explica o jogo e permite consultar os ingredientes das quatro receitas. O relógio fica em pausa enquanto o painel está aberto e retoma ao fechá-lo.
-- **Definições:** som geral, efeitos, música de fundo, volume e animações, guardados no dispositivo. Também existe um botão rápido de silêncio no topo. Por defeito, os efeitos estão ativos, o volume fica a 60% e a música está desligada. A preferência de movimento reduzido do sistema é respeitada.
+- **Ajuda:** disponível no menu e no botão de interrogação durante o treino. Tem abas **Como jogar**, **Receitas** e **Sobre**. O guia avança passo a passo e as receitas usam ingredientes ilustrados. O relógio fica em pausa enquanto o painel está aberto e retoma ao fechá-lo.
+- **Definições:** abas **Áudio** e **Movimento**, com som geral, efeitos, música de fundo, volume e animações guardados no dispositivo. Também existe um botão rápido de silêncio no topo. Por defeito, os efeitos estão ativos, o volume fica a 60% e a música está desligada. A preferência de movimento reduzido do sistema é respeitada.
 - **Sons offline:** efeitos originais sintetizados no dispositivo para pão, frango, vegetais, queijo, bacon e molhos; entrada do pedido, entrega, sucesso, erro e aviso nos últimos cinco segundos. Não há ficheiros de áudio remotos. “Testar som” permite verificar o volume.
 - **Animações:** ingredientes voam entre os recipientes e a bandeja, assentam no sanduíche e a bandeja sai ao servir. As ações ficam bloqueadas durante a entrega para evitar duplicação. Os resultados apresentam estrelas e celebram um pedido perfeito com confettis.
 - **Segundo plano:** a música e os efeitos param quando a aplicação deixa de estar visível. O cronómetro continua; a pausa é exclusiva do painel de ajuda e definições. O áudio é iniciado após um toque do utilizador.

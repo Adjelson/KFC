@@ -1,6 +1,6 @@
 # Monta & Treina
 
-Simulador de treino para Android, em português de Portugal. Cozinha visual com cliente, talão de pedido, ingredientes na bancada e um sanduíche que ganha camadas a cada toque. Quatro receitas base com versões Double, batatas de três tamanhos, 12 níveis com pedidos e clientes aleatórios, treino livre, revisão de erros e recordes locais. Funciona offline no APK; não usa conta, servidor, análise de utilização ou serviços externos.
+Simulador de treino para Android, em português de Portugal. Cozinha visual com fila de clientes, talões, ingredientes na bancada e um sanduíche que ganha camadas a cada toque. Quatro receitas base com versões Double, batatas de três tamanhos, 12 níveis com pedidos e clientes aleatórios, treino livre, restaurante com melhorias, medalhas, revisão de erros e corrida aos recordes locais. Funciona offline no APK; não usa conta, servidor, análise de utilização ou serviços externos.
 
 ## Como jogar
 
@@ -10,7 +10,7 @@ Simulador de treino para Android, em português de Portugal. Cozinha visual com 
 4. O **Treino livre** desbloqueia ao concluir o nível 1. As receitas Krunch Clássico, Krunch BBQ, Clássica e O’Cheddar desbloqueiam após os níveis 1, 2, 3 e 4, respetivamente. Batatas desbloqueiam após o nível 5 e Double após o 9. O treino só sorteia receitas já desbloqueadas. A ajuda permite consultar a receita do pedido atual durante uma fase, mesmo antes de a desbloquear para treino.
 5. No treino livre, configura receita, modo, pedido, batatas e tempo nos cartões ilustrados. Os painéis fecham no **X** superior; as alterações são aplicadas ao escolher.
 6. Toca nos ingredientes para montar e novamente para retirar. No Double, dois toques adicionam dois filetes; um terceiro limpa essas unidades. Usa **↶** para desfazer o último ingrediente. Se houver queijo, coloca-o entre os dois filetes.
-7. Nas batatas, escolhe a porção indicada no talão: pequena preta, média vermelha ou grande cinzenta. Nos pedidos com vários produtos, toca em **Adicionar à bandeja** para validar cada unidade. Serve o pedido completo antes do prazo e avança para o próximo cliente.
+7. Nas batatas, escolhe a porção indicada no talão: pequena preta, média vermelha ou grande cinzenta. Nos pedidos com vários produtos, toca em **Adicionar à bandeja** para validar cada unidade. Nos níveis, usa **Preparar** e **Entregar**; podes entregar parte do pedido para libertar a bandeja e trocar de cliente. No treino livre, serve o pedido completo antes do prazo.
 8. Todos os clientes têm de ficar corretos para concluir uma fase. Depois do último cliente, o jogo regressa automaticamente ao mapa e mostra as estrelas e recompensas. O próximo nível fica selecionado, com animação de desbloqueio e selo NOVO, e aguarda um toque para começar. Se a fase falhar, o mapa permite repetir; no nível 12, mostra o percurso concluído. Estrelas, receitas desbloqueadas, contadores e preferências ficam no dispositivo e são preservados ao atualizar.
 
 O nível ganha uma estrela ao servir todos os clientes; ganha duas se todos forem servidos até 80% do tempo e três se todos forem servidos até metade do tempo. Repetir um nível preserva a melhor classificação. Falhas ou desistências não desbloqueiam o seguinte.
@@ -28,6 +28,41 @@ Apenas o mapa de níveis tem scroll. Treino, receitas, definições, cozinha e r
 ![Treino livre com receitas desbloqueadas](docs/treino.png)
 
 ![Krunch Clássico com pão H1 e Mini Filete](docs/receitas.png)
+
+## Restaurante, clientes e recordes
+
+Nos níveis, a cozinha atende até **três clientes em simultâneo**. Toca num retrato para mudar de talão: os ingredientes deixados a meio e os produtos preparados ficam associados a esse cliente. Cada cliente tem a sua barra de paciência e o cronómetro do cliente selecionado aparece ao lado do talão. Dois clientes chegam no início; o terceiro pode chegar após oito segundos. A fila volta a preencher-se quando alguém sai.
+
+- **Habitual:** mais paciência.
+- **Com pressa:** menos tempo, pedidos menores e gorjetas maiores.
+- **Família:** pedidos que podem ter mais unidades e mais tempo para os preparar.
+- **Gourmet:** paciência normal e prémio de atendimento maior.
+
+A bandeja começa com **dois espaços partilhados** entre os clientes. **Preparar** valida uma unidade; **Entregar** leva os produtos prontos ao cliente selecionado e liberta esses espaços. Podes fazer entregas parciais. O talão soma o que já foi entregue ao que está pronto, e só fecha quando todas as quantidades estiverem completas. Ingredientes errados, filetes em falta e bandejas cheias não aumentam os contadores. Se a paciência acabar, o cliente sai e a fase fica por concluir; podes servir os restantes para continuar a ganhar moedas.
+
+Um cliente completo dá moedas: uma base, valor por produto, gorjeta conforme a rapidez e o tipo de cliente, e bónus de sequência até cinco clientes. A entrega parcial não dá moedas. O treino livre também dá moedas ao concluir um pedido correto. O prémio fica guardado logo ao servir; uma fase falhada não retira os prémios dos clientes que foram servidos.
+
+A **carteira no topo** abre o restaurante, com três abas e sem scroll:
+
+- **Melhorias:** bandeja de 4 e depois 6 espaços (40/100 moedas); bancada com mais 8% e depois 16% de tempo por cliente (50/120 moedas). As melhorias aplicam-se às novas tentativas dos níveis. Uma corrida ao recorde mantém os tempos guardados no plano original.
+- **Decoração:** esplanada florida (30 moedas + 3 estrelas), sala renovada (70 + 6) e cozinha do chef (120 + 10). As compras acrescentam elementos visíveis ao mapa; a cozinha do chef também muda os acabamentos da bancada. As estrelas gastas são descontadas do saldo da loja, preservando a classificação de cada nível. Repetir uma fase não repõe estrelas já gastas.
+- **Álbum:** cada produto ganha medalhas **Aprendiz**, **Especialista** e **Mestre** após 1, 10 e 30 unidades corretas. Inclui sandes simples, Double e batatas. Conta a produção validada, mesmo se o cliente não chegar a receber o pedido completo. O álbum tem páginas e uma celebração aparece ao ganhar uma medalha.
+
+Ao concluir uma fase, é guardado o melhor tempo com **os pedidos exatos, as personalidades, os prazos e os instantes das entregas**. O botão com o fantasma no cartão desse nível inicia uma corrida aos mesmos pedidos. A barra compara clientes servidos por ti e pelo recorde ao longo do tempo. Uma tentativa mais lenta ou falhada não substitui o recorde. A ajuda e as definições pausam todos os clientes e a comparação.
+
+![Serviço com fila na horizontal](docs/servico-horizontal.png)
+
+![Melhorias do restaurante](docs/restaurante.png)
+
+![Álbum de medalhas](docs/album.png)
+
+![Decoração do restaurante](docs/decoracao.png)
+
+No **APK**, a cozinha e o carregamento passam para a horizontal por defeito. O mapa e a configuração do treino livre respeitam a orientação do dispositivo. Em **Definições → Movimento → Cozinha horizontal**, podes desativar essa preferência. A interface web adapta-se ao formato da janela. A rotação nativa foi compilada no APK; requer confirmação num dispositivo Android real.
+
+![Serviço no formato vertical](docs/servico-vertical.png)
+
+A entrada dos clientes, o voo e assentamento dos ingredientes, a passagem à bandeja, as entregas com prémio e as medalhas têm animações próprias. A opção de animações e a preferência do sistema para reduzir movimento abrangem os novos efeitos.
 
 ## Pedidos combinados e contadores
 
@@ -50,7 +85,7 @@ Em **Ajuda → Contadores**, podes consultar os totais guardados no dispositivo.
 
 A abertura mostra o sanduíche a montar-se, ingredientes flutuantes e a identidade visual do jogo. Avança automaticamente ou através de **Entrar na cozinha**. O arranque nativo Android e o primeiro conteúdo HTML usam a mesma paleta.
 
-Antes de cada pedido, uma transição animada prepara a bancada e aguarda a preparação das fontes locais. O cronómetro só começa quando a cozinha está disponível. A animação pode ser cancelada e respeita as definições de movimento reduzido. Não simula percentagens de downloads.
+Antes de cada fase ou ronda de treino, uma transição animada prepara a bancada e aguarda a preparação das fontes locais. O cronómetro só começa quando a cozinha está disponível. A animação pode ser cancelada e respeita as definições de movimento reduzido. Não simula percentagens de downloads.
 
 ![Abertura animada](docs/abertura.png)
 
@@ -59,7 +94,7 @@ Antes de cada pedido, uma transição animada prepara a bancada e aguarda a prep
 ## Ajuda, áudio e animações
 
 - **Ajuda:** disponível no botão de interrogação no topo. Tem abas **Como jogar**, **Receitas**, **Contadores** e **Sobre**. O guia avança passo a passo e as receitas usam ingredientes ilustrados. O relógio fica em pausa enquanto o painel está aberto e retoma ao fechá-lo.
-- **Definições:** abas **Áudio** e **Movimento**, com som geral, efeitos, música de fundo tranquila (melodia original a 72 BPM), volume e animações guardados no dispositivo. Por defeito, os efeitos estão ativos, o volume fica a 60% e a música está desligada. A preferência de movimento reduzido do sistema é respeitada.
+- **Definições:** abas **Áudio** e **Movimento**, com som geral, efeitos, música de fundo tranquila (melodia original a 72 BPM), volume, animações e preferência de cozinha horizontal guardados no dispositivo. Por defeito, os efeitos estão ativos, o volume fica a 60% e a música está desligada. A preferência de movimento reduzido do sistema é respeitada.
 - **Sons offline:** efeitos originais sintetizados no dispositivo para pão, frango, vegetais, queijo, bacon, molhos e batatas; entrada do pedido, entrega, sucesso, erro e aviso nos últimos cinco segundos. Não há ficheiros de áudio remotos. “Testar som” permite verificar o volume.
 - **Animações:** ingredientes voam entre os recipientes e a bandeja, assentam no sanduíche e a bandeja sai ao servir. As ações ficam bloqueadas durante a entrega para evitar duplicação. Os resultados apresentam estrelas e celebram um pedido perfeito com confettis.
 - **Segundo plano:** a música e os efeitos param quando a aplicação deixa de estar visível. O cronómetro continua; a pausa é exclusiva do painel de ajuda e definições. O áudio é iniciado após um toque do utilizador.
@@ -68,7 +103,7 @@ Antes de cada pedido, uma transição animada prepara a bancada e aguarda a prep
 
 ## Instalar no telemóvel
 
-[Descarregar o APK de teste para Android](https://github.com/Adjelson/KFC/raw/refs/heads/main/downloads/monta-treino-debug.apk) · Android 7.0 ou superior · versão 1.7 · 4,2 MB.
+[Descarregar o APK de teste para Android](https://github.com/Adjelson/KFC/raw/refs/heads/main/downloads/monta-treino-debug.apk) · Android 7.0 ou superior · versão 1.8 · cerca de 4,3 MB.
 
 Abre o ficheiro no Android e permite a instalação desta origem, se solicitado. A assinatura do APK foi verificada; ainda não foi feita validação num telemóvel real.
 

@@ -17,14 +17,14 @@ export function FoodArt({id, className=''}) {
   </svg>;
 }
 
-export function Burger({items, compact=false}) {
+export function Burger({items, compact=false, action}) {
   const bread=items.filter(id=>['seeds','mini','brioche'].includes(id));
   const fillings=['mayo','bbq','fillet','tender','cheese','bacon','cheddar','tomato','lettuce'].filter(id=>items.includes(id));
   // Layers are illustrative. Recipe scoring does not assert an official assembly order.
   const layers=[...(bread.length?['base']:[]),...fillings,...bread];
   return <div className={`burger-stack ${compact?'compact':''}`} role="img" aria-label={items.length?`Sanduíche com ${items.length} ingredientes`:'Bandeja vazia'}>
     <div className="plate"/>
-    {layers.map((id,index)=><div key={id} className={`burger-layer layer-${id}`} style={{'--layer':index,'--count':layers.length}}><FoodArt id={id}/></div>)}
+    {layers.map((id,index)=><div key={id} className={`burger-layer layer-${id} ${action?.id === id && !action.remove ? 'fresh-layer' : ''}`} style={{'--layer':index,'--count':layers.length}}><FoodArt id={id}/></div>)}
   </div>;
 }
 

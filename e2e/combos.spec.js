@@ -64,7 +64,7 @@ test("duplicate sandwiches are counted once per valid assembly and persist after
     page.getByRole("heading", { name: "Pedido perfeito!" }),
   ).toBeVisible();
   await expect(page.getByText("2/2", { exact: true })).toBeVisible();
-  await page.getByRole("button", { name: "Voltar ao início" }).click();
+  await page.getByRole("button", { name: "Voltar aos níveis" }).click();
   await page.reload();
   await enterHome(page);
   await page.getByRole("button", { name: "Abrir ajuda" }).click();
@@ -217,7 +217,7 @@ for (const viewport of [
     await page.getByRole("tab", { name: "Revisão", exact: true }).click();
     await expect(page.locator(".order-review-line")).toHaveCount(4);
     await expectFits(page);
-    await page.getByRole("button", { name: "Voltar ao início" }).click();
+    await page.getByRole("button", { name: "Voltar aos níveis" }).click();
     await page.getByRole("button", { name: "Abrir ajuda" }).click();
     await page.getByRole("tab", { name: "Contadores", exact: true }).click();
     await expectFits(page);

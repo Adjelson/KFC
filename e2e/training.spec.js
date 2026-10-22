@@ -106,7 +106,7 @@ test("sandwich layers respond to ingredients and every recipe can be served", as
     await expect(
       page.getByRole("heading", { name: "Pedido perfeito!" }),
     ).toBeVisible();
-    await page.getByRole("button", { name: "Voltar ao início" }).click();
+    await page.getByRole("button", { name: "Voltar aos níveis" }).click();
   }
 });
 

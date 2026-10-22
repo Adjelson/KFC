@@ -7,7 +7,7 @@ const names = {
 };
 export async function enterHome(page, { training = true } = {}) {
   const enter = page.getByRole("button", { name: "Entrar na cozinha" }),
-    home = page.getByRole("heading", { name: "A cozinha é tua.", exact: true });
+    home = page.getByRole("heading", { name: "Níveis", exact: true });
   await expect(enter.or(home)).toBeVisible();
   if (await enter.isVisible()) await enter.click();
   await expect(home).toBeVisible();

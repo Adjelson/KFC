@@ -1,17 +1,22 @@
 import React, { useState, useEffect, useRef } from "react";
 import { createRoot } from "react-dom/client";
-import {
-  ingredients,
-  recipes,
-  evaluate,
-  remainingSeconds,
-  pickRecipe,
-} from "./game.js";
+import { ingredients, recipes, evaluate, remainingSeconds } from "./game.js";
 import { FoodArt, Burger, Customer } from "./FoodArt.jsx";
 import { sound, loadSettings, saveSettings } from "./audio.js";
 import { SupportPanel } from "./SupportPanel.jsx";
 import { Icon } from "./Icons.jsx";
 import { Home, Intro, Outcome } from "./Screens.jsx";
+import {
+  makeOrder,
+  orderProgress,
+  creditSandwich,
+  nextRecipe,
+  orderBestKey,
+  loadTotals,
+  saveTotals,
+  addTotals,
+} from "./orders.js";
+import { OrderLines, PreparedTray } from "./OrderViews.jsx";
 import "./style.css";
 
 const name = (id) => ingredients.find((i) => i.id === id)?.name;
@@ -28,6 +33,26 @@ function App() {
   const [limit, setLimit] = useState(60);
   const [choice, setChoice] = useState("random");
   const [mode, setMode] = useState(1);
+  const [quantity, setQuantity] = useState(1),
+    [assortment, setAssortment] = useState("same");
+  const [order, setOrder] = useState([{ recipeId: "krunch", quantity: 1 }]),
+    [prepared, setPrepared] = useState({});
+  const [totals, setTotals] = useState(loadTotals),
+    [sandwichesMade, setSandwichesMade] = useState(0);
+  const [assemblyError, setAssemblyError] = useState(null);
+  const preparedRef = useRef({}),
+    totalsRef = useRef(totals),
+    preparingRef = useRef(false);
+  const progress = orderProgress(order, prepared),
+    isCombo = progress.total > 1,
+    roundLimit = limit * progress.total;
+  const ready = isCombo && progress.complete;
+  function recordProduction(change) {
+    const next = addTotals(totalsRef.current, change);
+    totalsRef.current = next;
+    setTotals(next);
+    saveTotals(next);
+  }
   const [round, setRound] = useState(1);
   const [served, setServed] = useState(0);
   const [recipe, setRecipe] = useState(recipes[0]);
@@ -155,7 +180,7 @@ function App() {
         timer = setTimeout(
           () => {
             sound.play("start");
-            deadline.current = Date.now() + limit * 1000;
+            deadline.current = Date.now() + roundLimit * 1000;
             active.current = true;
             setScreen("game");
           },
@@ -166,28 +191,53 @@ function App() {
       cancelled = true;
       clearTimeout(timer);
     };
-  }, [screen, settings.animations, limit]);
+  }, [screen, settings.animations, roundLimit]);
   function finish(timeout = false) {
     if (!active.current || pausedAt.current !== null) return;
     active.current = false;
-    const verdict = evaluate(recipe, selection.current);
+    clearTimeout(delivery.current);
+    preparingRef.current = false;
+    const snapshot = orderProgress(order, preparedRef.current);
+    const ingredientsVerdict = evaluate(
+      recipe,
+      snapshot.complete && isCombo ? recipe.items : selection.current,
+    );
+    const verdict = {
+      ...ingredientsVerdict,
+      perfect: isCombo ? snapshot.complete : ingredientsVerdict.perfect,
+    };
     const elapsed = Math.max(
       0,
-      Math.min(limit, (limit * 1000 - (deadline.current - Date.now())) / 1000),
+      Math.min(
+        roundLimit,
+        (roundLimit * 1000 - (deadline.current - Date.now())) / 1000,
+      ),
     );
+    const bestKey = orderBestKey(order, limit);
     const complete = () => {
-      setResult({ ...verdict, timeout, elapsed, limit });
+      setResult({
+        ...verdict,
+        timeout,
+        elapsed,
+        limit: roundLimit,
+        bestKey,
+        isCombo,
+        lines: snapshot.lines,
+        made: snapshot.made,
+        total: snapshot.total,
+      });
       setServing(false);
       clearFlights();
       setScreen("result");
       sound.play(timeout ? "timeout" : verdict.perfect ? "success" : "error");
       if (verdict.perfect && !timeout) {
         setServed((n) => n + 1);
-        const key = recipe.id + ":" + limit;
+        recordProduction({ orders: 1, sandwiches: isCombo ? 0 : 1 });
+        if (!isCombo) setSandwichesMade((n) => n + 1);
         setBest((old) => {
           const next = {
             ...old,
-            [key]: Math.min(Number(old[key]) || Infinity, elapsed),
+            [bestKey]: Math.min(Number(old[bestKey]) || Infinity, elapsed),
           };
           try {
             localStorage.setItem("montagem-best", JSON.stringify(next));
@@ -202,6 +252,62 @@ function App() {
       sound.play("serve");
       delivery.current = setTimeout(complete, 560);
     }
+  }
+  function prepareSandwich() {
+    if (!active.current || pausedAt.current !== null || preparingRef.current)
+      return;
+    if (Date.now() >= deadline.current) {
+      finish(true);
+      return;
+    }
+    const verdict = evaluate(recipe, selection.current);
+    if (!verdict.perfect) {
+      setAction(null);
+      setAssemblyError(verdict);
+      sound.play("error");
+      return;
+    }
+    const credit = creditSandwich(order, preparedRef.current, recipe.id);
+    if (!credit.added) return;
+    preparingRef.current = true;
+    preparedRef.current = credit.counts;
+    setPrepared(credit.counts);
+    setSandwichesMade((n) => n + 1);
+    recordProduction({ sandwiches: 1 });
+    setAssemblyError(null);
+    clearFlights();
+    const complete = () => {
+      if (!active.current) return;
+      const next = nextRecipe(order, preparedRef.current, recipe.id);
+      if (next) setRecipe(next);
+      selection.current = [];
+      setSelected([]);
+      setAction(null);
+      setServing(false);
+      preparingRef.current = false;
+    };
+    if (settings.animations) {
+      setServing(true);
+      sound.play("serve");
+      delivery.current = setTimeout(complete, 450);
+    } else complete();
+  }
+  function chooseOrderedRecipe(id) {
+    if (!active.current || preparingRef.current || pausedAt.current !== null)
+      return;
+    if (Date.now() >= deadline.current) {
+      finish(true);
+      return;
+    }
+    const next = nextRecipe(order, preparedRef.current, id);
+    if (!next || next.id !== id || id === recipe.id) return;
+    setRecipe(next);
+    selection.current = [];
+    setSelected([]);
+    setAction(null);
+    setAssemblyError(null);
+    clearFlights();
+    sound.play("click");
   }
   useEffect(() => {
     if (screen !== "game") return;
@@ -233,21 +339,32 @@ function App() {
     pausedAt.current = null;
     lastTick.current = -1;
     setRound((n) => (nextCustomer ? n + 1 : 1));
-    if (!nextCustomer) setServed(0);
-    setRecipe(
-      choice === "random"
-        ? pickRecipe(recipe.id)
-        : recipes.find((r) => r.id === choice),
-    );
+    if (!nextCustomer) {
+      setServed(0);
+      setSandwichesMade(0);
+    }
+    const nextOrder = makeOrder({ choice, quantity, assortment }, recipe.id);
+    setOrder(nextOrder);
+    setPrepared({});
+    preparedRef.current = {};
+    preparingRef.current = false;
+    setAssemblyError(null);
+    setRecipe(recipes.find((r) => r.id === nextOrder[0].recipeId));
     setSelected([]);
     selection.current = [];
     setResult(null);
-    setRemaining(limit);
+    setRemaining(limit * quantity);
     active.current = false;
     setScreen("loading");
   }
   function toggle(id, event) {
-    if (!active.current || pausedAt.current !== null) return;
+    if (
+      !active.current ||
+      pausedAt.current !== null ||
+      preparingRef.current ||
+      ready
+    )
+      return;
     if (Date.now() >= deadline.current) {
       finish(true);
       return;
@@ -256,6 +373,7 @@ function App() {
     const next = remove
       ? selection.current.filter((x) => x !== id)
       : [...selection.current, id];
+    setAssemblyError(null);
     sound.ingredient(id, remove);
     setAction({ id, remove, key: ++actionNumber.current });
     launchIngredient(id, event?.currentTarget, remove);
@@ -264,6 +382,7 @@ function App() {
   }
   function home() {
     active.current = false;
+    preparingRef.current = false;
     clearTimeout(delivery.current);
     clearFlights();
     setServing(false);
@@ -272,16 +391,18 @@ function App() {
     sound.play("click");
     setScreen("home");
   }
-  const bestTime = best[recipe.id + ":" + (result?.limit ?? limit)];
+  const bestTime = best[result?.bestKey || orderBestKey(order, limit)];
   const shiftFinished = mode > 1 && round === mode;
+  const hits = result?.isCombo ? result.made : result?.correct.length;
+  const expected = result?.isCombo ? result.total : recipe.items.length;
   const stars =
     !result || result.timeout
       ? 0
       : result.perfect
         ? 3
-        : result.correct.length === 0
+        : hits === 0
           ? 0
-          : result.correct.length >= recipe.items.length * 0.6
+          : hits >= expected * 0.6
             ? 2
             : 1;
 
@@ -290,14 +411,21 @@ function App() {
       <div
         className={`app intro-app ${settings.animations ? "" : "motion-off"}`}
       >
-        <Intro loading={screen === "loading"} recipe={recipe} onEnter={home} />
+        <Intro
+          loading={screen === "loading"}
+          recipe={recipe}
+          onEnter={home}
+          orderSize={progress.total}
+        />
       </div>
     );
-  const train = { choice, limit, mode };
+  const train = { choice, limit, mode, quantity, assortment };
   function updateTraining(next) {
     if (next.choice !== undefined) setChoice(next.choice);
     if (next.limit !== undefined) setLimit(next.limit);
     if (next.mode !== undefined) setMode(next.mode);
+    if (next.quantity !== undefined) setQuantity(next.quantity);
+    if (next.assortment !== undefined) setAssortment(next.assortment);
     sound.play("click");
   }
   return (
@@ -362,12 +490,14 @@ function App() {
           <Home
             {...train}
             onStart={() => start()}
+            onStats={() => openPanel("help", "stats")}
+            totals={totals}
             onSetup={(section) => openPanel("setup", section)}
           />
         )}
         {screen === "game" && (
           <div
-            className={`kitchen ${serving ? "is-serving" : ""}`}
+            className={`kitchen ${isCombo ? "has-combo" : ""} ${serving ? "is-serving" : ""}`}
             aria-busy={serving}
           >
             <section className="order-board" aria-label="Pedido do cliente">
@@ -380,11 +510,30 @@ function App() {
                   {mode > 1 && `· ${round}/${mode}`}
                 </span>
                 <h1 tabIndex="-1" ref={heading}>
-                  {recipe.name}
+                  {isCombo ? "Pedido combinado" : recipe.name}
                 </h1>
-                <span className="ticket-note" aria-label="1 sanduíche">
-                  🍔 × 1
-                </span>
+                {isCombo ? (
+                  <OrderLines
+                    lines={progress.lines}
+                    current={recipe.id}
+                    onChoose={chooseOrderedRecipe}
+                    disabled={serving}
+                  />
+                ) : (
+                  <span className="ticket-note" aria-label="1 sanduíche">
+                    🍔 × 1
+                  </span>
+                )}
+                {isCombo && (
+                  <span
+                    className="combo-counter"
+                    aria-live="polite"
+                    aria-atomic="true"
+                    aria-label={`${progress.made} de ${progress.total} sanduíches preparados`}
+                  >
+                    ✓ {progress.made}/{progress.total} preparados
+                  </span>
+                )}
               </div>
               <div
                 className={`timer ${remaining <= 10 ? "urgent" : ""}`}
@@ -395,27 +544,42 @@ function App() {
                 <small>seg</small>
               </div>
               <div className="patience" aria-hidden="true">
-                <div style={{ width: `${(remaining / limit) * 100}%` }} />
+                <div style={{ width: `${(remaining / roundLimit) * 100}%` }} />
               </div>
             </section>
             <section
               className="assembly"
               ref={assembly}
               aria-label="Zona de montagem"
+              data-recipe={recipe.id}
             >
               <div className="assembly-title">
-                <span>ÁREA DE MONTAGEM</span>
-                <span>{selected.length} ingredientes</span>
+                <span>
+                  {ready
+                    ? "BANDEJA COMPLETA"
+                    : isCombo
+                      ? recipe.name
+                      : "ÁREA DE MONTAGEM"}
+                </span>
+                <span>
+                  {ready
+                    ? `✓ ${progress.made}/${progress.total}`
+                    : `${selected.length} ingredientes`}
+                </span>
               </div>
-              <Burger items={selected} action={action} fit />
-              {selected.length > 0 && (
+              {ready && !serving ? (
+                <PreparedTray lines={progress.lines} />
+              ) : (
+                <Burger items={selected} action={action} fit />
+              )}
+              {selected.length > 0 && !ready && (
                 <div className="steam" aria-hidden="true">
                   <i />
                   <i />
                   <i />
                 </div>
               )}
-              {action && (
+              {action && !ready && (
                 <div
                   className={`ingredient-feedback ${action.remove ? "removed" : ""}`}
                   key={action.key}
@@ -424,12 +588,18 @@ function App() {
                   {action.remove ? "−" : "+"} {name(action.id)}
                 </div>
               )}
-              {!selected.length && (
+              {!selected.length && !ready && (
                 <p className="empty">
                   <span aria-hidden="true">＋</span>
                   <span className="sr-only">A bandeja está vazia.</span>
                   <small>Toca nos ingredientes ↓</small>
                 </p>
+              )}
+              {assemblyError && (
+                <div className="assembly-error" role="alert">
+                  Revê a montagem · faltam {assemblyError.missing.length} · a
+                  mais {assemblyError.extra.length}
+                </div>
               )}
             </section>
             <section
@@ -447,7 +617,7 @@ function App() {
                     key={i.id}
                     data-ingredient={i.id}
                     onClick={(e) => toggle(i.id, e)}
-                    disabled={serving}
+                    disabled={serving || ready}
                     aria-label={i.name}
                     aria-pressed={selected.includes(i.id)}
                   >
@@ -471,14 +641,27 @@ function App() {
                     : "O cliente está à espera"
                 }
               >
-                {mode > 1 ? `✓ ${served} · ${round}/${mode}` : "🍔 → 👤"}
+                {isCombo
+                  ? `🍔 ${progress.made}/${progress.total}`
+                  : mode > 1
+                    ? `✓ ${served} · ${round}/${mode}`
+                    : "🍔 → 👤"}
               </span>
               <button
                 className="primary serve-button"
                 disabled={serving}
-                onClick={() => finish(Date.now() >= deadline.current)}
+                onClick={() =>
+                  isCombo && !ready
+                    ? prepareSandwich()
+                    : finish(Date.now() >= deadline.current)
+                }
               >
-                {serving ? "A servir…" : "Servir pedido"} <span>→</span>
+                {serving
+                  ? "A servir…"
+                  : isCombo && !ready
+                    ? "Adicionar à bandeja"
+                    : "Servir pedido"}{" "}
+                <span>→</span>
               </button>
             </div>
           </div>
@@ -494,6 +677,7 @@ function App() {
             round={round}
             mode={mode}
             served={served}
+            sandwichesMade={sandwichesMade}
             onNext={() => start(mode > 1 && !shiftFinished)}
             onHome={home}
           />
@@ -553,6 +737,10 @@ function App() {
           onTraining={updateTraining}
           initialSection={panelSection}
           allowSetup={screen === "home"}
+          totals={totals}
+          sandwichesMade={sandwichesMade}
+          served={served}
+          currentRecipe={recipe.id}
         />
       )}
     </div>

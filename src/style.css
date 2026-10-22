@@ -1,6 +1,7 @@
 @import "./kitchen.css";
 @import "./screens.css";
 @import "./motion.css";
+@import "./orders.css";
 :root {
   font-family:
     system-ui,

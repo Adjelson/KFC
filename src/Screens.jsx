@@ -2,8 +2,9 @@ import React, { useEffect, useState } from "react";
 import { Burger, FoodArt, Customer } from "./FoodArt.jsx";
 import { Icon } from "./Icons.jsx";
 import { ingredients, recipes } from "./game.js";
+import { PreparedTray, OrderReview } from "./OrderViews.jsx";
 
-export function Intro({ loading = false, recipe, onEnter }) {
+export function Intro({ loading = false, recipe, onEnter, orderSize = 1 }) {
   return (
     <section
       className={`intro-screen ${loading ? "loading-screen" : "splash-screen"}`}
@@ -38,7 +39,11 @@ export function Intro({ loading = false, recipe, onEnter }) {
       <div className="intro-bottom">
         {loading ? (
           <>
-            <h2>{recipe.name}</h2>
+            <h2>
+              {orderSize > 1
+                ? `Pedido de ${orderSize} sanduíches`
+                : recipe.name}
+            </h2>
             <p role="status">
               A preparar a tua bancada
               <span className="loading-dots" aria-hidden="true">
@@ -70,7 +75,16 @@ export function Intro({ loading = false, recipe, onEnter }) {
   );
 }
 
-export function Home({ choice, limit, mode, onStart, onSetup }) {
+export function Home({
+  choice,
+  limit,
+  mode,
+  quantity = 1,
+  onStart,
+  onSetup,
+  onStats,
+  totals,
+}) {
   const recipe = recipes.find((r) => r.id === choice) || recipes[0];
   return (
     <section className="home-screen">
@@ -91,7 +105,7 @@ export function Home({ choice, limit, mode, onStart, onSetup }) {
           100%<small>OFFLINE</small>
         </span>
       </div>
-      <div className="training-badges">
+      <div className="training-badges with-order-size">
         <button aria-label="Escolher receita" onClick={() => onSetup("recipe")}>
           <span aria-hidden="true">🍔</span>
           <small>{choice === "random" ? "Surpresa" : recipe.name}</small>
@@ -104,11 +118,20 @@ export function Home({ choice, limit, mode, onStart, onSetup }) {
           <small>{mode === 1 ? "1 pedido" : "5 pedidos"}</small>
         </button>
         <button
+          aria-label="Escolher tamanho do pedido"
+          onClick={() => onSetup("order")}
+        >
+          <span aria-hidden="true">🥪</span>
+          <small>
+            {quantity} {quantity === 1 ? "sanduíche" : "sanduíches"}
+          </small>
+        </button>
+        <button
           aria-label="Escolher tempo de treino"
           onClick={() => onSetup("time")}
         >
           <span aria-hidden="true">◷</span>
-          <small>{limit} segundos</small>
+          <small>{limit}s / un.</small>
         </button>
       </div>
       <button
@@ -119,9 +142,18 @@ export function Home({ choice, limit, mode, onStart, onSetup }) {
         <span className="play-triangle" aria-hidden="true" />
         Começar treino<span>→</span>
       </button>
-      <button className="setup-link" onClick={() => onSetup("recipe")}>
-        Preparar treino <Icon name="settings" />
-      </button>
+      <div className="home-bottom-links">
+        <button className="setup-link" onClick={() => onSetup("recipe")}>
+          Preparar treino <Icon name="settings" />
+        </button>
+        <button
+          className="setup-link"
+          aria-label="Ver contadores"
+          onClick={onStats}
+        >
+          ✓ {totals.orders} pedidos
+        </button>
+      </div>
     </section>
   );
 }
@@ -136,14 +168,18 @@ export function Outcome({
   round,
   mode,
   served,
+  sandwichesMade,
   onNext,
   onHome,
 }) {
   const [tab, setTab] = useState("summary"),
-    [group, setGroup] = useState("missing"),
+    [group, setGroup] = useState(result.isCombo ? "order" : "missing"),
     [page, setPage] = useState(0);
   const finished = mode > 1 && round === mode;
   const groups = [
+    ...(result.isCombo
+      ? [{ id: "order", title: "Pedido", items: [], mark: "🍔" }]
+      : []),
     { id: "correct", title: "Corretos", items: result.correct, mark: "✓" },
     { id: "missing", title: "Faltaram", items: result.missing, mark: "−" },
     { id: "extra", title: "A mais", items: result.extra, mark: "+" },
@@ -155,10 +191,14 @@ export function Outcome({
     setPage(0);
   }
   return (
-    <section className="outcome-screen">
+    <section
+      className={`outcome-screen ${result.isCombo ? "combo-outcome" : ""}`}
+    >
       <div className="outcome-heading">
         <span className="eyebrow">
-          {recipe.name}
+          {result.isCombo
+            ? `Pedido de ${result.total} sanduíches`
+            : recipe.name}
           {mode > 1 ? ` · ${round}/${mode}` : ""}
         </span>
         <h1 tabIndex="-1">
@@ -216,7 +256,11 @@ export function Outcome({
             ))}
           </div>
           <div className="result-burger">
-            <Burger items={selected} compact />
+            {result.isCombo && result.made > 0 ? (
+              <PreparedTray lines={result.lines} />
+            ) : (
+              <Burger items={selected} compact />
+            )}
           </div>
           <div className="stats">
             <div>
@@ -230,15 +274,17 @@ export function Outcome({
             <div>
               <span aria-hidden="true">✓</span>
               <strong>
-                {result.correct.length}/{recipe.items.length}
+                {result.isCombo
+                  ? `${result.made}/${result.total}`
+                  : `${result.correct.length}/${recipe.items.length}`}
               </strong>
-              <small>Acertos</small>
+              <small>{result.isCombo ? "Preparados" : "Acertos"}</small>
             </div>
           </div>
           {bestTime != null && (
             <p className="record">
-              ★ Melhor tempo neste produto · {Number(bestTime).toFixed(1)}s ·
-              limite {limit}s
+              ★ Melhor tempo {result.isCombo ? "neste pedido" : "neste produto"}{" "}
+              · {Number(bestTime).toFixed(1)}s · limite {limit}s
             </p>
           )}
           {finished && (
@@ -247,6 +293,7 @@ export function Outcome({
               <span>
                 {served} de {mode} pedidos perfeitos
               </span>
+              <small>{sandwichesMade} sanduíches preparados</small>
             </div>
           )}
         </div>
@@ -266,25 +313,33 @@ export function Outcome({
               >
                 <span>{g.mark}</span>
                 {g.title}
-                <b>{g.items.length}</b>
+                <b>
+                  {g.id === "order"
+                    ? `${result.made}/${result.total}`
+                    : g.items.length}
+                </b>
               </button>
             ))}
           </div>
-          <div className="review-items" aria-label={current.title}>
-            {current.items.length ? (
-              current.items.slice(page * 6, page * 6 + 6).map((id) => (
-                <div className="visual-ingredient" key={id}>
-                  <FoodArt id={id} />
-                  <span>{ingredients.find((i) => i.id === id).name}</span>
+          {group === "order" ? (
+            <OrderReview lines={result.lines} />
+          ) : (
+            <div className="review-items" aria-label={current.title}>
+              {current.items.length ? (
+                current.items.slice(page * 6, page * 6 + 6).map((id) => (
+                  <div className="visual-ingredient" key={id}>
+                    <FoodArt id={id} />
+                    <span>{ingredients.find((i) => i.id === id).name}</span>
+                  </div>
+                ))
+              ) : (
+                <div className="nothing-here">
+                  <span aria-hidden="true">✓</span>
+                  <p>Nenhum</p>
                 </div>
-              ))
-            ) : (
-              <div className="nothing-here">
-                <span aria-hidden="true">✓</span>
-                <p>Nenhum</p>
-              </div>
-            )}
-          </div>
+              )}
+            </div>
+          )}
           {pages > 1 && (
             <div className="pager">
               <button
@@ -307,7 +362,9 @@ export function Outcome({
             </div>
           )}
           <p className="review-note">
-            Avaliação de ingredientes. Quantidades e ordem não são avaliadas.
+            {result.isCombo
+              ? "Cada unidade só conta quando a montagem está correta."
+              : "Avaliação de ingredientes. Quantidades e ordem não são avaliadas."}
           </p>
         </div>
       )}

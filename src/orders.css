@@ -1,0 +1,680 @@
+.training-badges.with-order-size {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 7px;
+}
+.training-badges.with-order-size button {
+  padding: 9px 4px;
+}
+.training-badges.with-order-size small {
+  font-size: 9px;
+}
+.home-bottom-links {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+}
+.order-settings {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 17px;
+  max-width: 430px;
+  margin: auto;
+}
+.order-settings h3 {
+  font-size: 16px;
+  color: #9d754d;
+}
+.quantity-options {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+  width: 100%;
+}
+.quantity-options button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  min-height: 91px;
+  padding: 8px;
+  border: 1px solid #e0ccac;
+  border-radius: 12px;
+  background: #f5e9d3;
+}
+.quantity-options button > span {
+  font-size: 27px;
+  line-height: 1;
+}
+.quantity-options strong {
+  font-size: 25px;
+  color: #ac7844;
+}
+.assortment-options {
+  width: 100%;
+  display: flex;
+  gap: 10px;
+}
+.assortment-options button {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 75px;
+  border: 1px solid #e0ccac;
+  border-radius: 11px;
+  background: #f5e9d3;
+}
+.assortment-options button > span {
+  font-size: 22px;
+  line-height: 1;
+}
+.assortment-options strong {
+  font-size: 12px;
+  color: #9b7044;
+}
+.has-combo .order-board {
+  min-height: 112px;
+}
+.has-combo .ticket {
+  padding: 7px 9px;
+}
+.has-combo .ticket h1 {
+  font-size: 15px;
+  margin: 4px 0;
+}
+.has-combo .timer {
+  font-size: 23px;
+  width: 54px;
+}
+.order-lines {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 4px;
+  margin: 4px 0;
+}
+.order-line {
+  position: relative;
+  display: grid;
+  grid-template-columns: 23px minmax(0, 1fr) 23px;
+  align-items: center;
+  gap: 3px;
+  min-width: 0;
+  min-height: 31px;
+  border: 1px solid #ddccae;
+  border-radius: 6px;
+  padding: 3px;
+  background: #eee1c9;
+  color: #8f7752;
+  box-shadow: 0 1px #d2b995;
+  text-align: left;
+}
+.order-line:only-child {
+  grid-column: 1/-1;
+}
+.order-line.current {
+  border-color: #bf6970;
+  background: #fff0e4;
+  color: #9e3948;
+}
+.order-line.fulfilled {
+  opacity: 1;
+  background: #e4edcf;
+  border-color: #b3c18f;
+  color: #75884d;
+}
+.order-line-art {
+  position: relative;
+  display: block;
+  width: 23px;
+  height: 22px;
+  overflow: hidden;
+}
+.order-line-art .burger-stack {
+  bottom: 0;
+  transform: translateX(-50%) scale(0.14);
+  transform-origin: bottom;
+}
+.order-line-art .plate {
+  display: none;
+}
+.order-line-name {
+  font-size: 8px;
+  font-weight: 750;
+  line-height: 1.1;
+}
+.order-line strong {
+  font-size: 11px;
+  white-space: nowrap;
+  text-align: right;
+}
+.order-line strong i {
+  position: absolute;
+  font-size: 7px;
+  right: 1px;
+  top: 0;
+  color: #74914d;
+  font-style: normal;
+}
+.combo-counter {
+  display: block;
+  font-size: 8px;
+  font-weight: 750;
+  color: #9a784f;
+  line-height: 1.3;
+}
+.assembly-error {
+  position: absolute;
+  top: 30px;
+  left: 50%;
+  translate: -50% 0;
+  max-width: calc(100% - 18px);
+  z-index: 25;
+  padding: 7px 10px;
+  border: 1px solid #d4a18c;
+  border-radius: 10px;
+  background: #ffeadfef;
+  color: #a45845;
+  line-height: 1.5;
+  font-size: 9px;
+  text-align: center;
+  white-space: nowrap;
+}
+.prepared-tray {
+  position: absolute;
+  inset: 24px 12px 9px;
+  display: grid;
+  grid-template-columns: repeat(var(--products, 1), minmax(0, 1fr));
+  gap: 8px;
+  align-items: end;
+  pointer-events: none;
+}
+.tray-product {
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) auto auto;
+  gap: 4px;
+  position: relative;
+  min-height: 0;
+  height: min(130px, 100%);
+  width: 100%;
+  max-width: 140px;
+  justify-self: center;
+  text-align: center;
+  color: #9b7648;
+}
+.tray-product > div {
+  position: relative;
+  min-height: 0;
+}
+.tray-product .burger-stack {
+  bottom: 1px;
+  transform: translateX(-50%) scale(0.35);
+  transform-origin: bottom;
+}
+.tray-product strong {
+  font-size: 16px;
+  color: #9c6e35;
+  line-height: 1;
+}
+.tray-product small {
+  font-size: 8px;
+  line-height: 1.15;
+}
+.is-serving .assembly .prepared-tray {
+  animation: serve-tray 0.55s ease-in forwards;
+}
+.result-burger .prepared-tray {
+  inset: 0 5px 0;
+}
+.result-burger .tray-product {
+  height: 100%;
+  max-height: 155px;
+}
+.combo-outcome .review-groups {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 5px;
+}
+.combo-outcome .review-groups button {
+  font-size: 8px;
+  gap: 4px;
+  padding: 4px;
+}
+.combo-outcome .review-groups button > span {
+  display: none;
+}
+.combo-outcome .review-groups b {
+  width: auto;
+  min-width: 17px;
+  padding: 2px;
+  font-size: 9px;
+}
+.order-review {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-rows: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  min-height: 0;
+}
+.order-review-line {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-rows: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 5px;
+  border: 1px solid #e5d3b4;
+  background: #f4e5d0;
+  border-radius: 12px;
+  padding: 9px;
+  color: #ac7b52;
+  min-height: 0;
+}
+.order-review-line.complete {
+  border-color: #c7d0a9;
+  background: #edf0dc;
+  color: #7c8c53;
+}
+.review-burger {
+  grid-column: 1/-1;
+  min-height: 0;
+  height: 100%;
+  position: relative;
+}
+.review-burger .burger-stack {
+  bottom: 1px;
+  transform: translateX(-50%) scale(0.42);
+  transform-origin: bottom;
+}
+.order-review-line > span {
+  font-size: 10px;
+  line-height: 1.15;
+  font-weight: 750;
+}
+.order-review-line > strong {
+  font-size: 19px;
+  font-weight: 900;
+}
+.counter-page {
+  height: 100%;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-rows: minmax(0, 1fr) auto auto;
+  gap: 14px;
+}
+.counter-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 13px;
+  min-width: 0;
+  background: #f4e9d3;
+  border: 1px solid #e2cfae;
+  border-radius: 17px;
+  padding: 15px;
+  color: #a37e4c;
+  text-align: center;
+}
+.counter-card > span {
+  font-size: 34px;
+  line-height: 1;
+}
+.counter-card > strong {
+  font-size: 45px;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  color: #a66f3b;
+}
+.counter-card > small {
+  font-size: 11px;
+  font-weight: 750;
+  line-height: 1.3;
+}
+.counter-session {
+  grid-column: 1/-1;
+  font-size: 11px;
+  color: #8b9a61;
+  border: 1px solid #d3d9b5;
+  background: #edf0dd;
+  border-radius: 9px;
+  padding: 10px;
+  text-align: center;
+}
+.counter-page > .tiny-note {
+  grid-column: 1/-1;
+}
+.shift-summary {
+  flex-wrap: wrap;
+}
+.shift-summary > small {
+  font-size: 9px;
+}
+@media (max-width: 600px) {
+  .training-badges.with-order-size {
+    gap: 6px;
+  }
+  .training-badges.with-order-size small {
+    font-size: 8px;
+  }
+  .home-bottom-links {
+    gap: 12px;
+  }
+  .has-combo .order-board {
+    padding: 7px 10px 12px;
+    gap: 7px;
+    min-height: 118px;
+  }
+  .has-combo .ticket {
+    padding: 6px 7px;
+  }
+  .has-combo .ticket h1 {
+    font-size: 13px;
+    margin: 3px 0;
+  }
+  .has-combo .timer {
+    font-size: 21px;
+    width: 47px;
+  }
+  .order-line {
+    grid-template-columns: 18px minmax(0, 1fr) 21px;
+    gap: 3px;
+    padding: 3px;
+    min-height: 31px;
+  }
+  .order-line-art {
+    width: 18px;
+    height: 20px;
+  }
+  .order-line-name {
+    font-size: 7px;
+  }
+  .order-line strong {
+    font-size: 10px;
+  }
+  .combo-counter {
+    font-size: 7px;
+  }
+  .assembly-error {
+    top: 25px;
+    font-size: 8px;
+    padding: 6px 8px;
+  }
+  .prepared-tray {
+    gap: 5px;
+    inset: 21px 9px 8px;
+  }
+  .tray-product small {
+    font-size: 7px;
+  }
+  .tray-product .burger-stack {
+    transform: translateX(-50%) scale(0.29);
+  }
+  .counter-card {
+    padding: 10px;
+    gap: 10px;
+  }
+  .counter-card > strong {
+    font-size: 36px;
+  }
+  .counter-card > small {
+    font-size: 10px;
+  }
+  .counter-session {
+    font-size: 10px;
+    padding: 8px;
+  }
+  .order-review-line {
+    padding: 7px;
+  }
+  .order-review-line > span {
+    font-size: 9px;
+  }
+  .order-review-line > strong {
+    font-size: 17px;
+  }
+}
+@media (max-height: 700px) {
+  .order-settings {
+    gap: 11px;
+  }
+  .quantity-options button {
+    min-height: 75px;
+    gap: 6px;
+  }
+  .quantity-options button > span {
+    font-size: 24px;
+  }
+  .quantity-options strong {
+    font-size: 22px;
+  }
+  .assortment-options button {
+    min-height: 62px;
+    gap: 6px;
+  }
+  .assortment-options button > span {
+    font-size: 19px;
+  }
+  .order-settings h3 {
+    font-size: 14px;
+  }
+  .counter-page {
+    gap: 9px;
+  }
+  .counter-card > span {
+    font-size: 27px;
+  }
+  .counter-card > strong {
+    font-size: 33px;
+  }
+  .counter-card > small {
+    font-size: 10px;
+  }
+  .has-combo .ticket h1 {
+    font-size: 12px;
+  }
+  .has-combo .ticket-caption {
+    font-size: 6px;
+  }
+  .has-combo .timer {
+    font-size: 20px;
+  }
+  .order-review-line > span {
+    font-size: 8px;
+  }
+  .order-review-line > strong {
+    font-size: 15px;
+  }
+  .review-burger .burger-stack {
+    transform: translateX(-50%) scale(0.3);
+  }
+}
+@media (orientation: landscape) and (max-height: 520px) {
+  .order-settings {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: auto minmax(0, 1fr) auto;
+    gap: 5px 18px;
+    max-width: 650px;
+    align-items: center;
+  }
+  .order-settings > h3 {
+    grid-column: 1;
+    grid-row: 1;
+    font-size: 12px;
+    text-align: center;
+  }
+  .quantity-options {
+    grid-column: 1;
+    grid-row: 2/4;
+    gap: 6px;
+    height: 100%;
+    align-items: center;
+  }
+  .quantity-options button {
+    min-height: 70px;
+    padding: 5px;
+    gap: 5px;
+  }
+  .quantity-options button > span {
+    font-size: 23px;
+  }
+  .quantity-options strong {
+    font-size: 20px;
+  }
+  .assortment-options {
+    grid-column: 2;
+    grid-row: 1/3;
+    gap: 7px;
+    height: 100%;
+    align-items: center;
+  }
+  .assortment-options button {
+    min-height: 66px;
+    gap: 5px;
+  }
+  .assortment-options strong {
+    font-size: 11px;
+  }
+  .order-settings > .tiny-note {
+    grid-column: 2;
+    grid-row: 3;
+    font-size: 8px;
+  }
+  .kitchen.has-combo {
+    grid-template-rows: 136px minmax(0, 1fr) 44px;
+  }
+  .has-combo .order-board {
+    min-height: 0;
+    padding: 5px 8px 9px;
+    gap: 5px;
+  }
+  .has-combo .ticket {
+    padding: 5px 6px;
+  }
+  .has-combo .ticket h1 {
+    font-size: 12px;
+  }
+  .has-combo .customer {
+    width: 30px;
+    height: 39px;
+  }
+  .has-combo .timer {
+    width: 42px;
+    font-size: 19px;
+  }
+  .order-lines {
+    gap: 3px;
+    margin: 3px 0;
+  }
+  .order-line {
+    grid-template-columns: 19px minmax(0, 1fr) 21px;
+    min-height: 30px;
+  }
+  .order-line-name {
+    font-size: 7px;
+  }
+  .combo-counter {
+    font-size: 7px;
+  }
+  .has-combo .assembly-title {
+    font-size: 6px;
+    padding: 5px 8px;
+  }
+  .has-combo .assembly-error {
+    top: 19px;
+    font-size: 7px;
+    padding: 4px 6px;
+  }
+  .prepared-tray {
+    inset: 19px 7px 5px;
+    gap: 4px;
+  }
+  .tray-product {
+    gap: 3px;
+  }
+  .tray-product .burger-stack {
+    transform: translateX(-50%) scale(0.24);
+  }
+  .tray-product strong {
+    font-size: 12px;
+  }
+  .tray-product small {
+    font-size: 6px;
+  }
+  .combo-outcome .review-groups {
+    grid-template-columns: 1fr;
+    gap: 3px;
+  }
+  .combo-outcome .review-groups button {
+    min-height: 0;
+    font-size: 9px;
+  }
+  .order-review {
+    grid-column: 2;
+    grid-row: 1;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-template-rows: minmax(0, 1fr);
+    gap: 5px;
+  }
+  .order-review-line {
+    padding: 6px;
+    gap: 4px;
+  }
+  .order-review-line > span {
+    font-size: 7px;
+  }
+  .order-review-line > strong {
+    font-size: 14px;
+  }
+  .review-burger .burger-stack {
+    transform: translateX(-50%) scale(0.24);
+  }
+  .counter-page {
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: minmax(0, 1fr) auto auto;
+    gap: 6px;
+  }
+  .counter-card {
+    padding: 7px;
+    gap: 5px;
+    border-radius: 10px;
+  }
+  .counter-card > span {
+    font-size: 21px;
+  }
+  .counter-card > strong {
+    font-size: 27px;
+  }
+  .counter-card > small {
+    font-size: 9px;
+  }
+  .counter-session {
+    font-size: 9px;
+    padding: 5px;
+  }
+  .counter-page > .tiny-note {
+    font-size: 8px;
+  }
+  .shift-summary > small {
+    font-size: 8px;
+  }
+}
+/* Keep each prepared product inside its own tray slot. */
+.kitchen .assembly .tray-product .burger-stack {
+  transform: translateX(-50%) scale(0.35);
+}
+@media (max-width: 600px) {
+  .kitchen .assembly .tray-product .burger-stack {
+    transform: translateX(-50%) scale(0.29);
+  }
+}
+@media (orientation: landscape) and (max-height: 520px) {
+  .kitchen .assembly .tray-product .burger-stack {
+    transform: translateX(-50%) scale(0.24);
+  }
+}

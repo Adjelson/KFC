@@ -6,7 +6,7 @@ import { Icon } from "./Icons.jsx";
 const guide = [
   {
     title: "Lê o pedido",
-    text: "O talão mostra o sanduíche. A barra e o relógio indicam o tempo.",
+    text: "O talão mostra os produtos e as quantidades. Nos combos, cada cartão indica preparados/total.",
     art: "customer",
   },
   {
@@ -16,7 +16,7 @@ const guide = [
   },
   {
     title: "Serve a tempo",
-    text: "Toca em Servir pedido. A revisão mostra os acertos e os erros.",
+    text: "Nos combos, adiciona cada sanduíche correto à bandeja. Depois serve o pedido completo.",
     art: "burger",
   },
   {
@@ -37,13 +37,17 @@ export function SupportPanel({
   onTraining,
   initialSection,
   allowSetup = true,
+  totals,
+  sandwichesMade = 0,
+  served = 0,
+  currentRecipe = "krunch",
 }) {
   const dialog = useRef(null),
     [section, setSection] = useState(
       initialSection ||
         (page === "help" ? "guide" : page === "settings" ? "audio" : "recipe"),
     );
-  const [recipeId, setRecipeId] = useState("krunch"),
+  const [recipeId, setRecipeId] = useState(currentRecipe),
     [step, setStep] = useState(0);
   useEffect(() => {
     const node = dialog.current,
@@ -66,6 +70,7 @@ export function SupportPanel({
       ? [
           ["guide", "Como jogar"],
           ["recipes", "Receitas"],
+          ["stats", "Contadores"],
           ["about", "Sobre"],
         ]
       : page === "settings"
@@ -76,6 +81,7 @@ export function SupportPanel({
         : [
             ["recipe", "Receita"],
             ["mode", "Modo"],
+            ["order", "Pedido"],
             ["time", "Tempo"],
           ];
   const title =
@@ -228,6 +234,27 @@ export function SupportPanel({
             </ul>
             <p className="tiny-note">
               Ingredientes ilustrados. Sem quantidades ou ordem oficial.
+            </p>
+          </div>
+        )}
+        {page === "help" && section === "stats" && (
+          <div className="counter-page">
+            <div className="counter-card">
+              <span aria-hidden="true">✓</span>
+              <strong>{totals.orders}</strong>
+              <small>Pedidos concluídos</small>
+            </div>
+            <div className="counter-card">
+              <span aria-hidden="true">🍔</span>
+              <strong>{totals.sandwiches}</strong>
+              <small>Sanduíches preparados</small>
+            </div>
+            <p className="counter-session">
+              Neste turno: {served} pedidos · {sandwichesMade} sanduíches
+            </p>
+            <p className="tiny-note">
+              Totais guardados neste dispositivo. Sanduíches contam ao entrar na
+              bandeja; pedidos contam ao servir o cliente.
             </p>
           </div>
         )}
@@ -396,6 +423,50 @@ export function SupportPanel({
             ))}
           </div>
         )}
+        {page === "setup" && section === "order" && (
+          <div className="order-settings">
+            <h3>Sanduíches por cliente</h3>
+            <div className="quantity-options">
+              {[1, 2, 3, 4].map((n) => (
+                <button
+                  key={n}
+                  className={training.quantity === n ? "chosen" : ""}
+                  aria-label={`${n} ${n === 1 ? "sanduíche" : "sanduíches"}`}
+                  aria-pressed={training.quantity === n}
+                  onClick={() => onTraining({ quantity: n })}
+                >
+                  <span aria-hidden="true">🍔</span>
+                  <strong>{n}</strong>
+                </button>
+              ))}
+            </div>
+            <div className="assortment-options">
+              {[
+                ["same", "Iguais"],
+                ["mixed", "Variados"],
+              ].map(([id, label]) => (
+                <button
+                  key={id}
+                  disabled={training.quantity === 1}
+                  aria-pressed={training.assortment === id}
+                  className={training.assortment === id ? "chosen" : ""}
+                  onClick={() => onTraining({ assortment: id })}
+                >
+                  <span aria-hidden="true">
+                    {id === "same" ? "🍔 🍔" : "🍔 🥪"}
+                  </span>
+                  <strong>{label}</strong>
+                </button>
+              ))}
+            </div>
+            <p className="tiny-note">
+              Variados inclui pelo menos dois tipos.
+              <br />
+              {training.limit}s por sanduíche ·{" "}
+              {training.limit * training.quantity}s por cliente
+            </p>
+          </div>
+        )}
         {page === "setup" && section === "time" && (
           <div className="time-picker">
             {[30, 60, 90].map((t) => (
@@ -415,7 +486,9 @@ export function SupportPanel({
                 </strong>
               </button>
             ))}
-            <p className="tiny-note">Tempo por pedido. Escolhe o teu ritmo.</p>
+            <p className="tiny-note">
+              Tempo por sanduíche. O total aumenta nos combos.
+            </p>
           </div>
         )}
       </div>

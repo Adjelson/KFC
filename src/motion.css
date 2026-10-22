@@ -1,0 +1,146 @@
+@keyframes ingredient-drop {
+  from {
+    opacity: 0;
+    transform: translateY(-35px) rotate(-4deg);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes warning {
+  to {
+    filter: brightness(1.15);
+  }
+}
+@keyframes fly-to-plate {
+  0% {
+    opacity: 1;
+    transform: translate(0, 0) scale(0.8) rotate(-12deg);
+  }
+  55% {
+    opacity: 1;
+    transform: translate(calc(var(--dx) * 0.6), calc(var(--dy) * 0.8 - 35px))
+      scale(1.15) rotate(6deg);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(var(--dx), var(--dy)) scale(0.65) rotate(0);
+  }
+}
+@keyframes fresh-landing {
+  0%,
+  30% {
+    opacity: 0;
+    transform: translateY(-16px) scale(0.7);
+  }
+  70% {
+    opacity: 1;
+    transform: translateY(3px) scale(1.04);
+  }
+  100% {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes ingredient-label {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, 8px) scale(0.8);
+  }
+  20%,
+  70% {
+    opacity: 1;
+    transform: translate(-50%, 0) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -13px);
+  }
+}
+@keyframes pan-bounce {
+  50% {
+    transform: translateY(3px) scale(0.96);
+  }
+}
+@keyframes steam-rise {
+  0% {
+    opacity: 0;
+    transform: translateY(10px) scale(0.6);
+  }
+  30% {
+    opacity: 0.7;
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-30px) scale(1.4);
+  }
+}
+@keyframes serve-tray {
+  0% {
+    opacity: 1;
+  }
+  25% {
+    opacity: 1;
+    translate: 0 4px;
+    scale: 0.97;
+  }
+  100% {
+    opacity: 0;
+    translate: 0 -160px;
+    scale: 0.65;
+  }
+}
+@keyframes customer-arrive {
+  from {
+    opacity: 0;
+    transform: translateY(-12px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes result-pop {
+  from {
+    opacity: 0;
+    transform: scale(0.6);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+@keyframes star-pop {
+  from {
+    opacity: 0;
+    transform: scale(0.2) rotate(-20deg);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) rotate(0);
+  }
+}
+@keyframes confetti-fall {
+  0% {
+    opacity: 1;
+    transform: translateY(0) rotate(0);
+  }
+  85% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(100dvh) rotate(430deg);
+  }
+}
+@keyframes dialog-enter {
+  from {
+    opacity: 0;
+    transform: translateY(14px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}

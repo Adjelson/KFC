@@ -1,0 +1,753 @@
+.screen-game {
+  grid-template-rows: auto minmax(0, 1fr);
+  background: #65503b;
+}
+.kitchen {
+  height: 100%;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  background: #e3d0b0;
+  overflow: hidden;
+}
+.order-board {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: none;
+  min-height: 88px;
+  padding: 9px 16px 15px;
+  background: linear-gradient(90deg, #614736, #80624a 50%, #614736);
+  border-bottom: 5px solid #ac8155;
+  animation: customer-arrive 0.4s ease-out;
+}
+.customer {
+  display: grid;
+  place-items: center;
+  width: 50px;
+  height: 58px;
+  border: 3px solid #bb9364;
+  border-radius: 26px 26px 10px 10px;
+  background: #dfbf96;
+  overflow: hidden;
+  flex: none;
+}
+.customer svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+.ticket {
+  min-width: 0;
+  flex: 1;
+  background: #fff9e9;
+  border-radius: 3px;
+  padding: 9px 12px;
+  line-height: 1.15;
+  box-shadow: 0 3px 0 #bba383;
+  rotate: -1deg;
+}
+.ticket-caption {
+  display: block;
+  font-size: 8px;
+  font-weight: 800;
+  color: #a67a53;
+  letter-spacing: 1px;
+}
+.ticket h1 {
+  font-size: 23px;
+  letter-spacing: -0.6px;
+  color: #5c3c27;
+  margin: 5px 0;
+}
+.ticket-note {
+  font-size: 10px;
+  display: block;
+  color: #a18c6b;
+}
+.timer {
+  width: 55px;
+  flex: none;
+  text-align: center;
+  background: #ffdf87;
+  border: 3px solid #caa156;
+  border-radius: 12px;
+  padding: 4px 2px;
+  color: #775322;
+  box-shadow: 0 3px #493124;
+  font-size: 28px;
+  font-weight: 950;
+  font-variant-numeric: tabular-nums;
+}
+.timer small {
+  display: block;
+  font-size: 8px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+.timer.urgent {
+  background: #ffc8bc;
+  color: #b12a3e;
+  border-color: #ca6270;
+  animation: warning 0.8s ease-in-out infinite alternate;
+}
+.patience {
+  position: absolute;
+  left: 16px;
+  right: 16px;
+  bottom: 4px;
+  height: 4px;
+  border-radius: 5px;
+  background: #453327;
+  overflow: hidden;
+}
+.patience > div {
+  height: 100%;
+  border-radius: 5px;
+  background: linear-gradient(90deg, #87b267, #e0db7c);
+  transition: width 0.1s linear;
+}
+.assembly {
+  position: relative;
+  flex: 1;
+  min-height: 90px;
+  border-bottom: 6px solid #b28a5d;
+  overflow: hidden;
+  background:
+    linear-gradient(0deg, #d5a26d 0 13px, #e9c697 13px 18px, transparent 18px),
+    linear-gradient(90deg, #e8d6b9 1px, transparent 1px),
+    linear-gradient(#e8d6b9 1px, #f6ebd6 1px);
+  background-size:
+    auto,
+    45px 40px,
+    45px 40px;
+}
+.assembly-title {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  justify-content: space-between;
+  font-size: 7px;
+  letter-spacing: 1px;
+  color: #af926b;
+  padding: 8px 13px;
+  font-weight: 750;
+}
+.assembly-title span + span {
+  font-weight: 500;
+  letter-spacing: 0;
+}
+.burger-stack {
+  position: absolute;
+  width: 230px;
+  height: 160px;
+  left: 50%;
+  bottom: 18px;
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+.plate {
+  position: absolute;
+  bottom: 0;
+  left: -18px;
+  right: -18px;
+  height: 36px;
+  border-radius: 50%;
+  background: radial-gradient(
+    ellipse,
+    #eee1c9 0 48%,
+    #fffaf0 49% 64%,
+    #cabb9f 65% 68%,
+    #f9f0de 69%
+  );
+  box-shadow:
+    0 6px 0 #b29b79,
+    0 13px 13px #7d563022;
+}
+.burger-layer {
+  position: absolute;
+  left: 16px;
+  right: 16px;
+  bottom: calc(var(--layer) * 11px);
+  height: 83px;
+  filter: drop-shadow(0 3px 1px #6f3d2025);
+  z-index: calc(var(--layer) + 1);
+}
+.layer-seeds,
+.layer-mini,
+.layer-brioche {
+  height: 95px;
+}
+.layer-mini,
+.layer-tender {
+  left: 28px;
+  right: 28px;
+}
+.layer-mayo,
+.layer-bbq,
+.layer-cheddar {
+  height: 65px;
+  left: 28px;
+  right: 28px;
+  bottom: calc(10px + var(--layer) * 11px);
+}
+.layer-mayo .food-art,
+.layer-bbq .food-art,
+.layer-cheddar .food-art {
+  clip-path: ellipse(42% 17% at 50% 52%);
+}
+.fresh-layer {
+  animation: fresh-landing 0.5s ease-out backwards;
+}
+.empty {
+  position: absolute;
+  top: 22%;
+  left: 0;
+  right: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  color: #baa17c;
+  font-size: 30px;
+  line-height: 1;
+  font-weight: 500;
+}
+.empty small {
+  font-size: 10px;
+  font-weight: 650;
+}
+.ingredient-feedback {
+  position: absolute;
+  top: 32px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 24;
+  background: #7e9f50ed;
+  border: 1px solid #f3f5d4;
+  border-radius: 20px;
+  color: white;
+  padding: 6px 11px;
+  font-size: 10px;
+  font-weight: 800;
+  white-space: nowrap;
+  pointer-events: none;
+  animation: ingredient-label 1s both;
+}
+.ingredient-feedback.removed {
+  background: #af7761ed;
+}
+.steam {
+  position: absolute;
+  left: 50%;
+  bottom: 110px;
+  transform: translateX(-50%);
+  width: 90px;
+  height: 40px;
+  pointer-events: none;
+}
+.steam i {
+  position: absolute;
+  left: 10px;
+  bottom: 0;
+  width: 13px;
+  height: 32px;
+  border: 2px solid #ffffff80;
+  border-width: 0 0 0 3px;
+  border-radius: 50%;
+  animation: steam-rise 2.4s infinite;
+  opacity: 0;
+}
+.steam i:nth-child(2) {
+  left: 40px;
+  animation-delay: 0.8s;
+}
+.steam i:nth-child(3) {
+  left: 70px;
+  animation-delay: 1.6s;
+}
+.workstation {
+  padding: 8px 12px 10px;
+  border-top: 2px solid #e8e6d5;
+  background: linear-gradient(#b2b2a6, #c5c7b8 12%, #b5b8aa);
+  flex: none;
+  box-shadow: inset 0 0 15px #41443c20;
+  min-height: 0;
+}
+.section-line {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+.section-line h2 {
+  font-size: 10px;
+  letter-spacing: 0.1px;
+  color: #555c48;
+}
+.section-line > span {
+  font-size: 12px;
+  color: #7c856b;
+  line-height: 1;
+}
+.ingredient-grid {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 7px;
+}
+.ingredient {
+  position: relative;
+  min-width: 0;
+  min-height: 75px;
+  padding: 4px 5px 5px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  border: 2px solid #959c87;
+  border-bottom: 4px solid #727e64;
+  border-radius: 10px;
+  background: #e3e6d5;
+  box-shadow: 0 2px 3px #3f493124;
+  color: #4c553e;
+}
+.ingredient-pan {
+  display: block;
+  position: relative;
+  width: 100%;
+  max-width: 110px;
+  height: 43px;
+  border: 2px solid #a6ae98;
+  border-bottom-color: #e4e8d9;
+  border-radius: 7px;
+  background: linear-gradient(140deg, #bec6ad, #d4dbc5);
+  box-shadow: inset 0 2px 4px #5d69483a;
+}
+.ingredient .food-art {
+  width: 95%;
+  display: block;
+  margin: auto;
+  filter: drop-shadow(0 3px 1px #5e542b30);
+}
+.ingredient strong {
+  font-size: 9px;
+  text-align: center;
+  line-height: 1.15;
+  font-weight: 800;
+  min-height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.check {
+  position: absolute;
+  right: -6px;
+  top: -6px;
+  width: 17px;
+  height: 17px;
+  border: 2px solid #eaf0da;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  color: #fff;
+  background: #919e7a;
+  font-weight: 900;
+  font-size: 11px;
+  line-height: 1;
+}
+.ingredient.selected {
+  border-color: #78974b;
+  background: #edf2d6;
+}
+.ingredient.selected .check {
+  background: #70964c;
+}
+.ingredient:active .food-art {
+  transform: scale(0.9);
+}
+.serve-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex: none;
+  min-height: 58px;
+  padding: 8px 13px;
+  border-top: 3px solid #79492c;
+  background: repeating-linear-gradient(
+    90deg,
+    #98653c 0 2px,
+    #9f6b40 3px 115px
+  );
+}
+.serve-hint {
+  font-size: 15px;
+  color: #f1d8b0;
+  font-weight: 800;
+  white-space: nowrap;
+}
+.serve-button {
+  width: 55%;
+  max-width: 330px;
+  min-height: 41px;
+  font-size: 13px;
+  padding: 9px 13px;
+}
+.is-serving .assembly .burger-stack {
+  animation: serve-tray 0.55s ease-in forwards;
+}
+.is-serving .steam {
+  opacity: 0;
+}
+.screen-game .topbar {
+  height: 50px;
+}
+.screen-game .brand {
+  font-size: 11px;
+}
+.screen-game .brand-icon {
+  width: 27px;
+  height: 29px;
+  font-size: 18px;
+}
+.screen-game .tool-button,
+.screen-game .exit-button {
+  width: 29px;
+  height: 29px;
+}
+.screen-game .header-tools {
+  gap: 5px;
+}
+@media (max-width: 600px) {
+  .ingredient-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 6px;
+  }
+  .ingredient {
+    min-height: 64px;
+    border-radius: 8px;
+    padding: 3px 5px;
+    border-bottom-width: 3px;
+  }
+  .ingredient-pan {
+    height: 35px;
+    max-width: 100px;
+  }
+  .ingredient strong {
+    font-size: 9px;
+    min-height: 17px;
+  }
+  .workstation {
+    padding: 6px 10px 8px;
+  }
+  .burger-stack {
+    width: 204px;
+    height: 150px;
+    bottom: 17px;
+  }
+  .burger-layer {
+    height: 75px;
+    bottom: calc(var(--layer) * 10px);
+  }
+  .layer-seeds,
+  .layer-mini,
+  .layer-brioche {
+    height: 85px;
+  }
+  .layer-mayo,
+  .layer-bbq,
+  .layer-cheddar {
+    height: 60px;
+    bottom: calc(9px + var(--layer) * 10px);
+  }
+  .ticket h1 {
+    font-size: 20px;
+  }
+  .order-board {
+    min-height: 86px;
+    padding: 8px 12px 13px;
+    gap: 8px;
+  }
+  .customer {
+    width: 44px;
+    height: 53px;
+  }
+  .timer {
+    width: 47px;
+    font-size: 25px;
+  }
+  .ticket-caption {
+    font-size: 7px;
+  }
+  .ticket {
+    padding: 8px 9px;
+  }
+  .serve-hint {
+    font-size: 13px;
+  }
+  .serve-bar {
+    min-height: 52px;
+    padding: 6px 12px;
+  }
+  .serve-button {
+    min-height: 39px;
+    font-size: 12px;
+  }
+  .steam {
+    bottom: 100px;
+  }
+}
+@media (max-width: 600px) and (max-height: 700px) {
+  .screen-game .topbar {
+    height: 44px;
+    padding: 5px 10px;
+  }
+  .order-board {
+    min-height: 76px;
+    padding: 6px 10px 12px;
+    border-bottom-width: 4px;
+  }
+  .customer {
+    height: 46px;
+    width: 38px;
+  }
+  .ticket h1 {
+    font-size: 17px;
+    margin: 4px 0;
+  }
+  .timer {
+    font-size: 22px;
+    width: 43px;
+    border-width: 2px;
+  }
+  .ticket-note {
+    font-size: 8px;
+  }
+  .ingredient-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 4px;
+  }
+  .ingredient {
+    min-height: 49px;
+    padding: 2px 4px;
+    gap: 2px;
+  }
+  .ingredient-pan {
+    height: 27px;
+    border-radius: 5px;
+  }
+  .ingredient strong {
+    font-size: 8px;
+    min-height: 15px;
+  }
+  .workstation {
+    padding: 5px 8px 6px;
+  }
+  .section-line {
+    margin-bottom: 4px;
+  }
+  .section-line h2 {
+    font-size: 8px;
+  }
+  .check {
+    width: 14px;
+    height: 14px;
+    font-size: 9px;
+    right: -4px;
+    top: -4px;
+  }
+  .serve-bar {
+    min-height: 45px;
+    padding: 5px 10px;
+  }
+  .serve-button {
+    min-height: 33px;
+    padding: 7px 11px;
+  }
+  .assembly {
+    min-height: 76px;
+  }
+  .burger-stack {
+    transform: translateX(-50%) scale(0.86);
+    transform-origin: bottom;
+  }
+  .assembly-title {
+    font-size: 6px;
+    padding: 6px 10px;
+  }
+  .empty {
+    font-size: 24px;
+  }
+  .empty small {
+    font-size: 8px;
+  }
+  .ingredient-feedback {
+    top: 24px;
+    font-size: 8px;
+  }
+  .steam {
+    bottom: 86px;
+  }
+}
+@media (orientation: landscape) and (max-height: 520px) {
+  .screen-game .topbar {
+    height: 38px;
+  }
+  .kitchen {
+    display: grid;
+    grid-template-columns: 45% 55%;
+    grid-template-rows: 67px minmax(0, 1fr) 44px;
+  }
+  .order-board {
+    grid-column: 1;
+    grid-row: 1;
+    padding: 5px 9px 10px;
+    min-height: 0;
+    gap: 6px;
+    border-bottom-width: 4px;
+  }
+  .customer {
+    width: 33px;
+    height: 40px;
+  }
+  .ticket {
+    padding: 5px 7px;
+  }
+  .ticket h1 {
+    font-size: 16px;
+    margin: 3px 0;
+  }
+  .ticket-note {
+    font-size: 8px;
+  }
+  .ticket-caption {
+    font-size: 6px;
+  }
+  .timer {
+    width: 39px;
+    font-size: 20px;
+    border-width: 2px;
+    padding: 3px 1px;
+  }
+  .timer small {
+    font-size: 6px;
+  }
+  .patience {
+    left: 10px;
+    right: 10px;
+    bottom: 3px;
+    height: 3px;
+  }
+  .assembly {
+    grid-column: 1;
+    grid-row: 2;
+    min-height: 0;
+    border-bottom-width: 0;
+  }
+  .workstation {
+    grid-column: 2;
+    grid-row: 1/3;
+    padding: 7px 9px;
+    border-top: 0;
+    border-left: 4px solid #a5ab98;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+  }
+  .ingredient-grid {
+    flex: 1;
+    min-height: 0;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-rows: repeat(4, minmax(0, 1fr));
+    gap: 4px;
+  }
+  .ingredient {
+    min-height: 0;
+    padding: 2px 4px;
+    gap: 2px;
+    border-width: 1px;
+    border-bottom-width: 3px;
+    border-radius: 7px;
+  }
+  .ingredient-pan {
+    height: calc(100% - 16px);
+    min-height: 15px;
+    max-height: 40px;
+    border-width: 1px;
+  }
+  .ingredient strong {
+    font-size: 8px;
+    min-height: 12px;
+    line-height: 1;
+  }
+  .check {
+    width: 13px;
+    height: 13px;
+    font-size: 8px;
+    right: -4px;
+    top: -4px;
+  }
+  .section-line {
+    margin-bottom: 5px;
+  }
+  .section-line h2 {
+    font-size: 8px;
+  }
+  .serve-bar {
+    grid-column: 1/3;
+    grid-row: 3;
+    min-height: 0;
+    padding: 4px 14px;
+    gap: 15px;
+  }
+  .serve-button {
+    max-width: 300px;
+    min-height: 33px;
+    padding: 6px 12px;
+    font-size: 12px;
+  }
+  .serve-hint {
+    font-size: 12px;
+  }
+  .burger-stack {
+    transform: translateX(-50%) scale(0.82);
+    transform-origin: bottom;
+    bottom: 15px;
+  }
+  .empty {
+    top: 15%;
+    font-size: 22px;
+  }
+  .empty small {
+    font-size: 9px;
+  }
+  .assembly-title {
+    font-size: 6px;
+    padding: 6px 9px;
+  }
+  .ingredient-feedback {
+    top: 22px;
+    font-size: 8px;
+  }
+  .steam {
+    bottom: 86px;
+  }
+}
+.kitchen .assembly .burger-stack {
+  transform: translateX(-50%) scale(var(--fit, 1));
+  transform-origin: bottom;
+}
+.serve-bar .serve-button {
+  min-height: 33px;
+}
+@media (orientation: landscape) and (max-height: 520px) {
+  .serve-bar .serve-button {
+    height: 33px;
+    min-height: 33px;
+    padding: 5px 12px;
+    font-size: 12px;
+    line-height: 1.2;
+  }
+}

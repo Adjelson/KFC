@@ -1,6 +1,18 @@
 # Monta & Treina
 
-Simulador de treino para Android, em português de Portugal. Quatro receitas, rondas de 30/60/90 segundos, ingredientes selecionáveis, revisão de erros e recordes por produto e duração guardados no dispositivo. Funciona offline no APK; não usa conta, servidor, análise de utilização ou serviços externos.
+Simulador de treino para Android, em português de Portugal. Cozinha visual com cliente, talão de pedido, ingredientes na bancada e um sanduíche que ganha camadas a cada toque. Quatro receitas, rondas de 30/60/90 segundos, revisão de erros e recordes por produto e duração guardados no dispositivo. Funciona offline no APK; não usa conta, servidor, análise de utilização ou serviços externos.
+
+## Como jogar
+
+1. Escolhe um produto ou pedidos aleatórios, a duração e o modo: pedido único ou turno de cinco clientes.
+2. O pedido aparece no talão, junto ao cliente e à barra de tempo.
+3. Toca nos ingredientes da bancada para os adicionar. O sanduíche ganha camadas ilustrativas. Toca novamente no recipiente ou na etiqueta do ingrediente para o retirar.
+4. Toca em **Servir pedido** antes de acabar o tempo. A revisão mostra o que acertaste, o que faltou e o que estava a mais.
+5. No modo turno, avança para o próximo cliente. No fim vês quantos dos cinco pedidos ficaram perfeitos.
+
+A bancada e o botão de servir ficam visíveis no ecrã de telemóvel em posição vertical. Em posição horizontal ou em ecrãs muito pequenos pode ser necessário deslocar a cozinha.
+
+![Cozinha de treino num telemóvel](docs/cozinha.png)
 
 ## Instalar no telemóvel
 

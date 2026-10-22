@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Treino de Montagem</string>
+    <string name="title_activity_main">Treino de Montagem</string>
+    <string name="package_name">pt.treinomontagem.app</string>
+    <string name="custom_url_scheme">pt.treinomontagem.app</string>
+</resources>

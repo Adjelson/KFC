@@ -1,178 +1,326 @@
 .app {
   grid-template-rows: auto minmax(0, 1fr);
 }
-.support-dialog {
-  grid-template-rows: auto auto minmax(0, 1fr) auto;
+.app.with-navigation {
+  grid-template-rows: auto minmax(0, 1fr) auto;
 }
-.challenge-entry {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  padding: 13px 18px;
-  border: 2px solid #ddb777;
-  border-radius: 17px;
-  background: linear-gradient(120deg, #fff1cc, #f1d5a2);
-  box-shadow: 0 4px 0 #d0aa74;
-  text-align: left;
-  color: #82542f;
-}
-.challenge-entry > span:first-child {
-  font-size: 30px;
-}
-.challenge-entry > span:nth-child(2) {
+.bottom-navigation {
   display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  height: 62px;
+  border-top: 1px solid #e5d8c1;
+  background: #fff9ed;
+  padding: 5px 22px;
+  gap: 12px;
+}
+.bottom-navigation button {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
   gap: 4px;
-  flex: 1;
+  border: 0;
+  border-radius: 13px;
+  background: none;
+  color: #ad9576;
+  font-size: 10px;
+  font-weight: 750;
 }
-.challenge-entry strong {
-  font-size: 16px;
+.bottom-navigation button.current {
+  color: #a8233a;
+  background: #f6e6d8;
 }
-.challenge-entry small {
-  font-size: 11px;
+.bottom-navigation small {
+  position: absolute;
+  top: 3px;
+  right: 20%;
+  font-size: 8px;
 }
-.challenge-entry b {
-  font-size: 23px;
+.bottom-navigation svg {
+  width: 20px;
+  height: 20px;
+}
+.home-screen {
+  grid-template-rows: auto minmax(0, 1fr) auto auto;
+  gap: 16px;
+  padding: 20px;
+}
+.home-progress {
+  display: flex;
+  justify-content: space-between;
+  padding: 4px 8px;
+  color: #a87938;
+  font-size: 13px;
+  font-weight: 800;
+}
+.training-locked {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  text-align: center;
+  padding: 24px;
+}
+.training-locked > span {
+  display: grid;
+  place-items: center;
+  width: 100px;
+  height: 100px;
+  background: #f1e4cc;
+  border-radius: 32px;
+  font-size: 42px;
+}
+.training-locked h1 {
+  font-size: 25px;
+}
+.training-locked p {
+  font-size: 13px;
+  color: #9b7e59;
 }
 .challenge-screen {
   height: 100%;
-  max-width: 680px;
-  margin: auto;
-  padding: 22px;
   display: grid;
-  grid-template-rows: auto auto minmax(80px, 1fr) auto auto;
-  gap: 18px;
+  grid-template-rows: auto minmax(0, 1fr) auto;
   overflow: hidden;
+  max-width: 720px;
+  margin: auto;
 }
-.path-heading {
-  text-align: center;
-  position: relative;
-}
-.path-heading h1 {
-  font-size: 27px;
-  letter-spacing: -1px;
-  margin: 7px 0;
-}
-.path-stars {
-  color: #b57b28;
-  font-weight: 800;
-  font-size: 13px;
-}
-.chapter-tabs {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 8px;
-}
-.chapter-tabs button {
-  border: 1px solid #dfc6a0;
-  border-radius: 15px;
-  background: #f4e7ce;
-  padding: 12px 6px;
-  display: grid;
-  gap: 6px;
-  place-items: center;
-}
-.chapter-tabs button[aria-selected="true"] {
-  background: #a92338;
-  border-color: #8a1f31;
-  color: #fff1d5;
-  box-shadow: 0 4px #75172a;
-}
-.chapter-tabs span {
-  font-size: 24px;
-}
-.chapter-tabs small {
-  font-size: 11px;
-  font-weight: 800;
-  line-height: 1.2;
-}
-.level-path {
-  position: relative;
+.map-heading {
   display: flex;
   align-items: center;
-  justify-content: space-around;
-  gap: 8px;
+  justify-content: space-between;
+  padding: 16px 20px;
+  background: #fbf4e4;
+}
+.map-heading h1 {
+  font-size: 21px;
+  letter-spacing: -0.6px;
+}
+.map-heading > span {
+  font-size: 12px;
+  font-weight: 850;
+  color: #b48236;
+}
+.stage-scroll {
   min-height: 0;
-  background: radial-gradient(ellipse, #f0d9ad, transparent 70%);
-  border-radius: 24px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  overscroll-behavior: contain;
+  touch-action: pan-y;
+  scrollbar-width: thin;
+  scrollbar-color: #cdbb8f #f1e5ce;
+  background: #e5e7c8;
+  border-block: 1px solid #dfd3b4;
 }
-.path-rail {
+.map-canvas {
+  position: relative;
+  background: linear-gradient(
+    0deg,
+    #e0e6c0 0%,
+    #eff0d4 34%,
+    #f4e1af 38%,
+    #f4dfb7 65%,
+    #ecd0bf 70%,
+    #efdbcf 100%
+  );
+  isolation: isolate;
+}
+.map-canvas:before {
+  content: "";
   position: absolute;
-  width: 80%;
-  border-top: 5px dashed #d1b589;
-  top: 50%;
+  inset: 0;
+  background:
+    radial-gradient(ellipse at 10% 16%, #fff9 0 35px, transparent 36px),
+    radial-gradient(ellipse at 90% 62%, #fff7 0 60px, transparent 61px),
+    radial-gradient(circle at 13% 80%, #b9c48c55 0 55px, transparent 56px);
 }
-.level-node {
-  z-index: 1;
+.map-road {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  inset: 0;
+  overflow: visible;
+}
+.map-road path {
+  fill: none;
+  stroke-linecap: round;
+  vector-effect: non-scaling-stroke;
+}
+.road-edge {
+  stroke: #cbb48c;
+  stroke-width: 32;
+}
+.road-fill {
+  stroke: #fff4d4;
+  stroke-width: 25;
+}
+.road-dots {
+  stroke: #d4b57d;
+  stroke-width: 3;
+  stroke-dasharray: 2 10;
+}
+.map-world {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  white-space: nowrap;
+  padding: 9px 17px;
+  border-radius: 30px;
+  background: #fff9e7bb;
+  color: #8e704b;
+  box-shadow: 0 2px 0 #c9b18a55;
+  font-size: 11px;
+}
+.map-world > span {
+  font-size: 20px;
+}
+.map-node {
+  position: absolute;
+  transform: translateX(-50%);
+  width: 78px;
+  height: 88px;
+  padding: 2px 5px;
   border: 0;
   background: none;
-  padding: 4px;
-  display: grid;
-  gap: 7px;
-  justify-items: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  z-index: 1;
 }
-.level-node:nth-of-type(even) {
-  transform: translateY(-13px);
-}
-.level-node:nth-of-type(odd) {
-  transform: translateY(13px);
-}
-.level-node strong {
+.map-node strong {
   display: grid;
   place-items: center;
-  width: 65px;
-  height: 65px;
-  border-radius: 22px;
-  background: #e8d8ba;
-  border: 3px solid #fff6e3;
-  box-shadow: 0 5px #b99b71;
-  font-size: 25px;
-  color: #88643b;
-}
-.level-node.selected strong {
-  background: #b5273e;
-  color: #fff5d8;
+  width: 62px;
+  height: 62px;
+  border: 4px solid #fff8e5;
+  border-radius: 23px;
+  background: #cbb998;
+  color: #fff6df;
+  font-size: 24px;
   box-shadow:
-    0 5px #7b1b30,
-    0 0 0 4px #e5ba71;
+    0 6px 0 #a68b64,
+    0 9px 14px #89724d25;
+  transition: transform 0.18s;
 }
-.level-node.completed strong {
-  background: #62844a;
-  color: white;
+.map-node.completed strong {
+  background: #779854;
+  box-shadow:
+    0 6px 0 #506c38,
+    0 9px 14px #89724d25;
 }
-.level-node small {
-  font-size: 12px;
-  color: #af7a27;
+.map-node.selected strong {
+  background: #be2b44;
+  box-shadow:
+    0 6px #81213a,
+    0 0 0 5px #e7bc70,
+    0 10px 14px #89724d35;
+}
+.map-node.locked strong {
+  color: #9f896e;
+  background: #d8c9ac;
+  font-size: 19px;
+}
+.map-node small {
+  font-size: 13px;
+  letter-spacing: 1px;
+  color: #b58532;
+  text-shadow: 0 1px #fff6d5;
+}
+.map-selection {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 54px;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 20px;
+  background: #fff8e8;
+  border-top: 1px solid #e1cdab;
+}
+.map-selection small {
+  font-size: 9px;
+  font-weight: 800;
+  color: #b58c5a;
   letter-spacing: 1px;
 }
-.level-detail {
-  border: 1px solid #dfc7a3;
-  border-radius: 18px;
-  background: #fff8e9;
-  padding: 15px;
-  text-align: center;
+.map-selection h2 {
+  font-size: 17px;
+  letter-spacing: -0.3px;
+  margin: 4px 0;
 }
-.level-detail h2 {
-  font-size: 23px;
-  margin: 5px 0 12px;
-}
-.level-features {
-  display: flex;
-  justify-content: center;
-  gap: 7px;
-  flex-wrap: wrap;
-}
-.level-features span {
+.map-selection p {
   font-size: 11px;
-  font-weight: 750;
-  padding: 8px;
-  border-radius: 9px;
-  background: #f0e3c9;
+  color: #a18761;
 }
-.level-detail p {
-  font-size: 12px;
-  line-height: 1.4;
-  margin-top: 12px;
-  color: #98764c;
+.map-selection > .primary {
+  height: 50px;
+  min-height: 50px;
+  padding: 0;
+  border-radius: 16px;
+  justify-content: center;
+  font-size: 19px;
+}
+.map-decoration {
+  position: absolute;
+  z-index: 0;
+  pointer-events: none;
+  color: #c79b54;
+  font-size: 35px;
+}
+.decor-one {
+  left: 12%;
+  top: 30%;
+}
+.decor-two {
+  right: 10%;
+  top: 57%;
+  font-size: 30px;
+  opacity: 0.6;
+}
+.decor-three {
+  left: 15%;
+  top: 88%;
+  font-size: 24px;
+}
+.support-dialog.minimal-dialog {
+  grid-template-rows: auto auto minmax(0, 1fr);
+  height: min(88dvh, 620px);
+  gap: 12px;
+  padding: 16px;
+}
+.minimal-dialog .support-header h2 {
+  font-size: 18px;
+  margin-right: auto;
+}
+.minimal-dialog .dialog-close {
+  order: 3;
+  min-width: 32px;
+  min-height: 32px;
+}
+.minimal-dialog .pause-notice {
+  order: 2;
+  font-size: 8px;
+}
+.minimal-dialog .support-header {
+  min-height: 32px;
+}
+.minimal-dialog .subtabs button {
+  font-size: 10px;
+}
+.recipe-picker {
+  grid-template-rows: 40px minmax(0, 1fr) auto;
+}
+.recipe-options button > span > small {
+  display: block;
+  margin-top: 4px;
+  font-size: 8px;
+  color: #9e8768;
 }
 .variant-options {
   display: flex;
@@ -186,9 +334,6 @@
   background: #f7ebd6;
   font-size: 12px;
   font-weight: 750;
-}
-.recipe-picker {
-  grid-template-rows: 40px minmax(0, 1fr) auto;
 }
 .side-picker {
   height: 100%;
@@ -275,6 +420,23 @@
   transform: translateX(-50%) scale(0.23);
   transform-origin: bottom;
 }
+.reference-lock {
+  position: absolute;
+  left: 20px;
+  font-size: 22px;
+}
+.locked-recipe {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  color: #a98a61;
+  font-size: 13px;
+}
+.locked-recipe > span {
+  font-size: 40px;
+}
 .reference-ingredients {
   grid-template-columns: repeat(4, minmax(0, 1fr));
 }
@@ -355,61 +517,24 @@
 .prepared-tray {
   grid-template-columns: repeat(var(--products, 1), minmax(0, 1fr));
 }
-@media (max-width: 360px) {
-  .challenge-screen {
-    padding: 12px;
-    gap: 12px;
-  }
-  .path-heading h1 {
-    font-size: 22px;
-  }
-  .chapter-tabs small {
-    font-size: 10px;
-  }
-  .chapter-tabs button {
-    padding: 8px 3px;
-  }
-  .level-node strong {
-    width: 52px;
-    height: 52px;
-    font-size: 21px;
-  }
-  .level-detail {
-    padding: 11px;
-  }
-  .level-detail h2 {
-    font-size: 20px;
-  }
-  .level-detail p {
-    font-size: 11px;
-  }
-  .level-features span {
-    padding: 6px;
-    font-size: 10px;
-  }
-  .challenge-entry {
-    padding: 10px 12px;
-  }
-  .challenge-entry strong {
-    font-size: 14px;
-  }
+.prepared-tray[style*="--products: 5"] {
+  gap: 3px;
+}
+.prepared-tray[style*="--products: 5"] .tray-product small {
+  font-size: 7px;
+}
+.kitchen .assembly .prepared-tray[style*="--products: 5"] .burger-stack,
+.result-burger .prepared-tray[style*="--products: 5"] .burger-stack {
+  transform: translateX(-50%) scale(0.2);
 }
 @media (max-height: 700px) {
   .home-screen {
     gap: 10px;
     padding: 14px 18px;
   }
-  .challenge-entry {
-    padding: 9px 14px;
-  }
-  .challenge-entry > span:first-child {
-    font-size: 25px;
-  }
-  .challenge-entry strong {
-    font-size: 14px;
-  }
-  .challenge-entry small {
-    font-size: 10px;
+  .bottom-navigation {
+    height: 54px;
+    padding: 4px 18px;
   }
   .side-picker {
     gap: 12px;
@@ -427,14 +552,46 @@
   .counter-card > span {
     font-size: 25px;
   }
+  .map-heading {
+    padding: 12px 16px;
+  }
+  .map-heading h1 {
+    font-size: 19px;
+  }
+  .map-selection {
+    padding: 10px 15px;
+  }
+  .map-selection h2 {
+    font-size: 15px;
+  }
+  .map-selection > .primary {
+    height: 44px;
+    min-height: 44px;
+  }
 }
 @media (max-height: 520px) and (orientation: landscape) {
+  .bottom-navigation {
+    height: 43px;
+    padding: 3px 22%;
+  }
+  .bottom-navigation button {
+    flex-direction: row;
+    gap: 6px;
+    font-size: 10px;
+  }
+  .bottom-navigation svg {
+    width: 17px;
+    height: 17px;
+  }
+  .bottom-navigation small {
+    right: 5%;
+  }
   .home-screen {
     width: 100%;
     max-width: 780px;
     grid-template-columns: 1fr 1fr;
     grid-template-rows: auto minmax(0, 1fr) auto;
-    padding: 12px 22px;
+    padding: 10px 22px;
     gap: 8px 22px;
   }
   .home-heading {
@@ -450,81 +607,64 @@
     grid-row: 2/4;
     min-height: 0;
   }
-  .challenge-entry {
+  .landing-screen .home-progress {
     grid-column: 2;
-    grid-row: 1;
-  }
-  .training-badges.with-order-size {
-    grid-column: 2;
-    grid-row: 2;
+    grid-row: 1/3;
     align-self: center;
   }
-  .home-screen .play-button {
+  .landing-screen > .primary {
     grid-column: 2;
     grid-row: 3;
   }
-  .challenge-screen {
-    max-width: 850px;
-    padding: 10px 20px;
-    grid-template-columns: 1fr 1fr;
-    grid-template-rows: auto minmax(0, 1fr) auto;
-    gap: 8px 20px;
-  }
-  .path-heading {
-    grid-column: 1;
-    grid-row: 1;
-  }
-  .path-heading h1 {
-    font-size: 20px;
-    margin: 3px 0;
-  }
-  .path-stars {
-    font-size: 10px;
-  }
-  .chapter-tabs {
+  .training-screen .training-badges.with-order-size {
     grid-column: 2;
-    grid-row: 1;
+    grid-row: 1/3;
+    align-self: center;
   }
-  .chapter-tabs button {
-    padding: 5px;
-  }
-  .chapter-tabs span {
-    font-size: 17px;
-  }
-  .chapter-tabs small {
-    font-size: 9px;
-  }
-  .level-path {
-    grid-column: 1;
-    grid-row: 2/4;
-  }
-  .level-node strong {
-    width: 53px;
-    height: 53px;
-  }
-  .level-detail {
-    grid-column: 2;
-    grid-row: 2;
-    padding: 8px;
-  }
-  .level-detail h2 {
-    font-size: 18px;
-    margin: 3px 0 7px;
-  }
-  .level-features span {
-    font-size: 9px;
-    padding: 5px;
-  }
-  .level-detail p {
-    font-size: 10px;
-    margin-top: 7px;
-  }
-  .challenge-screen > .primary {
+  .training-screen .play-button {
     grid-column: 2;
     grid-row: 3;
-    min-height: 33px;
-    font-size: 12px;
-    padding: 7px;
+  }
+  .map-heading {
+    padding: 7px 20px;
+  }
+  .map-heading h1 {
+    font-size: 16px;
+  }
+  .map-selection {
+    padding: 6px 20px;
+    grid-template-columns: minmax(0, 1fr) 40px;
+  }
+  .map-selection h2 {
+    font-size: 13px;
+    margin: 2px 0;
+  }
+  .map-selection small {
+    font-size: 8px;
+  }
+  .map-selection p {
+    font-size: 10px;
+  }
+  .map-selection > .primary {
+    min-height: 36px;
+    height: 36px;
+    font-size: 15px;
+    border-radius: 11px;
+  }
+  .support-dialog.minimal-dialog {
+    height: 94dvh;
+    padding: 9px 14px;
+    gap: 5px;
+  }
+  .minimal-dialog .support-header h2 {
+    font-size: 16px;
+  }
+  .minimal-dialog .dialog-close {
+    min-width: 28px;
+    min-height: 28px;
+  }
+  .minimal-dialog .support-header {
+    min-height: 28px;
   }
   .side-picker {
     display: grid;
@@ -586,6 +726,10 @@
   }
   .recipe-reference {
     gap: 5px;
+    grid-template-rows: 40px minmax(0, 1fr);
+  }
+  .reference-selector {
+    height: 40px;
   }
   .reference-ingredients {
     grid-template-columns: repeat(7, minmax(0, 1fr));
@@ -628,89 +772,26 @@
   }
 }
 
-.prepared-tray[style*="--products: 5"] {
-  gap: 3px;
+.map-node .node-lock {
+  position: absolute;
+  right: 6px;
+  top: 2px;
+  font-size: 10px;
+  font-style: normal;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: #fff3d6;
+  border: 1px solid #d3bf98;
 }
-.prepared-tray[style*="--products: 5"] .tray-product small {
-  font-size: 7px;
+.map-node.locked strong {
+  font-size: 24px;
+  color: #aa9270;
 }
-.kitchen .assembly .prepared-tray[style*="--products: 5"] .burger-stack {
-  transform: translateX(-50%) scale(0.2);
-}
-.result-burger .prepared-tray[style*="--products: 5"] .burger-stack {
-  transform: translateX(-50%) scale(0.2);
-}
-@media (max-height: 700px) and (orientation: portrait) {
-  .challenge-screen {
-    padding: 12px;
-    gap: 10px;
-    grid-template-rows: auto auto minmax(0, 1fr) auto auto;
-  }
-  .path-heading h1 {
-    font-size: 20px;
-    line-height: 1.15;
-    margin: 4px 0;
-  }
-  .path-stars {
-    font-size: 11px;
-  }
-  .chapter-tabs button {
-    padding: 7px 3px;
-    gap: 4px;
-  }
-  .chapter-tabs span {
-    font-size: 20px;
-  }
-  .chapter-tabs small {
-    font-size: 10px;
-  }
-  .level-node {
-    gap: 4px;
-  }
-  .level-node strong {
-    width: 44px;
-    height: 44px;
-    border-radius: 15px;
-    font-size: 19px;
-  }
-  .level-node small {
-    font-size: 10px;
-  }
-  .level-node:nth-of-type(even) {
-    transform: translateY(-7px);
-  }
-  .level-node:nth-of-type(odd) {
-    transform: translateY(7px);
-  }
-  .level-detail {
-    padding: 10px;
-  }
-  .level-detail h2 {
-    font-size: 19px;
-    margin: 3px 0 8px;
-  }
-  .level-detail p {
-    font-size: 10px;
-    margin-top: 8px;
-  }
-  .level-features {
-    gap: 5px;
-  }
-  .level-features span {
-    font-size: 9px;
-    padding: 6px;
-  }
-  .challenge-screen > .primary {
-    min-height: 41px;
-    font-size: 12px;
-    padding: 9px;
-  }
-}
-@media (max-height: 520px) and (orientation: landscape) {
-  .recipe-reference {
-    grid-template-rows: 40px minmax(0, 1fr);
-  }
-  .reference-selector {
-    height: 40px;
-  }
+.map-selection > .primary svg {
+  width: 22px;
+  height: 22px;
+  fill: currentColor;
 }

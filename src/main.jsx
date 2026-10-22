@@ -13,7 +13,7 @@ import { FoodArt, Burger, Customer } from "./FoodArt.jsx";
 import { sound, loadSettings, saveSettings } from "./audio.js";
 import { SupportPanel } from "./SupportPanel.jsx";
 import { Icon } from "./Icons.jsx";
-import { Home, Intro, Outcome } from "./Screens.jsx";
+import { Home, Training, Intro, Outcome } from "./Screens.jsx";
 import {
   makeOrder,
   orderProgress,
@@ -34,6 +34,8 @@ import {
   completeLevel,
   saveProgress,
   challengeOrder,
+  createChallengeRun,
+  trainingAccess,
 } from "./challenges.js";
 import "./style.css";
 import "./challenges.css";
@@ -57,6 +59,7 @@ function App() {
     [friesSize, setFriesSize] = useState("small");
   const [levelProgress, setLevelProgress] = useState(loadProgress);
   const [run, setRun] = useState({ limit: 60, clients: 1, challengeId: null });
+  const access = trainingAccess(levelProgress);
   const runMode = run.clients;
   const performance = useRef([]);
   const [quantity, setQuantity] = useState(1),
@@ -123,6 +126,7 @@ function App() {
     sound.unlock();
   }
   function openPanel(page, section = null) {
+    if (page === "setup" && !access.training) return;
     setPanelSection(section);
     sound.unlock();
     sound.play("click");
@@ -388,16 +392,22 @@ function App() {
   function start(nextCustomer = false, challengeId = run.challengeId) {
     if (challengeId && !isUnlocked(challengeId, levelProgress)) return;
     const level = levels.find((l) => l.id === challengeId);
-    const config = level || {
-      choice,
-      quantity,
-      assortment,
-      variant,
-      side,
-      friesSize,
-      limit,
-      clients: mode,
-    };
+    if (!level && !access.training) return;
+    const config = nextCustomer
+      ? run
+      : level
+        ? createChallengeRun(level)
+        : {
+            choice: access.recipeIds.includes(choice) ? choice : "random",
+            allowedRecipeIds: access.recipeIds,
+            quantity,
+            assortment,
+            variant: access.double ? variant : "single",
+            side: access.fries ? side : "none",
+            friesSize,
+            limit,
+            clients: mode,
+          };
     const nextRound = nextCustomer ? round + 1 : 1;
     if (!nextCustomer) {
       setRun({ ...config, challengeId: level?.id || null });
@@ -417,7 +427,7 @@ function App() {
       setSandwichesMade(0);
     }
     const nextOrder = level
-      ? challengeOrder(level, nextRound, recipe.id)
+      ? challengeOrder(config, nextRound, recipe.id)
       : makeOrder(config, recipe.id);
     setOrder(nextOrder);
     setPrepared({});
@@ -533,13 +543,16 @@ function App() {
       );
     else start(false, null);
   }
-  function showPath() {
+  function navigate(target) {
     home();
-    setScreen("challenges");
+    setScreen(target);
+  }
+  function showPath() {
+    navigate("challenges");
   }
   return (
     <div
-      className={`app screen-${screen} ${settings.animations ? "" : "motion-off"}`}
+      className={`app screen-${screen} ${["home", "challenges", "training"].includes(screen) ? "with-navigation" : ""} ${settings.animations ? "" : "motion-off"}`}
     >
       <header className="topbar">
         <div className="brand" aria-label="Monta e Treina">
@@ -566,7 +579,7 @@ function App() {
             <Icon name="settings" />
           </button>
         </div>
-        {(screen === "game" || screen === "challenges") && (
+        {screen === "game" && (
           <button
             className="exit-button"
             onClick={home}
@@ -581,11 +594,15 @@ function App() {
       <main>
         {screen === "home" && (
           <Home
-            {...train}
-            onStart={() => start(false, null)}
-            onChallenges={showPath}
             levelProgress={levelProgress}
-            totals={totals}
+            onPlay={(id) => start(false, id)}
+          />
+        )}
+        {screen === "training" && (
+          <Training
+            {...train}
+            access={access}
+            onStart={() => start(false, null)}
             onSetup={(section) => openPanel("setup", section)}
           />
         )}
@@ -812,6 +829,28 @@ function App() {
           />
         )}
       </main>
+      {["home", "challenges", "training"].includes(screen) && (
+        <nav className="bottom-navigation" aria-label="Menu principal">
+          {[
+            ["home", "Início", "home"],
+            ["challenges", "Níveis", "levels"],
+            ["training", "Treino", "play"],
+          ].map(([id, label, icon]) => (
+            <button
+              key={id}
+              className={screen === id ? "current" : ""}
+              aria-current={screen === id ? "page" : undefined}
+              onClick={() => navigate(id)}
+            >
+              <Icon name={icon} />
+              <span>{label}</span>
+              {id === "training" && !access.training && (
+                <small aria-hidden="true">🔒</small>
+              )}
+            </button>
+          ))}
+        </nav>
+      )}
       <div className="flight-stage" aria-hidden="true">
         {flights.map((f) => (
           <div
@@ -843,6 +882,8 @@ function App() {
           sandwichesMade={sandwichesMade}
           served={served}
           currentRecipe={recipe.id}
+          levelProgress={levelProgress}
+          access={access}
         />
       )}
     </div>

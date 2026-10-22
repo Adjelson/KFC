@@ -8,6 +8,14 @@ export function Icon({ name }) {
         <ellipse cx="17" cy="16" rx="3" ry="2" />
       </>
     ),
+    levels: (
+      <>
+        <path d="M7 19C-1 12 25 11 17 4" />
+        <circle cx="7" cy="19" r="3" />
+        <circle cx="17" cy="4" r="2" />
+        <circle cx="12" cy="12" r="2" />
+      </>
+    ),
     play: <path d="M8 4l13 8-13 8Z" />,
     home: (
       <>

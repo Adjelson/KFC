@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Burger, FoodArt, Customer } from "./FoodArt.jsx";
 import { Icon } from "./Icons.jsx";
 import { ingredients, recipes, ingredientName } from "./game.js";
+import { levels } from "./challenges.js";
 import { PreparedTray, OrderReview } from "./OrderViews.jsx";
 
 export function Intro({ loading = false, recipe, onEnter, orderSize = 1 }) {
@@ -73,22 +74,63 @@ export function Intro({ loading = false, recipe, onEnter, orderSize = 1 }) {
   );
 }
 
-export function Home({
+export function Home({ levelProgress, onPlay }) {
+  const next = levels.find((l) => !levelProgress[l.id]) || levels.at(-1);
+  return (
+    <section className="home-screen landing-screen">
+      <div className="home-heading">
+        <span className="eyebrow">MONTA. TREINA. AVANÇA.</span>
+        <h1 tabIndex="-1">A cozinha é tua.</h1>
+      </div>
+      <div className="home-hero" aria-hidden="true">
+        <div className="hero-tiles" />
+        <div className="hero-order">
+          <Customer number={next.id} />
+          <span>Pronto para o próximo?</span>
+        </div>
+        <Burger items={recipes[(next.id - 1) % recipes.length].items} />
+      </div>
+      <div className="home-progress">
+        <span>★ {Object.values(levelProgress).reduce((n, s) => n + s, 0)}</span>
+        <span>
+          {Object.values(levelProgress).filter((s) => s > 0).length}/12 níveis
+        </span>
+      </div>
+      <button
+        className="primary"
+        aria-label={`Jogar nível ${next.id}`}
+        onClick={() => onPlay(next.id)}
+      >
+        Nível {next.id}
+        <Icon name="play" />
+      </button>
+    </section>
+  );
+}
+
+export function Training({
   choice,
   limit,
   mode,
   quantity = 1,
   onStart,
   onSetup,
-  onChallenges,
-  levelProgress,
+  access,
 }) {
   const recipe = recipes.find((r) => r.id === choice) || recipes[0];
+  if (!access.training)
+    return (
+      <section className="training-locked">
+        <span aria-hidden="true">🔒</span>
+        <h1 tabIndex="-1">Treino livre</h1>
+        <p>Conclui o nível 1 para desbloquear.</p>
+      </section>
+    );
   return (
-    <section className="home-screen">
+    <section className="home-screen training-screen">
       <div className="home-heading">
-        <span className="eyebrow">VAMOS A MAIS UM PEDIDO?</span>
-        <h1 tabIndex="-1">A cozinha é tua.</h1>
+        <span className="eyebrow">AO TEU RITMO</span>
+        <h1 tabIndex="-1">Treino livre</h1>
       </div>
       <div className="home-hero" aria-hidden="true">
         <div className="hero-tiles" />
@@ -103,17 +145,6 @@ export function Home({
           100%<small>OFFLINE</small>
         </span>
       </div>
-      <button className="challenge-entry" onClick={onChallenges}>
-        <span aria-hidden="true">🏆</span>
-        <span>
-          <strong>Percurso de desafios</strong>
-          <small>
-            {Object.values(levelProgress).filter((s) => s > 0).length}/12 níveis
-            concluídos
-          </small>
-        </span>
-        <b>→</b>
-      </button>
       <div className="training-badges with-order-size">
         <button aria-label="Escolher receita" onClick={() => onSetup("recipe")}>
           <span aria-hidden="true">🍔</span>

@@ -4,20 +4,26 @@ Simulador de treino para Android, em português de Portugal. Cozinha visual com 
 
 ## Como jogar
 
-1. Usa a barra inferior: **Início** mostra o próximo desafio, **Níveis** abre o mapa e **Treino** abre o treino livre quando desbloqueado.
-2. O mapa tem um caminho sinuoso com 12 fases, três cenários e scroll vertical próprio. Podes consultar fases bloqueadas; o botão de jogar só fica disponível após concluir a anterior. Ao abrir o mapa, o nível atual fica visível.
+1. A aplicação abre diretamente em **Níveis**. A barra inferior tem apenas **Níveis** e **Treino**, que abre o treino livre quando desbloqueado.
+2. O mapa tem um caminho sinuoso com 12 fases, três cenários ilustrados e scroll vertical próprio: exterior do restaurante com esplanada e entregas, sala de refeições com balcões e menus, e cozinha com fogões e utensílios. As ilustrações são locais e o vapor respeita as definições de animação. Podes consultar fases bloqueadas; o botão de jogar só fica disponível após concluir a anterior. Ao abrir o mapa, o nível atual fica visível.
 3. Cada tentativa sorteia o número de clientes uma vez: 2–4 nos níveis 1–4, 3–6 nos níveis 5–8 e 4–8 nos níveis 9–12. Esse total mantém-se durante a tentativa. A receita e as quantidades são sorteadas por cliente, com batatas a partir do nível 5 e versões Double a partir do 9. Repetir uma fase faz novos sorteios.
 4. O **Treino livre** desbloqueia ao concluir o nível 1. As receitas Krunch Clássico, Krunch BBQ, Clássica e O’Cheddar desbloqueiam após os níveis 1, 2, 3 e 4, respetivamente. Batatas desbloqueiam após o nível 5 e Double após o 9. O treino só sorteia receitas já desbloqueadas. A ajuda permite consultar a receita do pedido atual durante uma fase, mesmo antes de a desbloquear para treino.
 5. No treino livre, configura receita, modo, pedido, batatas e tempo nos cartões ilustrados. Os painéis fecham no **X** superior; as alterações são aplicadas ao escolher.
 6. Toca nos ingredientes para montar e novamente para retirar. No Double, dois toques adicionam dois filetes; um terceiro limpa essas unidades. Usa **↶** para desfazer o último ingrediente. Se houver queijo, coloca-o entre os dois filetes.
 7. Nas batatas, escolhe a porção indicada no talão: pequena preta, média vermelha ou grande cinzenta. Nos pedidos com vários produtos, toca em **Adicionar à bandeja** para validar cada unidade. Serve o pedido completo antes do prazo e avança para o próximo cliente.
-8. Todos os clientes têm de ficar corretos para concluir uma fase. Estrelas, receitas desbloqueadas, contadores e preferências ficam no dispositivo e são preservados ao atualizar.
+8. Todos os clientes têm de ficar corretos para concluir uma fase. Depois do último cliente, o jogo regressa automaticamente ao mapa e mostra as estrelas e recompensas. O próximo nível fica selecionado, com animação de desbloqueio e selo NOVO, e aguarda um toque para começar. Se a fase falhar, o mapa permite repetir; no nível 12, mostra o percurso concluído. Estrelas, receitas desbloqueadas, contadores e preferências ficam no dispositivo e são preservados ao atualizar.
 
 O nível ganha uma estrela ao servir todos os clientes; ganha duas se todos forem servidos até 80% do tempo e três se todos forem servidos até metade do tempo. Repetir um nível preserva a melhor classificação. Falhas ou desistências não desbloqueiam o seguinte.
 
-![Percurso de desafios](docs/desafios.png)
+![Percurso no exterior do restaurante](docs/desafios.png)
 
-Apenas o mapa de níveis tem scroll. Início, treino, receitas, definições, cozinha e resultados ajustam-se à altura disponível, com abas e páginas quando necessário. Os testes verificam os controlos em ecrãs de 320 × 568, 390 × 844, 740 × 360 e 1024 × 768 e confirmam que o mapa permite alcançar as fases sem deslocar o resto da aplicação.
+![Sala de refeições](docs/mapa-sala.png)
+
+![Cozinha do percurso](docs/mapa-cozinha.png)
+
+![Regresso ao mapa com novo nível desbloqueado](docs/desbloqueio.png)
+
+Apenas o mapa de níveis tem scroll. Treino, receitas, definições, cozinha e resultados ajustam-se à altura disponível, com abas e páginas quando necessário. Os testes verificam os controlos em ecrãs de 320 × 568, 390 × 844, 740 × 360 e 1024 × 768 e confirmam que o mapa permite alcançar as fases sem deslocar o resto da aplicação.
 
 ![Treino livre com receitas desbloqueadas](docs/treino.png)
 
@@ -48,8 +54,6 @@ Antes de cada pedido, uma transição animada prepara a bancada e aguarda a prep
 
 ![Abertura animada](docs/abertura.png)
 
-![Início com navegação sem scroll](docs/inicio.png)
-
 ![Cozinha de treino num telemóvel](docs/cozinha.png)
 
 ## Ajuda, áudio e animações
@@ -64,7 +68,7 @@ Antes de cada pedido, uma transição animada prepara a bancada e aguarda a prep
 
 ## Instalar no telemóvel
 
-[Descarregar o APK de teste para Android](https://github.com/Adjelson/KFC/raw/refs/heads/main/downloads/monta-treino-debug.apk) · Android 7.0 ou superior · versão 1.6 · 4,2 MB.
+[Descarregar o APK de teste para Android](https://github.com/Adjelson/KFC/raw/refs/heads/main/downloads/monta-treino-debug.apk) · Android 7.0 ou superior · versão 1.7 · 4,2 MB.
 
 Abre o ficheiro no Android e permite a instalação desta origem, se solicitado. A assinatura do APK foi verificada; ainda não foi feita validação num telemóvel real.
 

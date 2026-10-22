@@ -16,7 +16,7 @@ export const recipes = [
   {
     id: "krunch",
     name: "Krunch Clássico",
-    items: ["seeds", "fillet", "lettuce", "mayo"],
+    items: ["mini", "tender", "lettuce", "mayo"],
     tag: "Um clássico crocante",
   },
   {
@@ -103,8 +103,13 @@ export function evaluate(recipe, selected) {
 }
 export const remainingSeconds = (deadline, now = Date.now()) =>
   Math.max(0, Math.ceil((deadline - now) / 1000));
-export function pickRecipe(previous, random = Math.random) {
-  const pool = recipes.filter((r) => r.id !== previous);
+export function pickRecipe(
+  previous,
+  random = Math.random,
+  available = recipes,
+) {
+  const alternatives = available.filter((r) => r.id !== previous);
+  const pool = alternatives.length ? alternatives : available;
   return pool[
     Math.min(pool.length - 1, Math.max(0, Math.floor(random() * pool.length)))
   ];

@@ -15,6 +15,9 @@ import {
   completeLevel,
   loadProgress,
   challengeOrder,
+  createChallengeRun,
+  trainingAccess,
+  productUnlocked,
 } from "../src/challenges.js";
 test("Double requires two proteins, with cheese between them when present", () => {
   for (const recipe of doubles) {
@@ -73,18 +76,37 @@ test("levels unlock sequentially and preserve better stars across restarts", () 
   assert.equal(completeLevel(progress, 2, 1)[2], 2);
   assert.equal(isUnlocked(13, progress), false);
 });
-test("challenge path introduces quantities, fries, doubles and faster customer sequences", () => {
-  assert.equal(levels.length, 12);
-  for (const level of levels)
-    for (let customer = 1; customer <= level.clients; customer++) {
-      const order = challengeOrder(level, customer, null, () => 0.3);
-      assert.ok(
-        order.every((line) => productById(line.recipeId) && line.quantity > 0),
-      );
-      assert.ok(orderProgress(order).total > 0);
-      assert.ok(orderDuration(order, level.limit) > 0);
-    }
-  assert.equal(challengeOrder(levels[4], 3)[0].recipeId, "fries-large");
-  assert.ok(levels[11].clients > levels[0].clients);
-  assert.ok(levels[11].limit < levels[0].limit);
+test('random clients stay within each difficulty range, with a fresh draw per run',()=>{
+ for(const level of levels){
+   assert.equal(createChallengeRun(level,()=>0).clients,level.clientRange[0]);
+   assert.equal(createChallengeRun(level,()=>.999).clients,level.clientRange[1]);
+ }
+ assert.ok(levels[11].clientRange[1]>levels[0].clientRange[1]);
+});
+test('every level draws different products and quantities instead of a fixed recipe',()=>{
+ for(const level of levels){
+   let seed=149;const random=()=>((seed=(seed*16807)%2147483647)/2147483647);
+   const signatures=new Set(),types=new Set();
+   for(let i=0;i<60;i++){
+     const order=challengeOrder(level,i+1,null,random);
+     assert.ok(order.every(line=>productById(line.recipeId)&&line.quantity>0));
+     assert.ok(orderDuration(order,level.limit)>0);
+     signatures.add(JSON.stringify(order));order.forEach(line=>types.add(line.recipeId));
+     if(level.id<5)assert.ok(order.every(line=>!line.recipeId.startsWith('fries-')));
+     if(level.id<9)assert.ok(order.every(line=>!line.recipeId.endsWith('-double')));
+   }
+   assert.ok(signatures.size>1);assert.ok(types.size>=4);
+ }
+});
+test('training, recipes and advanced products unlock progressively without resetting saved stars',()=>{
+ assert.equal(trainingAccess({}).training,false);
+ const first=trainingAccess({1:2});assert.equal(first.training,true);assert.deepEqual(first.recipeIds,['krunch']);
+ assert.equal(productUnlocked('bbq',{1:3}),false);
+ assert.equal(productUnlocked('bbq',{1:3,2:1}),true);
+ assert.equal(productUnlocked('fries-large',{1:3,4:3}),false);
+ assert.equal(productUnlocked('fries-large',{5:1}),true);
+ assert.equal(productUnlocked('krunch-double',{9:1}),true);
+ assert.deepEqual(productById('krunch').items,['mini','tender','lettuce','mayo']);
+ const order=makeOrder({choice:'cheddar',quantity:4,assortment:'mixed',allowedRecipeIds:['krunch']},'krunch');
+ assert.deepEqual(order,[{recipeId:'krunch',quantity:4}]);
 });

@@ -11,6 +11,7 @@ export function makeOrder(
     variant = "single",
     side = "none",
     friesSize = "small",
+    allowedRecipeIds = recipes.map((r) => r.id),
   } = {},
   previous,
   random = Math.random,
@@ -18,11 +19,17 @@ export function makeOrder(
   const count = Number.isInteger(quantity)
     ? Math.max(1, Math.min(MAX_ORDER_SIZE, quantity))
     : 1;
+  const available = recipes.filter((r) => allowedRecipeIds.includes(r.id));
+  if (!available.length) return [];
   const first =
-    recipes.find((r) => r.id === choice) || pickRecipe(previous, random);
+    available.find((r) => r.id === choice) ||
+    pickRecipe(previous, random, available);
   const ids = [first.id];
   for (let i = 1; i < count; i++) {
-    const pool = i === 1 ? recipes.filter((r) => r.id !== first.id) : recipes;
+    const pool =
+      i === 1 && available.length > 1
+        ? available.filter((r) => r.id !== first.id)
+        : available;
     ids.push(
       assortment === "mixed"
         ? pool[Math.floor(random() * pool.length)].id

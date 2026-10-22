@@ -1,81 +1,33 @@
 import { makeOrder } from "./orders.js";
 export const chapters = [
-  {
-    name: "Primeiros passos",
-    icon: "🌱",
-    description: "Conhece a bancada e serve os primeiros clientes.",
-  },
-  {
-    name: "Hora do menu",
-    icon: "🍟",
-    description: "Combina sandes, batatas e novos tamanhos.",
-  },
-  {
-    name: "Cozinha a todo o gás",
-    icon: "🔥",
-    description: "Double, pedidos variados e clientes com pressa.",
-  },
+  { name: "Primeiros passos", icon: "🌱" },
+  { name: "Hora do menu", icon: "🍟" },
+  { name: "Cozinha a todo o gás", icon: "🔥" },
 ];
 const configs = [
-  ["Primeiro serviço", "krunch", 1, "same", 2, 60, "single", "none", "small"],
-  ["O toque BBQ", "bbq", 1, "same", 3, 60, "single", "none", "small"],
-  ["Dose a dobrar", "cheddar", 2, "same", 3, 55, "single", "none", "small"],
-  [
-    "Cada cliente, um gosto",
-    "random",
-    2,
-    "mixed",
-    3,
-    50,
-    "single",
-    "none",
-    "small",
-  ],
-  ["Só batatas", "random", 1, "same", 3, 50, "single", "only", "small"],
-  ["O primeiro menu", "classic", 1, "same", 3, 50, "single", "with", "small"],
-  ["Mesa para dois", "random", 2, "mixed", 4, 45, "single", "with", "medium"],
-  ["Menu grande", "cheddar", 2, "same", 4, 40, "single", "with", "large"],
-  ["Primeiro Double", "classic", 1, "same", 3, 50, "double", "none", "small"],
-  ["Queijo no meio", "cheddar", 1, "same", 4, 45, "double", "with", "medium"],
-  [
-    "Pedidos de todo o tipo",
-    "random",
-    3,
-    "mixed",
-    4,
-    35,
-    "mixed",
-    "with",
-    "large",
-  ],
-  ["Mestre da bancada", "random", 4, "mixed", 5, 25, "mixed", "with", "large"],
+  ["Primeiro serviço", 1, 60, "single", "none"],
+  ["Novos sabores", 1, 60, "single", "none"],
+  ["Dose a dobrar", 2, 55, "single", "none"],
+  ["Cada cliente, um gosto", 2, 50, "single", "none"],
+  ["Hora das batatas", 2, 50, "single", "random"],
+  ["O primeiro menu", 2, 50, "single", "random"],
+  ["Mesa para dois", 3, 45, "single", "random"],
+  ["Menu grande", 3, 40, "single", "random"],
+  ["Primeiro Double", 2, 50, "mixed", "random"],
+  ["Queijo no meio", 3, 45, "mixed", "random"],
+  ["Pedidos de todo o tipo", 3, 35, "mixed", "random"],
+  ["Mestre da bancada", 4, 25, "mixed", "random"],
 ];
 export const levels = configs.map(
-  (
-    [
-      name,
-      choice,
-      quantity,
-      assortment,
-      clients,
-      limit,
-      variant,
-      side,
-      friesSize,
-    ],
-    index,
-  ) => ({
+  ([name, maxQuantity, limit, variant, side], index) => ({
     id: index + 1,
     chapter: Math.floor(index / 4),
     name,
-    choice,
-    quantity,
-    assortment,
-    clients,
+    maxQuantity,
     limit,
     variant,
     side,
-    friesSize,
+    clientRange: index < 4 ? [2, 4] : index < 8 ? [3, 6] : [4, 8],
   }),
 );
 const KEY = "montagem-levels";
@@ -99,19 +51,47 @@ export function isUnlocked(id, progress) {
   );
 }
 export function completeLevel(progress, id, stars) {
-  if (
-    !isUnlocked(id, progress) ||
-    !Number.isInteger(stars) ||
-    stars < 1 ||
-    stars > 3
-  )
-    return progress;
-  return { ...progress, [id]: Math.max(progress[id] || 0, stars) };
+  return isUnlocked(id, progress) &&
+    Number.isInteger(stars) &&
+    stars >= 1 &&
+    stars <= 3
+    ? { ...progress, [id]: Math.max(progress[id] || 0, stars) }
+    : progress;
 }
 export function saveProgress(progress) {
   try {
     localStorage.setItem(KEY, JSON.stringify(progress));
   } catch {}
+}
+export const recipeUnlocks = { krunch: 1, bbq: 2, classic: 3, cheddar: 4 };
+export function productUnlockLevel(id) {
+  if (id.startsWith("fries-")) return 5;
+  return id.endsWith("-double")
+    ? Math.max(9, recipeUnlocks[id.replace("-double", "")] || 1)
+    : recipeUnlocks[id] || 1;
+}
+export function productUnlocked(id, progress) {
+  return progress[productUnlockLevel(id)] > 0;
+}
+export function trainingAccess(progress) {
+  return {
+    training: progress[1] > 0,
+    recipeIds: Object.keys(recipeUnlocks).filter((id) =>
+      productUnlocked(id, progress),
+    ),
+    fries: progress[5] > 0,
+    double: progress[9] > 0,
+  };
+}
+const draw = (random) =>
+  Math.min(0.999999999, Math.max(0, Number(random()) || 0));
+export function createChallengeRun(level, random = Math.random) {
+  const [min, max] = level.clientRange;
+  return {
+    ...level,
+    challengeId: level.id,
+    clients: min + Math.floor(draw(random) * (max - min + 1)),
+  };
 }
 export function challengeOrder(
   level,
@@ -119,13 +99,20 @@ export function challengeOrder(
   previous,
   random = Math.random,
 ) {
-  // Fries-only clients rotate through the three portions to teach each size.
-  const config =
-    level.side === "only"
-      ? {
-          ...level,
-          friesSize: ["small", "medium", "large"][(customer - 1) % 3],
-        }
-      : level;
-  return makeOrder(config, previous, random);
+  const side =
+    level.side === "random"
+      ? ["none", "with", "only"][Math.floor(draw(random) * 3)]
+      : level.side;
+  return makeOrder(
+    {
+      choice: "random",
+      quantity: 1 + Math.floor(draw(random) * level.maxQuantity),
+      assortment: "mixed",
+      variant: level.variant,
+      side,
+      friesSize: ["small", "medium", "large"][Math.floor(draw(random) * 3)],
+    },
+    previous,
+    random,
+  );
 }

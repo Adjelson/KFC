@@ -2,6 +2,12 @@
 
 Simulador de treino para Android, em português de Portugal. Quatro receitas, rondas de 30/60/90 segundos, ingredientes selecionáveis, revisão de erros e recordes por produto e duração guardados no dispositivo. Funciona offline no APK; não usa conta, servidor, análise de utilização ou serviços externos.
 
+## Instalar no telemóvel
+
+[Descarregar o APK de teste para Android](../../raw/refs/heads/main/downloads/monta-treino-debug.apk) · Android 7.0 ou superior · 4,1 MB.
+
+Abre o ficheiro no Android e permite a instalação desta origem, se solicitado. A assinatura do APK foi verificada; ainda não foi feita validação num telemóvel real.
+
 ## Desenvolvimento
 
 Node.js 24 e npm 11:

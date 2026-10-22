@@ -8,7 +8,7 @@ Simulador de treino para Android, em português de Portugal. Cozinha visual com 
 2. No percurso, há três caminhos de quatro níveis. Os desafios introduzem quantidades, pedidos variados, batatas, Double e sequências de dois a cinco clientes. Cada nível define produtos e tempo; serve todos os clientes corretamente para desbloquear o seguinte.
 3. No treino livre, configura **Receita**, **Modo**, **Pedido**, **Batatas** e **Tempo**. Escolhe sandes simples, Double ou mistura; batatas individuais ou uma porção por sandes. Toca em **Treino livre** para começar.
 4. O talão mostra produtos e quantidades. Toca nos ingredientes para montar e novamente para retirar. No Double, dois toques no filete adicionam duas unidades; um terceiro limpa essas unidades. Usa **↶** para desfazer o último ingrediente. Se houver queijo, coloca-o entre os dois filetes.
-5. Nas batatas, escolhe a porção pequena, média ou grande indicada no talão. Nos pedidos com vários produtos, toca em **Adicionar à bandeja** para validar cada unidade. Só produtos corretos contam. Serve o pedido completo antes do prazo.
+5. Nas batatas, escolhe a porção pequena, média ou grande indicada no talão. As embalagens são pretas nas pequenas, vermelhas nas médias e cinzentas nas grandes. Nos pedidos com vários produtos, toca em **Adicionar à bandeja** para validar cada unidade. Só produtos corretos contam. Serve o pedido completo antes do prazo.
 6. Alterna **Resumo** e **Revisão** nos resultados e avança para o próximo cliente. No fim de um nível, podes repetir ou jogar o seguinte. As estrelas, contadores e preferências ficam no dispositivo.
 
 O nível ganha uma estrela ao servir todos os clientes; ganha duas se todos forem servidos até 80% do tempo e três se todos forem servidos até metade do tempo. Repetir um nível preserva a melhor classificação. Falhas ou desistências não desbloqueiam o seguinte.
@@ -58,7 +58,7 @@ Antes de cada pedido, uma transição animada prepara a bancada e aguarda a prep
 
 ## Instalar no telemóvel
 
-[Descarregar o APK de teste para Android](https://github.com/Adjelson/KFC/raw/refs/heads/main/downloads/monta-treino-debug.apk) · Android 7.0 ou superior · versão 1.5 · 4,2 MB.
+[Descarregar o APK de teste para Android](https://github.com/Adjelson/KFC/raw/refs/heads/main/downloads/monta-treino-debug.apk) · Android 7.0 ou superior · versão 1.5.1 · 4,2 MB.
 
 Abre o ficheiro no Android e permite a instalação desta origem, se solicitado. A assinatura do APK foi verificada; ainda não foi feita validação num telemóvel real.
 

@@ -12,6 +12,12 @@ const seeds = (
 
 export function FoodArt({ id, className = "" }) {
   const bun = ["seeds", "mini", "brioche", "top"].includes(id);
+  const friesColor =
+    id === "fries-small"
+      ? "#26272b"
+      : id === "fries-large"
+        ? "#8b929b"
+        : "#b72236";
   return (
     <svg
       className={`food-art ${className}`}
@@ -35,7 +41,7 @@ export function FoodArt({ id, className = "" }) {
               transform={`rotate(${(i - 3) * 3} ${x} 40)`}
             />
           ))}
-          <path d="M17 29Q52 42 87 29L80 57Q52 65 24 57Z" fill="#b72236" />
+          <path d="M17 29Q52 42 87 29L80 57Q52 65 24 57Z" fill={friesColor} />
           <path
             d="M28 35L32 59M48 39L49 62M68 37L66 60"
             stroke="#fff1d2"
@@ -48,7 +54,7 @@ export function FoodArt({ id, className = "" }) {
             textAnchor="middle"
             fontSize="11"
             fontWeight="900"
-            fill="#a62537"
+            fill={friesColor}
           >
             {id.endsWith("small") ? "P" : id.endsWith("medium") ? "M" : "G"}
           </text>

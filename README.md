@@ -14,6 +14,16 @@ A bancada e o botão de servir ficam visíveis no ecrã de telemóvel em posiç�
 
 ![Cozinha de treino num telemóvel](docs/cozinha.png)
 
+## Ajuda, áudio e animações
+
+- **Ajuda:** disponível no menu e no botão de interrogação durante o treino. Explica o jogo e permite consultar os ingredientes das quatro receitas. O relógio fica em pausa enquanto o painel está aberto e retoma ao fechá-lo.
+- **Definições:** som geral, efeitos, música de fundo, volume e animações, guardados no dispositivo. Também existe um botão rápido de silêncio no topo. Por defeito, os efeitos estão ativos, o volume fica a 60% e a música está desligada. A preferência de movimento reduzido do sistema é respeitada.
+- **Sons offline:** efeitos originais sintetizados no dispositivo para pão, frango, vegetais, queijo, bacon e molhos; entrada do pedido, entrega, sucesso, erro e aviso nos últimos cinco segundos. Não há ficheiros de áudio remotos. “Testar som” permite verificar o volume.
+- **Animações:** ingredientes voam entre os recipientes e a bandeja, assentam no sanduíche e a bandeja sai ao servir. As ações ficam bloqueadas durante a entrega para evitar duplicação. Os resultados apresentam estrelas e celebram um pedido perfeito com confettis.
+- **Segundo plano:** a música e os efeitos param quando a aplicação deixa de estar visível. O cronómetro continua; a pausa é exclusiva do painel de ajuda e definições. O áudio é iniciado após um toque do utilizador.
+
+![Definições de áudio e movimento](docs/definicoes.png)
+
 ## Instalar no telemóvel
 
 [Descarregar o APK de teste para Android](https://github.com/Adjelson/KFC/raw/refs/heads/main/downloads/monta-treino-debug.apk) · Android 7.0 ou superior · 4,1 MB.
@@ -57,4 +67,4 @@ Ingredientes transcritos das descrições fornecidas pelo utilizador:
 
 O jogo avalia a presença dos ingredientes, sem avaliar ordem, gramagens ou número de fatias. Os limites de tempo são regras do jogo, não padrões oficiais de preparação. Os ícones são ilustrativos. Aplicação independente, sem afiliação à KFC.
 
-A contagem continua se a aplicação ficar em segundo plano; a ronda termina ao voltar se o prazo tiver passado. Só rondas concluídas corretamente antes do prazo contam para o recorde. Os recordes são locais e podem desaparecer ao limpar os dados ou desinstalar a aplicação.
+A contagem continua se a aplicação ficar em segundo plano; a ronda termina ao voltar se o prazo tiver passado. A ajuda e as definições pausam o relógio enquanto estão abertas. Só rondas concluídas corretamente antes do prazo contam para o recorde. Os recordes são locais e podem desaparecer ao limpar os dados ou desinstalar a aplicação.

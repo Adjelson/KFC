@@ -1,5 +1,11 @@
 import React, { useEffect, useRef, useState } from "react";
-import { ingredients, recipes } from "./game.js";
+import {
+  recipes,
+  products,
+  fries,
+  productById,
+  ingredientName,
+} from "./game.js";
 import { Burger, Customer, FoodArt } from "./FoodArt.jsx";
 import { Icon } from "./Icons.jsx";
 
@@ -11,23 +17,22 @@ const guide = [
   },
   {
     title: "Toca para montar",
-    text: "Escolhe os ingredientes na bancada. Toca novamente para retirar.",
+    text: "Escolhe os ingredientes na bancada. Toca novamente para retirar. No Double, toca duas vezes no filete; usa ↶ para desfazer.",
     art: "ingredients",
   },
   {
     title: "Serve a tempo",
-    text: "Nos combos, adiciona cada sanduíche correto à bandeja. Depois serve o pedido completo.",
+    text: "Nos menus, adiciona cada produto correto à bandeja. Depois serve o pedido completo.",
     art: "burger",
   },
   {
     title: "Treina um turno",
-    text: "No início, escolhe 1 ou 5 pedidos. Repete e melhora o teu tempo.",
+    text: "Avança pelos desafios ou escolhe um turno no treino livre. Cada cliente tem o seu talão.",
     art: "shift",
   },
 ];
 export function SupportPanel({
   page,
-  onPage,
   onClose,
   settings,
   onSettings,
@@ -36,7 +41,6 @@ export function SupportPanel({
   training,
   onTraining,
   initialSection,
-  allowSetup = true,
   totals,
   sandwichesMade = 0,
   served = 0,
@@ -58,13 +62,7 @@ export function SupportPanel({
       if (opener?.isConnected) opener.focus();
     };
   }, []);
-  function changePage(id) {
-    onPage(id);
-    setSection(
-      id === "help" ? "guide" : id === "settings" ? "audio" : "recipe",
-    );
-  }
-  const recipe = recipes.find((r) => r.id === recipeId);
+  const recipe = productById(recipeId) || recipes[0];
   const tabs =
     page === "help"
       ? [
@@ -82,6 +80,7 @@ export function SupportPanel({
             ["recipe", "Receita"],
             ["mode", "Modo"],
             ["order", "Pedido"],
+            ["side", "Batatas"],
             ["time", "Tempo"],
           ];
   const title =
@@ -102,33 +101,6 @@ export function SupportPanel({
     >
       <div className="support-header">
         <h2>{title}</h2>
-        <button
-          className="dialog-close"
-          aria-label="Fechar painel"
-          onClick={onClose}
-        >
-          ×
-        </button>
-      </div>
-      <div className="support-navigation">
-        <div className="segmented" role="tablist" aria-label="Opções do painel">
-          {[
-            ["setup", "Treino"],
-            ["help", "Ajuda"],
-            ["settings", "Definições"],
-          ]
-            .filter(([id]) => allowSetup || id !== "setup")
-            .map(([id, text]) => (
-              <button
-                role="tab"
-                key={id}
-                aria-selected={page === id}
-                onClick={() => changePage(id)}
-              >
-                {text}
-              </button>
-            ))}
-        </div>
         {inGame && (
           <span className="pause-notice" role="status">
             Ⅱ Treino em pausa
@@ -210,30 +182,50 @@ export function SupportPanel({
         )}
         {page === "help" && section === "recipes" && (
           <div className="recipe-reference">
-            <label className="sr-only" htmlFor="help-recipe">
-              Sanduíche
-            </label>
-            <select
-              id="help-recipe"
-              value={recipeId}
-              onChange={(e) => setRecipeId(e.target.value)}
-            >
-              {recipes.map((r) => (
-                <option value={r.id} key={r.id}>
-                  {r.name}
-                </option>
-              ))}
-            </select>
+            <div className="reference-selector" aria-label="Selecionar produto">
+              <button
+                aria-label="Receita anterior"
+                onClick={() =>
+                  setRecipeId(
+                    products[
+                      (products.indexOf(recipe) + products.length - 1) %
+                        products.length
+                    ].id,
+                  )
+                }
+              >
+                ←
+              </button>
+              <span>
+                <Burger items={recipe.items} compact />
+                <strong>{recipe.name}</strong>
+              </span>
+              <button
+                aria-label="Receita seguinte"
+                onClick={() =>
+                  setRecipeId(
+                    products[(products.indexOf(recipe) + 1) % products.length]
+                      .id,
+                  )
+                }
+              >
+                →
+              </button>
+            </div>
             <ul className="reference-ingredients">
-              {recipe.items.map((id) => (
-                <li key={id}>
+              {recipe.items.map((id, index) => (
+                <li key={`${id}-${index}`}>
                   <FoodArt id={id} />
-                  <span>{ingredients.find((i) => i.id === id).name}</span>
+                  <span>{ingredientName(id)}</span>
                 </li>
               ))}
             </ul>
             <p className="tiny-note">
-              Ingredientes ilustrados. Sem quantidades ou ordem oficial.
+              {recipe.double
+                ? "Dois filetes; queijo entre os dois quando incluído."
+                : recipe.kind === "fries"
+                  ? "Escolhe a porção indicada no talão: pequena, média ou grande."
+                  : "Ingredientes ilustrados a partir das referências fornecidas."}
             </p>
           </div>
         )}
@@ -249,12 +241,17 @@ export function SupportPanel({
               <strong>{totals.sandwiches}</strong>
               <small>Sanduíches preparados</small>
             </div>
+            <div className="counter-card">
+              <span aria-hidden="true">🍟</span>
+              <strong>{totals.fries}</strong>
+              <small>Porções de batatas</small>
+            </div>
             <p className="counter-session">
               Neste turno: {served} pedidos · {sandwichesMade} sanduíches
             </p>
             <p className="tiny-note">
-              Totais guardados neste dispositivo. Sanduíches contam ao entrar na
-              bandeja; pedidos contam ao servir o cliente.
+              Totais guardados neste dispositivo. Produtos contam ao preparar;
+              pedidos contam ao servir o cliente.
             </p>
           </div>
         )}
@@ -338,7 +335,7 @@ export function SupportPanel({
                 Testar som
               </button>
               <p className="tiny-note">
-                Preferências guardadas · áudio offline
+                Melodia tranquila · preferências guardadas · áudio offline
               </p>
             </div>
           </div>
@@ -396,6 +393,22 @@ export function SupportPanel({
                 </button>
               ))}
             </div>
+            <div className="variant-options" aria-label="Tipo de sandes">
+              {[
+                ["single", "Simples"],
+                ["double", "Double"],
+                ["mixed", "Misturar"],
+              ].map(([id, label]) => (
+                <button
+                  key={id}
+                  aria-pressed={training.variant === id}
+                  className={training.variant === id ? "chosen" : ""}
+                  onClick={() => onTraining({ variant: id })}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
           </div>
         )}
         {page === "setup" && section === "mode" && (
@@ -425,7 +438,7 @@ export function SupportPanel({
         )}
         {page === "setup" && section === "order" && (
           <div className="order-settings">
-            <h3>Sanduíches por cliente</h3>
+            <h3>Unidades por cliente</h3>
             <div className="quantity-options">
               {[1, 2, 3, 4].map((n) => (
                 <button
@@ -462,8 +475,50 @@ export function SupportPanel({
             <p className="tiny-note">
               Variados inclui pelo menos dois tipos.
               <br />
-              {training.limit}s por sanduíche ·{" "}
-              {training.limit * training.quantity}s por cliente
+              {training.limit}s por sanduíche · O tempo inclui os produtos do
+              pedido
+            </p>
+          </div>
+        )}
+        {page === "setup" && section === "side" && (
+          <div className="side-picker">
+            <div className="side-options">
+              {[
+                ["none", "Só sandes", "🍔"],
+                ["with", "Sandes + batatas", "🍔 🍟"],
+                ["only", "Só batatas", "🍟"],
+              ].map(([id, label, art]) => (
+                <button
+                  key={id}
+                  className={training.side === id ? "chosen" : ""}
+                  aria-pressed={training.side === id}
+                  onClick={() => onTraining({ side: id })}
+                >
+                  <span aria-hidden="true">{art}</span>
+                  <strong>{label}</strong>
+                </button>
+              ))}
+            </div>
+            <h3>Tamanho das batatas</h3>
+            <div className="fries-options">
+              {fries.map((f) => (
+                <button
+                  key={f.id}
+                  aria-label={f.name}
+                  aria-pressed={training.friesSize === f.size}
+                  className={training.friesSize === f.size ? "chosen" : ""}
+                  disabled={training.side === "none"}
+                  onClick={() => onTraining({ friesSize: f.size })}
+                >
+                  <FoodArt id={f.id} />
+                  <strong>{f.name.replace("Batatas ", "")}</strong>
+                </button>
+              ))}
+            </div>
+            <p className="tiny-note">
+              Uma porção por sandes no menu.
+              <br />
+              No modo só batatas, a quantidade é a de porções.
             </p>
           </div>
         )}
@@ -487,7 +542,8 @@ export function SupportPanel({
               </button>
             ))}
             <p className="tiny-note">
-              Tempo por sanduíche. O total aumenta nos combos.
+              Tempo por sandes. Cada porção de batatas acrescenta 40% desse
+              tempo (mínimo 10s).
             </p>
           </div>
         )}
@@ -503,7 +559,7 @@ export function SupportPanel({
             : page === "setup"
               ? "Guardar e voltar"
               : "Fechar"}
-          <span>→</span>
+          <span aria-hidden="true">→</span>
         </button>
       </div>
     </dialog>

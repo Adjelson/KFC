@@ -1,0 +1,716 @@
+.app {
+  grid-template-rows: auto minmax(0, 1fr);
+}
+.support-dialog {
+  grid-template-rows: auto auto minmax(0, 1fr) auto;
+}
+.challenge-entry {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 13px 18px;
+  border: 2px solid #ddb777;
+  border-radius: 17px;
+  background: linear-gradient(120deg, #fff1cc, #f1d5a2);
+  box-shadow: 0 4px 0 #d0aa74;
+  text-align: left;
+  color: #82542f;
+}
+.challenge-entry > span:first-child {
+  font-size: 30px;
+}
+.challenge-entry > span:nth-child(2) {
+  display: grid;
+  gap: 4px;
+  flex: 1;
+}
+.challenge-entry strong {
+  font-size: 16px;
+}
+.challenge-entry small {
+  font-size: 11px;
+}
+.challenge-entry b {
+  font-size: 23px;
+}
+.challenge-screen {
+  height: 100%;
+  max-width: 680px;
+  margin: auto;
+  padding: 22px;
+  display: grid;
+  grid-template-rows: auto auto minmax(80px, 1fr) auto auto;
+  gap: 18px;
+  overflow: hidden;
+}
+.path-heading {
+  text-align: center;
+  position: relative;
+}
+.path-heading h1 {
+  font-size: 27px;
+  letter-spacing: -1px;
+  margin: 7px 0;
+}
+.path-stars {
+  color: #b57b28;
+  font-weight: 800;
+  font-size: 13px;
+}
+.chapter-tabs {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+.chapter-tabs button {
+  border: 1px solid #dfc6a0;
+  border-radius: 15px;
+  background: #f4e7ce;
+  padding: 12px 6px;
+  display: grid;
+  gap: 6px;
+  place-items: center;
+}
+.chapter-tabs button[aria-selected="true"] {
+  background: #a92338;
+  border-color: #8a1f31;
+  color: #fff1d5;
+  box-shadow: 0 4px #75172a;
+}
+.chapter-tabs span {
+  font-size: 24px;
+}
+.chapter-tabs small {
+  font-size: 11px;
+  font-weight: 800;
+  line-height: 1.2;
+}
+.level-path {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  gap: 8px;
+  min-height: 0;
+  background: radial-gradient(ellipse, #f0d9ad, transparent 70%);
+  border-radius: 24px;
+}
+.path-rail {
+  position: absolute;
+  width: 80%;
+  border-top: 5px dashed #d1b589;
+  top: 50%;
+}
+.level-node {
+  z-index: 1;
+  border: 0;
+  background: none;
+  padding: 4px;
+  display: grid;
+  gap: 7px;
+  justify-items: center;
+}
+.level-node:nth-of-type(even) {
+  transform: translateY(-13px);
+}
+.level-node:nth-of-type(odd) {
+  transform: translateY(13px);
+}
+.level-node strong {
+  display: grid;
+  place-items: center;
+  width: 65px;
+  height: 65px;
+  border-radius: 22px;
+  background: #e8d8ba;
+  border: 3px solid #fff6e3;
+  box-shadow: 0 5px #b99b71;
+  font-size: 25px;
+  color: #88643b;
+}
+.level-node.selected strong {
+  background: #b5273e;
+  color: #fff5d8;
+  box-shadow:
+    0 5px #7b1b30,
+    0 0 0 4px #e5ba71;
+}
+.level-node.completed strong {
+  background: #62844a;
+  color: white;
+}
+.level-node small {
+  font-size: 12px;
+  color: #af7a27;
+  letter-spacing: 1px;
+}
+.level-detail {
+  border: 1px solid #dfc7a3;
+  border-radius: 18px;
+  background: #fff8e9;
+  padding: 15px;
+  text-align: center;
+}
+.level-detail h2 {
+  font-size: 23px;
+  margin: 5px 0 12px;
+}
+.level-features {
+  display: flex;
+  justify-content: center;
+  gap: 7px;
+  flex-wrap: wrap;
+}
+.level-features span {
+  font-size: 11px;
+  font-weight: 750;
+  padding: 8px;
+  border-radius: 9px;
+  background: #f0e3c9;
+}
+.level-detail p {
+  font-size: 12px;
+  line-height: 1.4;
+  margin-top: 12px;
+  color: #98764c;
+}
+.variant-options {
+  display: flex;
+  gap: 6px;
+}
+.variant-options button {
+  flex: 1;
+  padding: 8px;
+  border: 1px solid #d9c29f;
+  border-radius: 9px;
+  background: #f7ebd6;
+  font-size: 12px;
+  font-weight: 750;
+}
+.recipe-picker {
+  grid-template-rows: 40px minmax(0, 1fr) auto;
+}
+.side-picker {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 20px;
+}
+.side-picker h3 {
+  font-size: 14px;
+  text-align: center;
+  color: #a17c51;
+}
+.side-options,
+.fries-options {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+.side-options button,
+.fries-options button {
+  display: grid;
+  place-items: center;
+  gap: 8px;
+  padding: 14px 5px;
+  background: #f4e7ce;
+  border: 1px solid #ddc6a2;
+  border-radius: 13px;
+  min-width: 0;
+}
+.side-options span {
+  font-size: 24px;
+}
+.side-options strong,
+.fries-options strong {
+  font-size: 11px;
+}
+.fries-options svg {
+  width: 100%;
+  max-height: 110px;
+}
+.side-options .chosen,
+.fries-options .chosen,
+.variant-options .chosen {
+  border-color: #b92c40;
+  background: #f8dfcf;
+  color: #9c2234;
+  box-shadow: inset 0 0 0 1px #b92c40;
+}
+.reference-selector {
+  display: grid;
+  grid-template-columns: 40px minmax(0, 1fr) 40px;
+  align-items: center;
+  gap: 7px;
+  background: #f4e6cc;
+  border: 1px solid #dfc7a2;
+  border-radius: 12px;
+  padding: 6px;
+}
+.reference-selector > button,
+.line-pager button {
+  border: 1px solid #ddc6a2;
+  border-radius: 9px;
+  background: #fff7e7;
+  font-size: 21px;
+  min-height: 36px;
+}
+.reference-selector > span {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  min-height: 50px;
+  padding-left: 60px;
+}
+.reference-selector strong {
+  font-size: 12px;
+}
+.reference-selector .burger-stack {
+  position: absolute;
+  left: 30px;
+  bottom: 4px;
+  transform: translateX(-50%) scale(0.23);
+  transform-origin: bottom;
+}
+.reference-ingredients {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+.reference-ingredients span {
+  font-size: 10px;
+}
+.counter-page {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-rows: minmax(0, 1fr) auto auto;
+}
+.counter-card {
+  padding: 9px;
+  gap: 10px;
+}
+.counter-card > strong {
+  font-size: 34px;
+}
+.counter-card > small {
+  font-size: 10px;
+}
+.assembly-title {
+  gap: 6px;
+  align-items: center;
+}
+.undo-ingredient {
+  flex: none;
+  background: #f8ecd7;
+  color: #9e774c;
+  border: 1px solid #dec7a4;
+  border-radius: 7px;
+  width: 29px;
+  height: 25px;
+  font-size: 20px;
+  line-height: 1;
+  padding: 0;
+  pointer-events: auto;
+}
+.assembly-title > span:nth-child(2) {
+  margin-left: auto;
+}
+.assembled-fries {
+  position: absolute;
+  width: 230px;
+  height: 170px;
+  bottom: 14px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+.kitchen .fries-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-rows: minmax(0, 1fr);
+}
+.fries-grid .ingredient-pan {
+  height: 100%;
+  max-height: 190px;
+}
+.fries-grid .food-art {
+  width: 100%;
+  height: 100%;
+}
+.fries-grid .ingredient {
+  justify-content: center;
+  min-height: 0;
+}
+.line-pager {
+  display: flex;
+  gap: 9px;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  font-weight: 700;
+}
+.line-pager button {
+  min-height: 22px;
+  font-size: 14px;
+  width: 31px;
+}
+.prepared-tray {
+  grid-template-columns: repeat(var(--products, 1), minmax(0, 1fr));
+}
+@media (max-width: 360px) {
+  .challenge-screen {
+    padding: 12px;
+    gap: 12px;
+  }
+  .path-heading h1 {
+    font-size: 22px;
+  }
+  .chapter-tabs small {
+    font-size: 10px;
+  }
+  .chapter-tabs button {
+    padding: 8px 3px;
+  }
+  .level-node strong {
+    width: 52px;
+    height: 52px;
+    font-size: 21px;
+  }
+  .level-detail {
+    padding: 11px;
+  }
+  .level-detail h2 {
+    font-size: 20px;
+  }
+  .level-detail p {
+    font-size: 11px;
+  }
+  .level-features span {
+    padding: 6px;
+    font-size: 10px;
+  }
+  .challenge-entry {
+    padding: 10px 12px;
+  }
+  .challenge-entry strong {
+    font-size: 14px;
+  }
+}
+@media (max-height: 700px) {
+  .home-screen {
+    gap: 10px;
+    padding: 14px 18px;
+  }
+  .challenge-entry {
+    padding: 9px 14px;
+  }
+  .challenge-entry > span:first-child {
+    font-size: 25px;
+  }
+  .challenge-entry strong {
+    font-size: 14px;
+  }
+  .challenge-entry small {
+    font-size: 10px;
+  }
+  .side-picker {
+    gap: 12px;
+  }
+  .side-options button,
+  .fries-options button {
+    padding: 9px 4px;
+  }
+  .fries-options svg {
+    max-height: 85px;
+  }
+  .reference-selector > span {
+    min-height: 40px;
+  }
+  .counter-card > span {
+    font-size: 25px;
+  }
+}
+@media (max-height: 520px) and (orientation: landscape) {
+  .home-screen {
+    width: 100%;
+    max-width: 780px;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: auto minmax(0, 1fr) auto;
+    padding: 12px 22px;
+    gap: 8px 22px;
+  }
+  .home-heading {
+    grid-column: 1;
+    grid-row: 1;
+  }
+  .home-heading h1 {
+    font-size: 23px;
+    margin-top: 3px;
+  }
+  .home-hero {
+    grid-column: 1;
+    grid-row: 2/4;
+    min-height: 0;
+  }
+  .challenge-entry {
+    grid-column: 2;
+    grid-row: 1;
+  }
+  .training-badges.with-order-size {
+    grid-column: 2;
+    grid-row: 2;
+    align-self: center;
+  }
+  .home-screen .play-button {
+    grid-column: 2;
+    grid-row: 3;
+  }
+  .challenge-screen {
+    max-width: 850px;
+    padding: 10px 20px;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: auto minmax(0, 1fr) auto;
+    gap: 8px 20px;
+  }
+  .path-heading {
+    grid-column: 1;
+    grid-row: 1;
+  }
+  .path-heading h1 {
+    font-size: 20px;
+    margin: 3px 0;
+  }
+  .path-stars {
+    font-size: 10px;
+  }
+  .chapter-tabs {
+    grid-column: 2;
+    grid-row: 1;
+  }
+  .chapter-tabs button {
+    padding: 5px;
+  }
+  .chapter-tabs span {
+    font-size: 17px;
+  }
+  .chapter-tabs small {
+    font-size: 9px;
+  }
+  .level-path {
+    grid-column: 1;
+    grid-row: 2/4;
+  }
+  .level-node strong {
+    width: 53px;
+    height: 53px;
+  }
+  .level-detail {
+    grid-column: 2;
+    grid-row: 2;
+    padding: 8px;
+  }
+  .level-detail h2 {
+    font-size: 18px;
+    margin: 3px 0 7px;
+  }
+  .level-features span {
+    font-size: 9px;
+    padding: 5px;
+  }
+  .level-detail p {
+    font-size: 10px;
+    margin-top: 7px;
+  }
+  .challenge-screen > .primary {
+    grid-column: 2;
+    grid-row: 3;
+    min-height: 33px;
+    font-size: 12px;
+    padding: 7px;
+  }
+  .side-picker {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: auto minmax(0, 1fr) auto;
+    gap: 5px 15px;
+  }
+  .side-options {
+    grid-column: 1;
+    grid-row: 1/4;
+    align-self: center;
+  }
+  .side-options button {
+    padding: 12px 4px;
+  }
+  .side-options span {
+    font-size: 20px;
+  }
+  .side-options strong {
+    font-size: 10px;
+  }
+  .side-picker h3 {
+    grid-column: 2;
+    font-size: 11px;
+  }
+  .fries-options {
+    grid-column: 2;
+    grid-row: 2;
+    min-height: 0;
+  }
+  .fries-options button {
+    padding: 4px;
+    gap: 3px;
+  }
+  .fries-options svg {
+    max-height: 75px;
+  }
+  .side-picker .tiny-note {
+    grid-column: 2;
+    grid-row: 3;
+    font-size: 9px;
+  }
+  .recipe-picker {
+    grid-template-rows: 25px minmax(0, 1fr) 28px;
+    gap: 5px;
+  }
+  .variant-options button {
+    padding: 4px;
+    font-size: 10px;
+  }
+  .reference-selector > span {
+    min-height: 25px;
+  }
+  .reference-selector .burger-stack {
+    transform: translateX(-50%) scale(0.18);
+  }
+  .reference-selector > button {
+    min-height: 25px;
+  }
+  .recipe-reference {
+    gap: 5px;
+  }
+  .reference-ingredients {
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+  }
+  .reference-ingredients li {
+    padding: 3px;
+  }
+  .reference-ingredients span {
+    font-size: 9px;
+  }
+  .reference-ingredients svg {
+    min-height: 20px;
+    max-height: 60px;
+  }
+  .counter-page {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-rows: minmax(0, 1fr) auto auto;
+    gap: 5px;
+  }
+  .counter-card {
+    gap: 5px;
+    padding: 5px;
+  }
+  .counter-card > span {
+    font-size: 20px;
+  }
+  .counter-card > strong {
+    font-size: 26px;
+  }
+  .counter-card > small {
+    font-size: 9px;
+  }
+  .counter-session {
+    padding: 5px;
+    font-size: 9px;
+  }
+  .kitchen .fries-grid .ingredient-pan {
+    height: 100%;
+    max-height: 120px;
+  }
+}
+
+.prepared-tray[style*="--products: 5"] {
+  gap: 3px;
+}
+.prepared-tray[style*="--products: 5"] .tray-product small {
+  font-size: 7px;
+}
+.kitchen .assembly .prepared-tray[style*="--products: 5"] .burger-stack {
+  transform: translateX(-50%) scale(0.2);
+}
+.result-burger .prepared-tray[style*="--products: 5"] .burger-stack {
+  transform: translateX(-50%) scale(0.2);
+}
+@media (max-height: 700px) and (orientation: portrait) {
+  .challenge-screen {
+    padding: 12px;
+    gap: 10px;
+    grid-template-rows: auto auto minmax(0, 1fr) auto auto;
+  }
+  .path-heading h1 {
+    font-size: 20px;
+    line-height: 1.15;
+    margin: 4px 0;
+  }
+  .path-stars {
+    font-size: 11px;
+  }
+  .chapter-tabs button {
+    padding: 7px 3px;
+    gap: 4px;
+  }
+  .chapter-tabs span {
+    font-size: 20px;
+  }
+  .chapter-tabs small {
+    font-size: 10px;
+  }
+  .level-node {
+    gap: 4px;
+  }
+  .level-node strong {
+    width: 44px;
+    height: 44px;
+    border-radius: 15px;
+    font-size: 19px;
+  }
+  .level-node small {
+    font-size: 10px;
+  }
+  .level-node:nth-of-type(even) {
+    transform: translateY(-7px);
+  }
+  .level-node:nth-of-type(odd) {
+    transform: translateY(7px);
+  }
+  .level-detail {
+    padding: 10px;
+  }
+  .level-detail h2 {
+    font-size: 19px;
+    margin: 3px 0 8px;
+  }
+  .level-detail p {
+    font-size: 10px;
+    margin-top: 8px;
+  }
+  .level-features {
+    gap: 5px;
+  }
+  .level-features span {
+    font-size: 9px;
+    padding: 6px;
+  }
+  .challenge-screen > .primary {
+    min-height: 41px;
+    font-size: 12px;
+    padding: 9px;
+  }
+}
+@media (max-height: 520px) and (orientation: landscape) {
+  .recipe-reference {
+    grid-template-rows: 40px minmax(0, 1fr);
+  }
+  .reference-selector {
+    height: 40px;
+  }
+}

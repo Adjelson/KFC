@@ -4,7 +4,14 @@ const TOTALS_KEY = "montagem-totals";
 const safeCount = (n) => (Number.isSafeInteger(n) && n >= 0 ? n : 0);
 
 export function makeOrder(
-  { choice = "random", quantity = 1, assortment = "same", variant = "single", side = "none", friesSize = "small" } = {},
+  {
+    choice = "random",
+    quantity = 1,
+    assortment = "same",
+    variant = "single",
+    side = "none",
+    friesSize = "small",
+  } = {},
   previous,
   random = Math.random,
 ) {
@@ -23,9 +30,14 @@ export function makeOrder(
     );
   }
   if (side === "only") ids.length = 0;
-  else for (let i=0;i<ids.length;i++) if (variant === "double" || (variant === "mixed" && random() < .5)) ids[i] += "-double";
+  else
+    for (let i = 0; i < ids.length; i++)
+      if (variant === "double" || (variant === "mixed" && random() < 0.5))
+        ids[i] += "-double";
   if (side !== "none") {
-    const size = ["small","medium","large"].includes(friesSize) ? friesSize : "small";
+    const size = ["small", "medium", "large"].includes(friesSize)
+      ? friesSize
+      : "small";
     ids.push(...Array(count).fill(`fries-${size}`));
   }
   return [...new Set(ids)].map((recipeId) => ({
@@ -89,7 +101,10 @@ export function saveTotals(totals) {
 }
 export function addTotals(totals, { orders = 0, sandwiches = 0, fries = 0 }) {
   return {
-    fries: Math.min(Number.MAX_SAFE_INTEGER, safeCount(totals.fries) + safeCount(fries)),
+    fries: Math.min(
+      Number.MAX_SAFE_INTEGER,
+      safeCount(totals.fries) + safeCount(fries),
+    ),
     orders: Math.min(
       Number.MAX_SAFE_INTEGER,
       safeCount(totals.orders) + safeCount(orders),
@@ -102,5 +117,13 @@ export function addTotals(totals, { orders = 0, sandwiches = 0, fries = 0 }) {
 }
 
 export function orderDuration(order, limit) {
-  return order.reduce((total,line)=>total+line.quantity*(productById(line.recipeId)?.kind === "fries" ? Math.max(10,Math.round(limit*.4)) : limit),0);
+  return order.reduce(
+    (total, line) =>
+      total +
+      line.quantity *
+        (productById(line.recipeId)?.kind === "fries"
+          ? Math.max(10, Math.round(limit * 0.4))
+          : limit),
+    0,
+  );
 }

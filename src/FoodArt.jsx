@@ -19,6 +19,41 @@ export function FoodArt({ id, className = "" }) {
       aria-hidden="true"
     >
       <ellipse cx="52" cy="54" rx="40" ry="5" fill="#3f2719" opacity=".12" />
+      {id.startsWith("fries-") && (
+        <g
+          transform={`translate(52 55) scale(${id.endsWith("small") ? 0.72 : id.endsWith("medium") ? 0.86 : 1}) translate(-52 -55)`}
+        >
+          {[23, 32, 41, 50, 59, 68, 77].map((x, i) => (
+            <rect
+              key={x}
+              x={x}
+              y={8 + (i % 3) * 3}
+              width="8"
+              height="36"
+              rx="2"
+              fill={i % 2 ? "#ffd46b" : "#efae36"}
+              transform={`rotate(${(i - 3) * 3} ${x} 40)`}
+            />
+          ))}
+          <path d="M17 29Q52 42 87 29L80 57Q52 65 24 57Z" fill="#b72236" />
+          <path
+            d="M28 35L32 59M48 39L49 62M68 37L66 60"
+            stroke="#fff1d2"
+            strokeWidth="9"
+          />
+          <ellipse cx="52" cy="46" rx="11" ry="9" fill="#fff5db" />
+          <text
+            x="52"
+            y="50"
+            textAnchor="middle"
+            fontSize="11"
+            fontWeight="900"
+            fill="#a62537"
+          >
+            {id.endsWith("small") ? "P" : id.endsWith("medium") ? "M" : "G"}
+          </text>
+        </g>
+      )}
       {bun && (
         <>
           <path
@@ -139,17 +174,12 @@ export function Burger({ items, compact = false, action, fit = false }) {
     [fitScale, setFitScale] = useState(1);
   const bread = items.filter((id) => ["seeds", "mini", "brioche"].includes(id));
   const fillings = [
-    "mayo",
-    "bbq",
-    "fillet",
-    "tender",
-    "cheese",
-    "bacon",
-    "cheddar",
-    "tomato",
-    "lettuce",
-  ].filter((id) => items.includes(id));
-  // Layers are illustrative. Recipe scoring does not assert an official assembly order.
+    ...items.filter((id) => ["mayo", "bbq"].includes(id)),
+    ...items.filter((id) => ["fillet", "tender", "cheese"].includes(id)),
+    ...items.filter((id) =>
+      ["bacon", "cheddar", "tomato", "lettuce"].includes(id),
+    ),
+  ];
   const layers = [...(bread.length ? ["base"] : []), ...fillings, ...bread];
   useLayoutEffect(() => {
     if (!fit || !stack.current) return;
@@ -179,14 +209,22 @@ export function Burger({ items, compact = false, action, fit = false }) {
       role="img"
       aria-label={
         items.length
-          ? `Sanduíche com ${items.length} ingredientes`
+          ? items.some((id) => id.startsWith("fries-"))
+            ? "Porção de batatas"
+            : `Sanduíche com ${items.length} ingredientes`
           : "Bandeja vazia"
       }
     >
       <div className="plate" />
+      {items.find((id) => id.startsWith("fries-")) && (
+        <FoodArt
+          id={items.find((id) => id.startsWith("fries-"))}
+          className="assembled-fries"
+        />
+      )}
       {layers.map((id, index) => (
         <div
-          key={id}
+          key={`${id}-${index}`}
           className={`burger-layer layer-${id} ${action?.id === id && !action.remove ? "fresh-layer" : ""}`}
           style={{ "--layer": index, "--count": layers.length }}
         >
@@ -201,9 +239,12 @@ export function Customer({ number = 1 }) {
   const skin = ["#dba274", "#f1c69b", "#e4b18c", "#ac714d", "#f0cfb2"][
     (number - 1) % 5
   ];
+  const shirt = ["#c3293b", "#457d85", "#78549a", "#bb7932", "#54855b"][
+    (number - 1) % 5
+  ];
   return (
     <svg viewBox="0 0 70 80" aria-hidden="true">
-      <path d="M8 80V65Q35 48 62 65V80" fill="#c3293b" />
+      <path d="M8 80V65Q35 48 62 65V80" fill={shirt} />
       <path d="M26 60L35 70 44 60V80H26Z" fill="#fff3db" />
       <path d="M14 33C10 0 59 0 57 34L54 55H17Z" fill="#603f31" />
       <ellipse cx="35" cy="36" rx="20" ry="25" fill={skin} />

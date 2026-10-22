@@ -1,6 +1,14 @@
 import React, { useState, useEffect, useRef } from "react";
 import { createRoot } from "react-dom/client";
-import { ingredients, recipes, evaluate, remainingSeconds } from "./game.js";
+import {
+  ingredients,
+  recipes,
+  fries,
+  productById,
+  ingredientName,
+  evaluate,
+  remainingSeconds,
+} from "./game.js";
 import { FoodArt, Burger, Customer } from "./FoodArt.jsx";
 import { sound, loadSettings, saveSettings } from "./audio.js";
 import { SupportPanel } from "./SupportPanel.jsx";
@@ -15,11 +23,22 @@ import {
   loadTotals,
   saveTotals,
   addTotals,
+  orderDuration,
 } from "./orders.js";
 import { OrderLines, PreparedTray } from "./OrderViews.jsx";
+import { ChallengePath } from "./ChallengePath.jsx";
+import {
+  levels,
+  loadProgress,
+  isUnlocked,
+  completeLevel,
+  saveProgress,
+  challengeOrder,
+} from "./challenges.js";
 import "./style.css";
+import "./challenges.css";
 
-const name = (id) => ingredients.find((i) => i.id === id)?.name;
+const name = ingredientName;
 function readBest() {
   try {
     return JSON.parse(localStorage.getItem("montagem-best") || "{}") || {};
@@ -33,6 +52,13 @@ function App() {
   const [limit, setLimit] = useState(60);
   const [choice, setChoice] = useState("random");
   const [mode, setMode] = useState(1);
+  const [variant, setVariant] = useState("single"),
+    [side, setSide] = useState("none"),
+    [friesSize, setFriesSize] = useState("small");
+  const [levelProgress, setLevelProgress] = useState(loadProgress);
+  const [run, setRun] = useState({ limit: 60, clients: 1, challengeId: null });
+  const runMode = run.clients;
+  const performance = useRef([]);
   const [quantity, setQuantity] = useState(1),
     [assortment, setAssortment] = useState("same");
   const [order, setOrder] = useState([{ recipeId: "krunch", quantity: 1 }]),
@@ -45,7 +71,7 @@ function App() {
     preparingRef = useRef(false);
   const progress = orderProgress(order, prepared),
     isCombo = progress.total > 1,
-    roundLimit = limit * progress.total;
+    roundLimit = orderDuration(order, run.limit);
   const ready = isCombo && progress.complete;
   function recordProduction(change) {
     const next = addTotals(totalsRef.current, change);
@@ -127,9 +153,10 @@ function App() {
     if (!settings.animations || !source || !assembly.current) return;
     const pan = document.querySelector(`[data-ingredient="${id}"]`);
     const from = (remove ? pan || source : source).getBoundingClientRect(),
-      to = assembly.current
-        .querySelector(".burger-stack")
-        .getBoundingClientRect();
+      to =
+        assembly.current
+          .querySelector(".burger-stack")
+          ?.getBoundingClientRect() || assembly.current.getBoundingClientRect();
     const panX = from.x + from.width / 2,
       panY = from.y + from.height / 2,
       plateX = to.x + to.width / 2,
@@ -213,9 +240,31 @@ function App() {
         (roundLimit * 1000 - (deadline.current - Date.now())) / 1000,
       ),
     );
-    const bestKey = orderBestKey(order, limit);
+    const bestKey = orderBestKey(order, run.limit);
     const complete = () => {
+      const success = verdict.perfect && !timeout;
+      performance.current.push(success ? elapsed / roundLimit : 1);
+      const levelFinished = run.challengeId && round === runMode;
+      const levelPassed =
+        levelFinished && served + (success ? 1 : 0) === runMode;
+      const levelStars = levelPassed
+        ? performance.current.every((t) => t <= 0.5)
+          ? 3
+          : performance.current.every((t) => t <= 0.8)
+            ? 2
+            : 1
+        : 0;
+      if (levelPassed)
+        setLevelProgress((old) => {
+          const next = completeLevel(old, run.challengeId, levelStars);
+          saveProgress(next);
+          return next;
+        });
       setResult({
+        challengeId: run.challengeId,
+        levelFinished,
+        levelPassed,
+        levelStars,
         ...verdict,
         timeout,
         elapsed,
@@ -232,8 +281,13 @@ function App() {
       sound.play(timeout ? "timeout" : verdict.perfect ? "success" : "error");
       if (verdict.perfect && !timeout) {
         setServed((n) => n + 1);
-        recordProduction({ orders: 1, sandwiches: isCombo ? 0 : 1 });
-        if (!isCombo) setSandwichesMade((n) => n + 1);
+        recordProduction({
+          orders: 1,
+          sandwiches: !isCombo && recipe.kind !== "fries" ? 1 : 0,
+          fries: !isCombo && recipe.kind === "fries" ? 1 : 0,
+        });
+        if (!isCombo && recipe.kind !== "fries")
+          setSandwichesMade((n) => n + 1);
         setBest((old) => {
           const next = {
             ...old,
@@ -272,8 +326,10 @@ function App() {
     preparingRef.current = true;
     preparedRef.current = credit.counts;
     setPrepared(credit.counts);
-    setSandwichesMade((n) => n + 1);
-    recordProduction({ sandwiches: 1 });
+    if (recipe.kind !== "fries") setSandwichesMade((n) => n + 1);
+    recordProduction(
+      recipe.kind === "fries" ? { fries: 1 } : { sandwiches: 1 },
+    );
     setAssemblyError(null);
     clearFlights();
     const complete = () => {
@@ -329,7 +385,24 @@ function App() {
     };
   }, [screen, recipe, limit]);
 
-  function start(nextCustomer = false) {
+  function start(nextCustomer = false, challengeId = run.challengeId) {
+    if (challengeId && !isUnlocked(challengeId, levelProgress)) return;
+    const level = levels.find((l) => l.id === challengeId);
+    const config = level || {
+      choice,
+      quantity,
+      assortment,
+      variant,
+      side,
+      friesSize,
+      limit,
+      clients: mode,
+    };
+    const nextRound = nextCustomer ? round + 1 : 1;
+    if (!nextCustomer) {
+      setRun({ ...config, challengeId: level?.id || null });
+      performance.current = [];
+    }
     sound.unlock();
     sound.play("click");
     clearTimeout(delivery.current);
@@ -343,17 +416,19 @@ function App() {
       setServed(0);
       setSandwichesMade(0);
     }
-    const nextOrder = makeOrder({ choice, quantity, assortment }, recipe.id);
+    const nextOrder = level
+      ? challengeOrder(level, nextRound, recipe.id)
+      : makeOrder(config, recipe.id);
     setOrder(nextOrder);
     setPrepared({});
     preparedRef.current = {};
     preparingRef.current = false;
     setAssemblyError(null);
-    setRecipe(recipes.find((r) => r.id === nextOrder[0].recipeId));
+    setRecipe(productById(nextOrder[0].recipeId));
     setSelected([]);
     selection.current = [];
     setResult(null);
-    setRemaining(limit * quantity);
+    setRemaining(orderDuration(nextOrder, config.limit));
     active.current = false;
     setScreen("loading");
   }
@@ -369,10 +444,17 @@ function App() {
       finish(true);
       return;
     }
-    const remove = selection.current.includes(id);
-    const next = remove
-      ? selection.current.filter((x) => x !== id)
-      : [...selection.current, id];
+    const count = selection.current.filter((x) => x === id).length;
+    const doubleProtein = recipe.double && ["fillet", "tender"].includes(id);
+    const remove = count >= (doubleProtein ? 2 : 1);
+    const next =
+      recipe.kind === "fries"
+        ? remove
+          ? []
+          : [id]
+        : remove
+          ? selection.current.filter((x) => x !== id)
+          : [...selection.current, id];
     setAssemblyError(null);
     sound.ingredient(id, remove);
     setAction({ id, remove, key: ++actionNumber.current });
@@ -392,7 +474,7 @@ function App() {
     setScreen("home");
   }
   const bestTime = best[result?.bestKey || orderBestKey(order, limit)];
-  const shiftFinished = mode > 1 && round === mode;
+  const shiftFinished = runMode > 1 && round === runMode;
   const hits = result?.isCombo ? result.made : result?.correct.length;
   const expected = result?.isCombo ? result.total : recipe.items.length;
   const stars =
@@ -419,45 +501,54 @@ function App() {
         />
       </div>
     );
-  const train = { choice, limit, mode, quantity, assortment };
+  const train = {
+    choice,
+    limit,
+    mode,
+    quantity,
+    assortment,
+    variant,
+    side,
+    friesSize,
+  };
   function updateTraining(next) {
     if (next.choice !== undefined) setChoice(next.choice);
     if (next.limit !== undefined) setLimit(next.limit);
     if (next.mode !== undefined) setMode(next.mode);
     if (next.quantity !== undefined) setQuantity(next.quantity);
     if (next.assortment !== undefined) setAssortment(next.assortment);
+    if (next.variant !== undefined) setVariant(next.variant);
+    if (next.side !== undefined) setSide(next.side);
+    if (next.friesSize !== undefined) setFriesSize(next.friesSize);
     sound.play("click");
+  }
+  function nextResult() {
+    if (runMode > 1 && !shiftFinished) start(true);
+    else if (run.challengeId)
+      start(
+        false,
+        result.levelPassed && run.challengeId < levels.length
+          ? run.challengeId + 1
+          : run.challengeId,
+      );
+    else start(false, null);
+  }
+  function showPath() {
+    home();
+    setScreen("challenges");
   }
   return (
     <div
       className={`app screen-${screen} ${settings.animations ? "" : "motion-off"}`}
     >
       <header className="topbar">
-        <a
-          className="brand"
-          href="#"
-          onClick={(e) => {
-            e.preventDefault();
-            home();
-          }}
-          aria-label="Monta e Treina — início"
-        >
+        <div className="brand" aria-label="Monta e Treina">
           <span className="brand-icon">M</span>
           <span>
             MONTA<span className="brand-light"> & TREINA</span>
           </span>
-        </a>
+        </div>
         <div className="header-tools">
-          <button
-            className="tool-button sound-toggle"
-            aria-label={settings.enabled ? "Silenciar som" : "Ativar som"}
-            aria-pressed={settings.enabled}
-            onClick={() =>
-              updateSettings({ ...settings, enabled: !settings.enabled })
-            }
-          >
-            <Icon name={settings.enabled ? "sound" : "mute"} />
-          </button>
           <button
             className="tool-button"
             aria-label="Abrir ajuda"
@@ -475,11 +566,13 @@ function App() {
             <Icon name="settings" />
           </button>
         </div>
-        {screen === "game" && (
+        {(screen === "game" || screen === "challenges") && (
           <button
             className="exit-button"
             onClick={home}
-            aria-label="Abandonar treino"
+            aria-label={
+              screen === "game" ? "Abandonar treino" : "Voltar ao início"
+            }
           >
             ×
           </button>
@@ -489,10 +582,17 @@ function App() {
         {screen === "home" && (
           <Home
             {...train}
-            onStart={() => start()}
-            onStats={() => openPanel("help", "stats")}
+            onStart={() => start(false, null)}
+            onChallenges={showPath}
+            levelProgress={levelProgress}
             totals={totals}
             onSetup={(section) => openPanel("setup", section)}
+          />
+        )}
+        {screen === "challenges" && (
+          <ChallengePath
+            progress={levelProgress}
+            onStart={(id) => start(false, id)}
           />
         )}
         {screen === "game" && (
@@ -507,7 +607,8 @@ function App() {
               <div className="ticket">
                 <span className="ticket-caption">
                   PEDIDO #{String(round).padStart(3, "0")}{" "}
-                  {mode > 1 && `· ${round}/${mode}`}
+                  {runMode > 1 && `· ${round}/${runMode}`} ·{" "}
+                  {run.challengeId ? `NÍVEL ${run.challengeId}` : "LIVRE"}
                 </span>
                 <h1 tabIndex="-1" ref={heading}>
                   {isCombo ? "Pedido combinado" : recipe.name}
@@ -520,8 +621,8 @@ function App() {
                     disabled={serving}
                   />
                 ) : (
-                  <span className="ticket-note" aria-label="1 sanduíche">
-                    🍔 × 1
+                  <span className="ticket-note" aria-label="1 produto">
+                    {recipe.kind === "fries" ? "🍟" : "🍔"} × 1
                   </span>
                 )}
                 {isCombo && (
@@ -529,7 +630,7 @@ function App() {
                     className="combo-counter"
                     aria-live="polite"
                     aria-atomic="true"
-                    aria-label={`${progress.made} de ${progress.total} sanduíches preparados`}
+                    aria-label={`${progress.made} de ${progress.total} produtos preparados`}
                   >
                     ✓ {progress.made}/{progress.total} preparados
                   </span>
@@ -566,6 +667,21 @@ function App() {
                     ? `✓ ${progress.made}/${progress.total}`
                     : `${selected.length} ingredientes`}
                 </span>
+                <button
+                  className="undo-ingredient"
+                  aria-label="Retirar último ingrediente"
+                  disabled={!selected.length || serving || ready}
+                  onClick={() => {
+                    const next = selection.current.slice(0, -1);
+                    selection.current = next;
+                    setSelected(next);
+                    setAssemblyError(null);
+                    setAction(null);
+                    sound.play("click");
+                  }}
+                >
+                  ↶
+                </button>
               </div>
               {ready && !serving ? (
                 <PreparedTray lines={progress.lines} />
@@ -597,8 +713,9 @@ function App() {
               )}
               {assemblyError && (
                 <div className="assembly-error" role="alert">
-                  Revê a montagem · faltam {assemblyError.missing.length} · a
-                  mais {assemblyError.extra.length}
+                  {assemblyError.stackError
+                    ? "Coloca o queijo entre os dois filetes."
+                    : `Revê a montagem · faltam ${assemblyError.missing.length} · a mais ${assemblyError.extra.length}`}
                 </div>
               )}
             </section>
@@ -607,11 +724,19 @@ function App() {
               aria-label="Bancada de ingredientes"
             >
               <div className="section-line">
-                <h2>Bancada de ingredientes</h2>
+                <h2>
+                  {recipe.kind === "fries"
+                    ? "Porções de batatas"
+                    : recipe.double
+                      ? "Double · 2 filetes"
+                      : "Bancada de ingredientes"}
+                </h2>
                 <span aria-hidden="true">＋</span>
               </div>
-              <div className="ingredient-grid">
-                {ingredients.map((i) => (
+              <div
+                className={`ingredient-grid ${recipe.kind === "fries" ? "fries-grid" : ""}`}
+              >
+                {(recipe.kind === "fries" ? fries : ingredients).map((i) => (
                   <button
                     className={`ingredient ${selected.includes(i.id) ? "selected" : ""} ${action?.id === i.id ? "ingredient-tapped" : ""}`}
                     key={i.id}
@@ -624,7 +749,11 @@ function App() {
                     <span className="ingredient-pan">
                       <FoodArt id={i.id} />
                       <span className="check">
-                        {selected.includes(i.id) ? "✓" : "+"}
+                        {selected.includes(i.id)
+                          ? recipe.double && ["fillet", "tender"].includes(i.id)
+                            ? `${selected.filter((id) => id === i.id).length}/2`
+                            : "✓"
+                          : "+"}
                       </span>
                     </span>
                     <strong>{i.name}</strong>
@@ -636,15 +765,15 @@ function App() {
               <span
                 className="serve-hint"
                 aria-label={
-                  mode > 1
+                  runMode > 1
                     ? `${served} pedidos perfeitos neste turno`
                     : "O cliente está à espera"
                 }
               >
                 {isCombo
                   ? `🍔 ${progress.made}/${progress.total}`
-                  : mode > 1
-                    ? `✓ ${served} · ${round}/${mode}`
+                  : runMode > 1
+                    ? `✓ ${served} · ${round}/${runMode}`
                     : "🍔 → 👤"}
               </span>
               <button
@@ -661,7 +790,7 @@ function App() {
                   : isCombo && !ready
                     ? "Adicionar à bandeja"
                     : "Servir pedido"}{" "}
-                <span>→</span>
+                <span aria-hidden="true">→</span>
               </button>
             </div>
           </div>
@@ -675,39 +804,14 @@ function App() {
             bestTime={bestTime}
             limit={result.limit ?? limit}
             round={round}
-            mode={mode}
+            mode={runMode}
             served={served}
             sandwichesMade={sandwichesMade}
-            onNext={() => start(mode > 1 && !shiftFinished)}
-            onHome={home}
+            onNext={nextResult}
+            onHome={run.challengeId ? showPath : home}
           />
         )}
       </main>
-      {screen !== "game" && (
-        <nav className="main-tabs" aria-label="Menu principal">
-          <button className="current" onClick={home}>
-            <Icon name="home" />
-            <span>Jogar</span>
-          </button>
-          <button
-            onClick={() => {
-              home();
-              openPanel("setup", "recipe");
-            }}
-          >
-            <Icon name="play" />
-            <span>Treino</span>
-          </button>
-          <button onClick={() => openPanel("help")}>
-            <Icon name="help" />
-            <span>Ajuda</span>
-          </button>
-          <button onClick={() => openPanel("settings")}>
-            <Icon name="settings" />
-            <span>Definições</span>
-          </button>
-        </nav>
-      )}
       <div className="flight-stage" aria-hidden="true">
         {flights.map((f) => (
           <div
@@ -727,7 +831,6 @@ function App() {
       {panel && (
         <SupportPanel
           page={panel}
-          onPage={setPanel}
           onClose={closePanel}
           settings={settings}
           onSettings={updateSettings}
@@ -736,7 +839,6 @@ function App() {
           training={train}
           onTraining={updateTraining}
           initialSection={panelSection}
-          allowSetup={screen === "home"}
           totals={totals}
           sandwichesMade={sandwichesMade}
           served={served}

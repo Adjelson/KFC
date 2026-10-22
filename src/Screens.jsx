@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Burger, FoodArt, Customer } from "./FoodArt.jsx";
 import { Icon } from "./Icons.jsx";
-import { ingredients, recipes } from "./game.js";
+import { ingredients, recipes, ingredientName } from "./game.js";
 import { PreparedTray, OrderReview } from "./OrderViews.jsx";
 
 export function Intro({ loading = false, recipe, onEnter, orderSize = 1 }) {
@@ -40,9 +40,7 @@ export function Intro({ loading = false, recipe, onEnter, orderSize = 1 }) {
         {loading ? (
           <>
             <h2>
-              {orderSize > 1
-                ? `Pedido de ${orderSize} sanduíches`
-                : recipe.name}
+              {orderSize > 1 ? `Pedido de ${orderSize} produtos` : recipe.name}
             </h2>
             <p role="status">
               A preparar a tua bancada
@@ -63,7 +61,7 @@ export function Intro({ loading = false, recipe, onEnter, orderSize = 1 }) {
           <>
             <p>Toca. Monta. Serve.</p>
             <button className="primary intro-enter" onClick={onEnter}>
-              Entrar na cozinha <span>→</span>
+              Entrar na cozinha <span aria-hidden="true">→</span>
             </button>
           </>
         )}
@@ -82,8 +80,8 @@ export function Home({
   quantity = 1,
   onStart,
   onSetup,
-  onStats,
-  totals,
+  onChallenges,
+  levelProgress,
 }) {
   const recipe = recipes.find((r) => r.id === choice) || recipes[0];
   return (
@@ -105,6 +103,17 @@ export function Home({
           100%<small>OFFLINE</small>
         </span>
       </div>
+      <button className="challenge-entry" onClick={onChallenges}>
+        <span aria-hidden="true">🏆</span>
+        <span>
+          <strong>Percurso de desafios</strong>
+          <small>
+            {Object.values(levelProgress).filter((s) => s > 0).length}/12 níveis
+            concluídos
+          </small>
+        </span>
+        <b>→</b>
+      </button>
       <div className="training-badges with-order-size">
         <button aria-label="Escolher receita" onClick={() => onSetup("recipe")}>
           <span aria-hidden="true">🍔</span>
@@ -140,20 +149,8 @@ export function Home({
         onClick={onStart}
       >
         <span className="play-triangle" aria-hidden="true" />
-        Começar treino<span>→</span>
+        Treino livre<span aria-hidden="true">→</span>
       </button>
-      <div className="home-bottom-links">
-        <button className="setup-link" onClick={() => onSetup("recipe")}>
-          Preparar treino <Icon name="settings" />
-        </button>
-        <button
-          className="setup-link"
-          aria-label="Ver contadores"
-          onClick={onStats}
-        >
-          ✓ {totals.orders} pedidos
-        </button>
-      </div>
     </section>
   );
 }
@@ -196,9 +193,7 @@ export function Outcome({
     >
       <div className="outcome-heading">
         <span className="eyebrow">
-          {result.isCombo
-            ? `Pedido de ${result.total} sanduíches`
-            : recipe.name}
+          {result.isCombo ? `Pedido de ${result.total} produtos` : recipe.name}
           {mode > 1 ? ` · ${round}/${mode}` : ""}
         </span>
         <h1 tabIndex="-1">
@@ -289,11 +284,23 @@ export function Outcome({
           )}
           {finished && (
             <div className="shift-summary" role="status">
-              <h2>Turno concluído!</h2>
+              <h2>
+                {result.challengeId
+                  ? result.levelPassed
+                    ? "Nível concluído!"
+                    : "Tenta novamente o nível"
+                  : "Turno concluído!"}
+              </h2>
               <span>
                 {served} de {mode} pedidos perfeitos
               </span>
-              <small>{sandwichesMade} sanduíches preparados</small>
+              <small>
+                {result.challengeId
+                  ? result.levelPassed
+                    ? `${"★".repeat(result.levelStars)} · ${result.challengeId < 12 ? "Próximo nível desbloqueado" : "Percurso completo!"}`
+                    : "Serve todos os clientes para avançar."
+                  : `${sandwichesMade} sanduíches preparados`}
+              </small>
             </div>
           )}
         </div>
@@ -326,10 +333,10 @@ export function Outcome({
           ) : (
             <div className="review-items" aria-label={current.title}>
               {current.items.length ? (
-                current.items.slice(page * 6, page * 6 + 6).map((id) => (
-                  <div className="visual-ingredient" key={id}>
+                current.items.slice(page * 6, page * 6 + 6).map((id, index) => (
+                  <div className="visual-ingredient" key={`${id}-${index}`}>
                     <FoodArt id={id} />
-                    <span>{ingredients.find((i) => i.id === id).name}</span>
+                    <span>{ingredientName(id)}</span>
                   </div>
                 ))
               ) : (
@@ -364,7 +371,11 @@ export function Outcome({
           <p className="review-note">
             {result.isCombo
               ? "Cada unidade só conta quando a montagem está correta."
-              : "Avaliação de ingredientes. Quantidades e ordem não são avaliadas."}
+              : result.stackError
+                ? "No Double, coloca o queijo entre os dois filetes."
+                : recipe.double
+                  ? "Double: dois filetes e queijo entre eles quando incluído."
+                  : "Confere os ingredientes e o tamanho indicados no pedido."}
           </p>
         </div>
       )}
@@ -372,15 +383,27 @@ export function Outcome({
         <button
           className="primary"
           aria-label={
-            mode > 1 && !finished ? "Próximo cliente" : "Treinar novamente"
+            mode > 1 && !finished
+              ? "Próximo cliente"
+              : result.challengeId
+                ? result.levelPassed && result.challengeId < 12
+                  ? "Próximo nível"
+                  : "Repetir nível"
+                : "Treinar novamente"
           }
           onClick={onNext}
         >
-          {mode > 1 && !finished ? "Próximo cliente" : "Treinar novamente"}
-          <span>→</span>
+          {mode > 1 && !finished
+            ? "Próximo cliente"
+            : result.challengeId
+              ? result.levelPassed && result.challengeId < 12
+                ? "Próximo nível"
+                : "Repetir nível"
+              : "Treinar novamente"}
+          <span aria-hidden="true">→</span>
         </button>
         <button className="text-button" onClick={onHome}>
-          Voltar ao início
+          {result.challengeId ? "Percurso de desafios" : "Voltar ao início"}
         </button>
       </div>
     </section>

@@ -1,10 +1,10 @@
-import { recipes, pickRecipe } from "./game.js";
+import { recipes, pickRecipe, productById } from "./game.js";
 export const MAX_ORDER_SIZE = 4;
 const TOTALS_KEY = "montagem-totals";
 const safeCount = (n) => (Number.isSafeInteger(n) && n >= 0 ? n : 0);
 
 export function makeOrder(
-  { choice = "random", quantity = 1, assortment = "same" } = {},
+  { choice = "random", quantity = 1, assortment = "same", variant = "single", side = "none", friesSize = "small" } = {},
   previous,
   random = Math.random,
 ) {
@@ -21,6 +21,12 @@ export function makeOrder(
         ? pool[Math.floor(random() * pool.length)].id
         : first.id,
     );
+  }
+  if (side === "only") ids.length = 0;
+  else for (let i=0;i<ids.length;i++) if (variant === "double" || (variant === "mixed" && random() < .5)) ids[i] += "-double";
+  if (side !== "none") {
+    const size = ["small","medium","large"].includes(friesSize) ? friesSize : "small";
+    ids.push(...Array(count).fill(`fries-${size}`));
   }
   return [...new Set(ids)].map((recipeId) => ({
     recipeId,
@@ -51,7 +57,7 @@ export function nextRecipe(order, counts, preferred) {
   );
   const line =
     remaining.find((line) => line.recipeId === preferred) || remaining[0];
-  return line ? recipes.find((r) => r.id === line.recipeId) : null;
+  return line ? productById(line.recipeId) : null;
 }
 export function orderBestKey(order, secondsPerSandwich) {
   if (order.length === 1 && order[0].quantity === 1)
@@ -70,9 +76,10 @@ export function loadTotals(storage) {
     return {
       orders: safeCount(saved?.orders),
       sandwiches: safeCount(saved?.sandwiches),
+      fries: safeCount(saved?.fries),
     };
   } catch {
-    return { orders: 0, sandwiches: 0 };
+    return { orders: 0, sandwiches: 0, fries: 0 };
   }
 }
 export function saveTotals(totals) {
@@ -80,8 +87,9 @@ export function saveTotals(totals) {
     localStorage.setItem(TOTALS_KEY, JSON.stringify(totals));
   } catch {}
 }
-export function addTotals(totals, { orders = 0, sandwiches = 0 }) {
+export function addTotals(totals, { orders = 0, sandwiches = 0, fries = 0 }) {
   return {
+    fries: Math.min(Number.MAX_SAFE_INTEGER, safeCount(totals.fries) + safeCount(fries)),
     orders: Math.min(
       Number.MAX_SAFE_INTEGER,
       safeCount(totals.orders) + safeCount(orders),
@@ -91,4 +99,8 @@ export function addTotals(totals, { orders = 0, sandwiches = 0 }) {
       safeCount(totals.sandwiches) + safeCount(sandwiches),
     ),
   };
+}
+
+export function orderDuration(order, limit) {
+  return order.reduce((total,line)=>total+line.quantity*(productById(line.recipeId)?.kind === "fries" ? Math.max(10,Math.round(limit*.4)) : limit),0);
 }

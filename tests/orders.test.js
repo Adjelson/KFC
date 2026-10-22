@@ -85,14 +85,14 @@ test("accumulated counters survive loading and reject invalid saved counts", () 
     { orders: 2, sandwiches: 5 },
     { orders: 1, sandwiches: 3 },
   );
-  assert.deepEqual(totals, { orders: 3, sandwiches: 8 });
+  assert.deepEqual(totals, { orders: 3, sandwiches: 8, fries: 0 });
   assert.deepEqual(
     loadTotals({ getItem: () => JSON.stringify(totals) }),
     totals,
   );
   assert.deepEqual(
     loadTotals({ getItem: () => '{"orders":-1,"sandwiches":"9"}' }),
-    { orders: 0, sandwiches: 0 },
+    { orders: 0, sandwiches: 0, fries: 0 },
   );
   assert.deepEqual(
     loadTotals({
@@ -100,6 +100,6 @@ test("accumulated counters survive loading and reject invalid saved counts", () 
         throw Error("blocked");
       },
     }),
-    { orders: 0, sandwiches: 0 },
+    { orders: 0, sandwiches: 0, fries: 0 },
   );
 });

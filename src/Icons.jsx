@@ -1,6 +1,34 @@
 import React from "react";
 export function Icon({ name }) {
   const paths = {
+    coin: (
+      <>
+        <circle cx="12" cy="12" r="9" />
+        <path d="M15 8c-5-3-8 6-2 8l3-1M7 11h8M7 14h7" />
+      </>
+    ),
+    tray: (
+      <>
+        <path d="M2 16h20l-3 5H5ZM4 14c0-12 16-12 16 0M12 2v2" />
+      </>
+    ),
+    bench: (
+      <>
+        <path d="M2 10h20v4H2ZM5 14v8M19 14v8M6 3v7M12 3v7M18 3v7" />
+      </>
+    ),
+    medal: (
+      <>
+        <circle cx="12" cy="9" r="6" />
+        <path d="M8 14L5 22l7-3 7 3-3-8M12 5v7M9 8h6" />
+      </>
+    ),
+    ghost: (
+      <>
+        <path d="M5 21V10a7 7 0 0 1 14 0v11l-4-3-3 3-3-3ZM9 9v2M15 9v2" />
+      </>
+    ),
+
     music: (
       <>
         <path d="M9 18V5l11-2v13M9 8l11-2" />

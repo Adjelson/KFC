@@ -33,13 +33,28 @@ import {
   isUnlocked,
   resolveLevelCompletion,
   saveProgress,
-  challengeOrder,
   createChallengeRun,
   trainingAccess,
 } from "./challenges.js";
+import { ServiceGame } from "./ServiceGame.jsx";
+import { RestaurantPanel } from "./RestaurantPanel.jsx";
+import {
+  loadCareer,
+  saveCareer,
+  earnCoins,
+  recordProduct,
+  medalTier,
+  medalNames,
+  buyUpgrade,
+  buyRenovation,
+  saveServiceRecord,
+} from "./career.js";
+import { createServicePlan } from "./service.js";
+import { kitchenOrientation } from "./orientation.js";
 import "./style.css";
 import "./challenges.css";
 import "./map-worlds.css";
+import "./service.css";
 
 const name = ingredientName;
 function readBest() {
@@ -52,6 +67,77 @@ function readBest() {
 
 function App() {
   const [screen, setScreen] = useState("splash");
+  const [career, setCareer] = useState(loadCareer),
+    careerRef = useRef(career);
+  const [shop, setShop] = useState(false),
+    [masteryToast, setMasteryToast] = useState(null),
+    masteryTimer = useRef(null);
+  const [servicePlan, setServicePlan] = useState(null),
+    [ghost, setGhost] = useState(null),
+    [serviceRecipe, setServiceRecipe] = useState("krunch");
+  function changeCareer(update) {
+    const next = update(careerRef.current);
+    careerRef.current = next;
+    setCareer(next);
+    saveCareer(next);
+    return next;
+  }
+  function recordMastery(id) {
+    const previous = medalTier(careerRef.current.mastery[id] || 0);
+    const next = changeCareer((old) => recordProduct(old, id));
+    const tier = medalTier(next.mastery[id] || 0);
+    if (tier > previous) {
+      setMasteryToast({ id, tier });
+      clearTimeout(masteryTimer.current);
+      masteryTimer.current = setTimeout(() => setMasteryToast(null), 2400);
+    }
+  }
+  function purchaseUpgrade(id) {
+    const result = buyUpgrade(careerRef.current, id);
+    if (result.bought) {
+      changeCareer(() => result.career);
+      sound.play("success");
+    }
+    return result.bought;
+  }
+  function purchaseRenovation(id) {
+    const result = buyRenovation(careerRef.current, levelProgress, id);
+    if (result.bought) {
+      changeCareer(() => result.career);
+      sound.play("success");
+    }
+    return result.bought;
+  }
+  function serviceProduct(id) {
+    recordMastery(id);
+    recordProduction(
+      productById(id).kind === "fries" ? { fries: 1 } : { sandwiches: 1 },
+    );
+    if (productById(id).kind !== "fries") setSandwichesMade((n) => n + 1);
+  }
+  function serviceCustomer(reward) {
+    changeCareer((old) => earnCoins(old, reward));
+    recordProduction({ orders: 1 });
+    setServed((n) => n + 1);
+  }
+  function completeService(summary) {
+    const completion = resolveLevelCompletion(
+      levelProgress,
+      summary.plan.levelId,
+      summary.stars,
+    );
+    if (summary.passed) {
+      setLevelProgress(completion.progress);
+      saveProgress(completion.progress);
+      changeCareer((old) => saveServiceRecord(old, summary));
+    }
+    setMapArrival({ ...completion.arrival, earned: summary.earned });
+    setServing(false);
+    setPanel(null);
+    setScreen("challenges");
+    sound.play(summary.passed ? "success" : "timeout");
+  }
+
   const [limit, setLimit] = useState(60);
   const [choice, setChoice] = useState("random");
   const [mode, setMode] = useState(1);
@@ -108,6 +194,11 @@ function App() {
     lastTick = useRef(-1),
     actionNumber = useRef(0);
 
+  const horizontalKitchen =
+    settings.landscape && ["game", "service", "loading"].includes(screen);
+  useEffect(() => {
+    kitchenOrientation(horizontalKitchen);
+  }, [horizontalKitchen]);
   useEffect(() => {
     sound.configure(settings);
     saveSettings(settings);
@@ -118,8 +209,10 @@ function App() {
     return () => {
       document.removeEventListener("visibilitychange", visibility);
       clearTimeout(delivery.current);
+      clearTimeout(masteryTimer.current);
       for (const timer of flightTimers.current) clearTimeout(timer);
       sound.dispose();
+      kitchenOrientation(false);
     };
   }, []);
   function updateSettings(next) {
@@ -214,8 +307,8 @@ function App() {
           () => {
             sound.play("start");
             deadline.current = Date.now() + roundLimit * 1000;
-            active.current = true;
-            setScreen("game");
+            active.current = !run.challengeId;
+            setScreen(run.challengeId ? "service" : "game");
           },
           settings.animations ? 600 : 0,
         );
@@ -224,7 +317,7 @@ function App() {
       cancelled = true;
       clearTimeout(timer);
     };
-  }, [screen, settings.animations, roundLimit]);
+  }, [screen, settings.animations, roundLimit, run.challengeId]);
   function finish(timeout = false) {
     if (!active.current || pausedAt.current !== null) return;
     active.current = false;
@@ -292,6 +385,8 @@ function App() {
       setScreen(levelFinished ? "challenges" : "result");
       sound.play(timeout ? "timeout" : verdict.perfect ? "success" : "error");
       if (verdict.perfect && !timeout) {
+        changeCareer((old) => earnCoins(old, 8 + snapshot.total * 3));
+        if (!isCombo) recordMastery(recipe.id);
         setServed((n) => n + 1);
         recordProduction({
           orders: 1,
@@ -342,6 +437,7 @@ function App() {
     recordProduction(
       recipe.kind === "fries" ? { fries: 1 } : { sandwiches: 1 },
     );
+    recordMastery(recipe.id);
     setAssemblyError(null);
     clearFlights();
     const complete = () => {
@@ -397,7 +493,11 @@ function App() {
     };
   }, [screen, recipe, limit]);
 
-  function start(nextCustomer = false, challengeId = run.challengeId) {
+  function start(
+    nextCustomer = false,
+    challengeId = run.challengeId,
+    race = false,
+  ) {
     if (challengeId && !isUnlocked(challengeId, levelProgress)) return;
     const level = levels.find((l) => l.id === challengeId);
     if (!level && !access.training) return;
@@ -416,7 +516,6 @@ function App() {
             limit,
             clients: mode,
           };
-    const nextRound = nextCustomer ? round + 1 : 1;
     if (!nextCustomer) {
       setRun({ ...config, challengeId: level?.id || null });
       performance.current = [];
@@ -435,8 +534,16 @@ function App() {
       setServed(0);
       setSandwichesMade(0);
     }
-    const nextOrder = level
-      ? challengeOrder(config, nextRound, recipe.id)
+    const record = race ? careerRef.current.records[challengeId] : null;
+    const plan = level
+      ? record
+        ? JSON.parse(JSON.stringify(record.plan))
+        : createServicePlan(config, careerRef.current)
+      : null;
+    setServicePlan(plan);
+    setGhost(record || null);
+    const nextOrder = plan
+      ? plan.customers[0].order
       : makeOrder(config, recipe.id);
     setOrder(nextOrder);
     setPrepared({});
@@ -488,6 +595,7 @@ function App() {
     clearFlights();
     setServing(false);
     setPanel(null);
+    setShop(false);
     pausedAt.current = null;
     sound.play("click");
     setMapArrival(null);
@@ -557,6 +665,7 @@ function App() {
   return (
     <div
       className={`app screen-${screen} ${["challenges", "training"].includes(screen) ? "with-navigation" : ""} ${settings.animations ? "" : "motion-off"}`}
+      data-renovations={career.renovations.join(" ")}
     >
       <header className="topbar">
         <div className="brand" aria-label="Monta e Treina">
@@ -566,6 +675,24 @@ function App() {
           </span>
         </div>
         <div className="header-tools">
+          <button
+            className="wallet-button"
+            aria-label="Abrir restaurante"
+            disabled={["game", "service"].includes(screen)}
+            onClick={() => {
+              setShop(true);
+              sound.unlock();
+              sound.play("click");
+            }}
+          >
+            <Icon name="coin" />
+            <strong>
+              {new Intl.NumberFormat("pt-PT", {
+                notation: "compact",
+                maximumFractionDigits: 1,
+              }).format(career.coins)}
+            </strong>
+          </button>
           <button
             className="tool-button"
             aria-label="Abrir ajuda"
@@ -583,7 +710,7 @@ function App() {
             <Icon name="settings" />
           </button>
         </div>
-        {screen === "game" && (
+        {["game", "service"].includes(screen) && (
           <button
             className="exit-button"
             onClick={() =>
@@ -611,6 +738,22 @@ function App() {
             animations={settings.animations}
             onDismissArrival={() => setMapArrival(null)}
             onStart={(id) => start(false, id)}
+            onRace={(id) => start(false, id, true)}
+            career={career}
+          />
+        )}
+        {screen === "service" && servicePlan && (
+          <ServiceGame
+            plan={servicePlan}
+            settings={settings}
+            paused={Boolean(panel)}
+            career={career}
+            ghost={ghost}
+            onProduct={serviceProduct}
+            onCustomer={serviceCustomer}
+            onComplete={completeService}
+            onContext={setServiceRecipe}
+            onBusy={setServing}
           />
         )}
         {screen === "game" && (
@@ -867,13 +1010,37 @@ function App() {
           </div>
         ))}
       </div>
+      {shop && (
+        <RestaurantPanel
+          career={career}
+          progress={levelProgress}
+          onUpgrade={purchaseUpgrade}
+          onRenovate={purchaseRenovation}
+          onClose={() => setShop(false)}
+        />
+      )}
+      {masteryToast && (
+        <div
+          className={`mastery-toast tier-${masteryToast.tier}`}
+          role="status"
+        >
+          <Icon name="medal" />
+          <span>
+            <strong>{medalNames[masteryToast.tier]}</strong>
+            <small>{productById(masteryToast.id).name}</small>
+          </span>
+        </div>
+      )}
       {panel && (
         <SupportPanel
           page={panel}
           onClose={closePanel}
           settings={settings}
           onSettings={updateSettings}
-          inGame={screen === "game" && pausedAt.current !== null}
+          inGame={
+            screen === "service" ||
+            (screen === "game" && pausedAt.current !== null)
+          }
           onPreview={() => sound.play("preview")}
           training={train}
           onTraining={updateTraining}
@@ -881,7 +1048,7 @@ function App() {
           totals={totals}
           sandwichesMade={sandwichesMade}
           served={served}
-          currentRecipe={recipe.id}
+          currentRecipe={screen === "service" ? serviceRecipe : recipe.id}
           levelProgress={levelProgress}
           access={access}
         />

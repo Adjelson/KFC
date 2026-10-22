@@ -13,7 +13,7 @@ import { Icon } from "./Icons.jsx";
 const guide = [
   {
     title: "Lê o pedido",
-    text: "O talão mostra os produtos e as quantidades. Nos combos, cada cartão indica preparados/total.",
+    text: "Toca num cliente para ver o talão. Cada um tem a sua paciência; podes mudar de cliente sem perder a montagem.",
     art: "customer",
   },
   {
@@ -23,12 +23,12 @@ const guide = [
   },
   {
     title: "Serve a tempo",
-    text: "Nos menus, adiciona cada produto correto à bandeja. Depois serve o pedido completo.",
+    text: "Nos níveis, prepara e entrega produtos para libertar a bandeja. Recebes moedas quando completas o talão. No treino, serve o pedido completo.",
     art: "burger",
   },
   {
-    title: "Treina um turno",
-    text: "Avança pelos desafios ou escolhe um turno no treino livre. Cada cliente tem o seu talão.",
+    title: "Faz crescer o restaurante",
+    text: "Serve todos para abrir o próximo nível. A carteira abre melhorias, decoração e medalhas. Repete os mesmos pedidos no desafio ao recorde.",
     art: "shift",
   },
 ];
@@ -386,6 +386,20 @@ export function SupportPanel({
                 checked={settings.animations}
                 onChange={(e) =>
                   onSettings({ ...settings, animations: e.target.checked })
+                }
+              />
+            </label>
+            <label className="setting-row">
+              <span>
+                <strong>Cozinha horizontal</strong>
+              </span>
+              <input
+                type="checkbox"
+                role="switch"
+                aria-label="Cozinha horizontal"
+                checked={settings.landscape}
+                onChange={(e) =>
+                  onSettings({ ...settings, landscape: e.target.checked })
                 }
               />
             </label>

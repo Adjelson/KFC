@@ -1,6 +1,6 @@
 import React from "react";
 
-function SceneArt({ kind }) {
+export function SceneArt({ kind, upgraded = false }) {
   return (
     <svg viewBox="0 0 180 180" aria-hidden="true">
       <ellipse cx="90" cy="161" rx="72" ry="13" fill="#47342c" opacity=".12" />
@@ -175,7 +175,10 @@ function SceneArt({ kind }) {
             stroke="#d9e8c6"
             strokeWidth="3"
           />
-          <path d="M23 105H158V130H23Z" fill="#bd2e42" />
+          <path
+            d="M23 105H158V130H23Z"
+            fill={upgraded ? "#527c70" : "#bd2e42"}
+          />
           <path
             d="M17 104H164"
             stroke="#f3cea0"
@@ -186,8 +189,20 @@ function SceneArt({ kind }) {
           {[38, 119].map((x) => (
             <g key={x}>
               <path d={`M${x} 151v-18`} stroke="#816c56" strokeWidth="5" />
-              <ellipse cx={x} cy="130" rx="19" ry="7" fill="#993044" />
-              <ellipse cx={x} cy="127" rx="19" ry="6" fill="#d74552" />
+              <ellipse
+                cx={x}
+                cy="130"
+                rx="19"
+                ry="7"
+                fill={upgraded ? "#3e655c" : "#993044"}
+              />
+              <ellipse
+                cx={x}
+                cy="127"
+                rx="19"
+                ry="6"
+                fill={upgraded ? "#709684" : "#d74552"}
+              />
             </g>
           ))}
           <path d="M113 21V38M131 21V38" stroke="#9d785a" strokeWidth="3" />
@@ -444,6 +459,41 @@ function SceneArt({ kind }) {
           />
         </>
       )}
+      {upgraded && (
+        <g className="renovation-details">
+          <path
+            d="M12 47Q90 72 167 47"
+            stroke="#e0ad56"
+            strokeWidth="2"
+            fill="none"
+          />
+          {[25, 50, 78, 105, 132, 157].map((x, i) => (
+            <circle
+              key={x}
+              cx={x}
+              cy={50 + Math.sin((i / 5) * Math.PI) * 10}
+              r="4"
+              fill="#ffe1a0"
+            />
+          ))}
+          <path
+            d="M9 139H34L30 161H13ZM148 139H172L168 161H152Z"
+            fill="#b12c43"
+          />
+          <path d="M21 142V121M160 142V121" stroke="#6e9558" strokeWidth="4" />
+          {[21, 160].map((x) => (
+            <g key={x}>
+              <circle cx={x} cy="119" r="10" fill="#e8ba72" />
+              <circle cx={x - 7} cy="122" r="6" fill="#e5988b" />
+              <circle cx={x + 6} cy="124" r="6" fill="#d8566a" />
+            </g>
+          ))}
+          <path
+            d="M150 6L154 16 165 17 156 24 158 34 149 29 140 34 142 24 134 17 145 16Z"
+            fill="#e1b45e"
+          />
+        </g>
+      )}
     </svg>
   );
 }
@@ -452,7 +502,7 @@ const props = [
   ["diner", "fries", "shelf", "menu"],
   ["kitchen", "pan", "cart", "chef"],
 ];
-export function MapScenery({ zone, top }) {
+export function MapScenery({ zone, top, renovations = [] }) {
   return (
     <div
       className={`world-scenery scenery-${zone}`}
@@ -461,7 +511,10 @@ export function MapScenery({ zone, top }) {
     >
       {props[zone].map((kind, index) => (
         <div key={kind} className={`scenery-prop prop-${index} prop-${kind}`}>
-          <SceneArt kind={kind} />
+          <SceneArt
+            kind={kind}
+            upgraded={renovations.includes(["garden", "diner", "chef"][zone])}
+          />
         </div>
       ))}
       {Array.from({ length: 5 }, (_, i) => (

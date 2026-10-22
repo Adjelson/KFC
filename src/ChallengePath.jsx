@@ -22,6 +22,8 @@ export function ChallengePath({
   arrival,
   animations = true,
   onDismissArrival,
+  onRace,
+  career,
 }) {
   const next = levels.find((l) => !progress[l.id]) || levels.at(-1);
   const [selected, setSelected] = useState(arrival?.focusId || next.id);
@@ -98,11 +100,12 @@ export function ChallengePath({
                 "Serve todos os clientes para avançar."
               )}
             </p>
-            {rewards.length > 0 && (
+            {(rewards.length > 0 || arrival.earned > 0) && (
               <div
                 className="completion-rewards"
                 aria-label="Recompensas desbloqueadas"
               >
+                {arrival.earned > 0 && <span>＋ {arrival.earned} moedas</span>}
                 {rewards.map((reward) => (
                   <span key={reward}>＋ {reward}</span>
                 ))}
@@ -134,6 +137,7 @@ export function ChallengePath({
               />
               <MapScenery
                 zone={zone}
+                renovations={career.renovations}
                 top={point(levels[zone * 4 + 3]).y - 90}
               />
             </React.Fragment>
@@ -195,7 +199,9 @@ export function ChallengePath({
           })}
         </div>
       </div>
-      <div className="map-selection">
+      <div
+        className={`map-selection ${career.records[level.id] ? "has-record" : ""}`}
+      >
         <div>
           <small>NÍVEL {level.id}</small>
           <h2>{level.name}</h2>
@@ -205,6 +211,16 @@ export function ChallengePath({
               : `Conclui o nível ${level.id - 1}`}
           </p>
         </div>
+        {career.records[level.id] && (
+          <button
+            className="race-button"
+            aria-label={`Desafiar recorde do nível ${level.id}`}
+            onClick={() => onRace(level.id)}
+          >
+            <Icon name="ghost" />
+            <small>{career.records[level.id].duration.toFixed(1)}s</small>
+          </button>
+        )}
         <button
           className="primary"
           aria-label={unlocked ? `Jogar nível ${level.id}` : "Nível bloqueado"}

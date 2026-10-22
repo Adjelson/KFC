@@ -5,6 +5,7 @@ export const DEFAULT_SETTINGS = {
   music: false,
   volume: 60,
   animations: true,
+  landscape: true,
 };
 const STORAGE_KEY = "montagem-settings";
 
@@ -13,7 +14,13 @@ export function loadSettings(storage) {
     storage ??= globalThis.localStorage;
     const saved = JSON.parse(storage?.getItem(STORAGE_KEY) || "{}");
     const settings = { ...DEFAULT_SETTINGS };
-    for (const key of ["enabled", "effects", "music", "animations"])
+    for (const key of [
+      "enabled",
+      "effects",
+      "music",
+      "animations",
+      "landscape",
+    ])
       if (typeof saved?.[key] === "boolean") settings[key] = saved[key];
     if (typeof saved?.volume === "number" && Number.isFinite(saved.volume))
       settings.volume = Math.max(0, Math.min(100, saved.volume));

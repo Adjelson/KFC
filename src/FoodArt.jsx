@@ -241,7 +241,7 @@ export function Burger({ items, compact = false, action, fit = false }) {
   );
 }
 
-export function Customer({ number = 1 }) {
+export function Customer({ number = 1, type = "regular" }) {
   const skin = ["#dba274", "#f1c69b", "#e4b18c", "#ac714d", "#f0cfb2"][
     (number - 1) % 5
   ];
@@ -258,6 +258,27 @@ export function Customer({ number = 1 }) {
         d="M14 29C11 4 61 -1 57 30Q49 24 45 16Q32 32 14 29"
         fill="#603f31"
       />
+      {type === "rushed" && (
+        <g>
+          <path d="M14 26Q35 1 57 25L62 29H15Z" fill="#477c85" />
+          <path d="M13 27H62" stroke="#31565a" strokeWidth="4" />
+        </g>
+      )}
+      {type === "foodie" && (
+        <g fill="none" stroke="#69503f" strokeWidth="2">
+          <circle cx="27" cy="36" r="7" />
+          <circle cx="43" cy="36" r="7" />
+          <path d="M34 36H36" />
+        </g>
+      )}
+      {type === "family" && (
+        <path
+          d="M13 25Q35 13 56 25"
+          fill="none"
+          stroke="#ce6978"
+          strokeWidth="5"
+        />
+      )}
       <circle cx="27" cy="36" r="2" fill="#4b3027" />
       <circle cx="43" cy="36" r="2" fill="#4b3027" />
       <path

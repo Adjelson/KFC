@@ -13,7 +13,7 @@ import { FoodArt, Burger, Customer } from "./FoodArt.jsx";
 import { sound, loadSettings, saveSettings } from "./audio.js";
 import { SupportPanel } from "./SupportPanel.jsx";
 import { Icon } from "./Icons.jsx";
-import { Home, Training, Intro, Outcome } from "./Screens.jsx";
+import { Training, Intro, Outcome } from "./Screens.jsx";
 import {
   makeOrder,
   orderProgress,
@@ -31,7 +31,7 @@ import {
   levels,
   loadProgress,
   isUnlocked,
-  completeLevel,
+  resolveLevelCompletion,
   saveProgress,
   challengeOrder,
   createChallengeRun,
@@ -39,6 +39,7 @@ import {
 } from "./challenges.js";
 import "./style.css";
 import "./challenges.css";
+import "./map-worlds.css";
 
 const name = ingredientName;
 function readBest() {
@@ -58,6 +59,7 @@ function App() {
     [side, setSide] = useState("none"),
     [friesSize, setFriesSize] = useState("small");
   const [levelProgress, setLevelProgress] = useState(loadProgress);
+  const [mapArrival, setMapArrival] = useState(null);
   const [run, setRun] = useState({ limit: 60, clients: 1, challengeId: null });
   const access = trainingAccess(levelProgress);
   const runMode = run.clients;
@@ -194,7 +196,7 @@ function App() {
   useEffect(() => {
     if (screen !== "splash") return;
     const timer = setTimeout(
-      () => setScreen("home"),
+      () => setScreen("challenges"),
       settings.animations ? 2000 : 100,
     );
     return () => clearTimeout(timer);
@@ -258,12 +260,18 @@ function App() {
             ? 2
             : 1
         : 0;
-      if (levelPassed)
-        setLevelProgress((old) => {
-          const next = completeLevel(old, run.challengeId, levelStars);
-          saveProgress(next);
-          return next;
-        });
+      if (levelFinished) {
+        const completion = resolveLevelCompletion(
+          levelProgress,
+          run.challengeId,
+          levelStars,
+        );
+        if (levelPassed) {
+          setLevelProgress(completion.progress);
+          saveProgress(completion.progress);
+        }
+        setMapArrival(completion.arrival);
+      }
       setResult({
         challengeId: run.challengeId,
         levelFinished,
@@ -281,7 +289,7 @@ function App() {
       });
       setServing(false);
       clearFlights();
-      setScreen("result");
+      setScreen(levelFinished ? "challenges" : "result");
       sound.play(timeout ? "timeout" : verdict.perfect ? "success" : "error");
       if (verdict.perfect && !timeout) {
         setServed((n) => n + 1);
@@ -413,6 +421,7 @@ function App() {
       setRun({ ...config, challengeId: level?.id || null });
       performance.current = [];
     }
+    setMapArrival(null);
     sound.unlock();
     sound.play("click");
     clearTimeout(delivery.current);
@@ -481,7 +490,8 @@ function App() {
     setPanel(null);
     pausedAt.current = null;
     sound.play("click");
-    setScreen("home");
+    setMapArrival(null);
+    setScreen("challenges");
   }
   const bestTime = best[result?.bestKey || orderBestKey(order, limit)];
   const shiftFinished = runMode > 1 && round === runMode;
@@ -534,13 +544,7 @@ function App() {
   }
   function nextResult() {
     if (runMode > 1 && !shiftFinished) start(true);
-    else if (run.challengeId)
-      start(
-        false,
-        result.levelPassed && run.challengeId < levels.length
-          ? run.challengeId + 1
-          : run.challengeId,
-      );
+    else if (run.challengeId) showPath();
     else start(false, null);
   }
   function navigate(target) {
@@ -552,7 +556,7 @@ function App() {
   }
   return (
     <div
-      className={`app screen-${screen} ${["home", "challenges", "training"].includes(screen) ? "with-navigation" : ""} ${settings.animations ? "" : "motion-off"}`}
+      className={`app screen-${screen} ${["challenges", "training"].includes(screen) ? "with-navigation" : ""} ${settings.animations ? "" : "motion-off"}`}
     >
       <header className="topbar">
         <div className="brand" aria-label="Monta e Treina">
@@ -582,22 +586,16 @@ function App() {
         {screen === "game" && (
           <button
             className="exit-button"
-            onClick={home}
-            aria-label={
-              screen === "game" ? "Abandonar treino" : "Voltar ao início"
+            onClick={() =>
+              navigate(run.challengeId ? "challenges" : "training")
             }
+            aria-label="Abandonar treino"
           >
             ×
           </button>
         )}
       </header>
       <main>
-        {screen === "home" && (
-          <Home
-            levelProgress={levelProgress}
-            onPlay={(id) => start(false, id)}
-          />
-        )}
         {screen === "training" && (
           <Training
             {...train}
@@ -609,6 +607,9 @@ function App() {
         {screen === "challenges" && (
           <ChallengePath
             progress={levelProgress}
+            arrival={mapArrival}
+            animations={settings.animations}
+            onDismissArrival={() => setMapArrival(null)}
             onStart={(id) => start(false, id)}
           />
         )}
@@ -829,10 +830,9 @@ function App() {
           />
         )}
       </main>
-      {["home", "challenges", "training"].includes(screen) && (
+      {["challenges", "training"].includes(screen) && (
         <nav className="bottom-navigation" aria-label="Menu principal">
           {[
-            ["home", "Início", "home"],
             ["challenges", "Níveis", "levels"],
             ["training", "Treino", "play"],
           ].map(([id, label, icon]) => (

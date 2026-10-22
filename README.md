@@ -4,7 +4,7 @@ Simulador de treino para Android, em português de Portugal. Quatro receitas, ro
 
 ## Instalar no telemóvel
 
-[Descarregar o APK de teste para Android](../../raw/refs/heads/main/downloads/monta-treino-debug.apk) · Android 7.0 ou superior · 4,1 MB.
+[Descarregar o APK de teste para Android](https://github.com/Adjelson/KFC/raw/refs/heads/main/downloads/monta-treino-debug.apk) · Android 7.0 ou superior · 4,1 MB.
 
 Abre o ficheiro no Android e permite a instalação desta origem, se solicitado. A assinatura do APK foi verificada; ainda não foi feita validação num telemóvel real.
 

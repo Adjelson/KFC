@@ -9,7 +9,13 @@ export async function enterHome(page, { training = true } = {}) {
   const enter = page.getByRole("button", { name: "Entrar na cozinha" }),
     home = page.getByRole("heading", { name: "Níveis", exact: true });
   await expect(enter.or(home)).toBeVisible();
-  if (await enter.isVisible()) await enter.click();
+  if (await enter.isVisible()) {
+    try {
+      await enter.click({ timeout: 1000 });
+    } catch {
+      await expect(home).toBeVisible();
+    }
+  }
   await expect(home).toBeVisible();
   if (training) {
     await page
@@ -105,7 +111,7 @@ export async function expectFits(page) {
   const overflow = await page.evaluate(() =>
     [
       ...document.querySelectorAll(
-        "main,.challenge-screen,.level-detail,.side-picker,.reference-selector,.prepared-tray,.home-screen,.support-content,.guide-page,.audio-settings,.recipe-picker,.recipe-options,.time-picker,.mode-picker,.outcome-body,.workstation,.order-settings,.quantity-options,.assortment-options,.counter-page,.order-lines,.order-review",
+        "main,.challenge-screen,.level-detail,.side-picker,.reference-selector,.prepared-tray,.home-screen,.support-content,.guide-page,.audio-settings,.recipe-picker,.recipe-options,.time-picker,.mode-picker,.outcome-body,.workstation,.order-settings,.quantity-options,.assortment-options,.counter-page,.order-lines,.order-review,.service-game,.customer-queue,.restaurant-body,.upgrade-cards,.renovation-card,.medal-grid,.motion-settings",
       ),
     ]
       .filter((e) => e.getClientRects().length)
@@ -149,4 +155,39 @@ export async function expectFits(page) {
         .map((e) => e.getAttribute("aria-label") || e.textContent.trim()),
     );
   expect(clipped).toEqual([]);
+}
+
+export async function serveServiceClient(page, { clock = false } = {}) {
+  if (clock) await page.clock.runFor(1200);
+  const cards = page.locator('.customer-card[aria-pressed="true"]');
+  await expect(cards).toBeVisible();
+  const label = await cards.getAttribute("aria-label");
+  const customer = page.getByRole("button", { name: label, exact: true });
+  for (let guard = 0; guard < 30; guard++) {
+    if (!(await customer.isVisible())) return;
+    const prepare = page.getByRole("button", {
+      name: "Adicionar à bandeja",
+      exact: true,
+    });
+    if (
+      (await prepare.isEnabled()) &&
+      !(await page.locator(".tray-meter.full").isVisible())
+    ) {
+      const id = await page.locator(".assembly").getAttribute("data-recipe");
+      const items = await page.evaluate(
+        async (id) => (await import("/src/game.js")).productById(id).items,
+        id,
+      );
+      for (const item of items)
+        await page.locator(`[data-ingredient="${item}"]`).click();
+      await prepare.click();
+      if (clock) await page.clock.runFor(400);
+      await expect.poll(() => page.locator(".is-serving").count()).toBe(0);
+    } else {
+      await page.locator(".deliver-button").click();
+      if (clock) await page.clock.runFor(600);
+      await expect.poll(() => page.locator(".is-serving").count()).toBe(0);
+    }
+  }
+  throw Error("Customer did not finish within the product limit");
 }

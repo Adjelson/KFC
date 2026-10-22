@@ -7,6 +7,7 @@ import {
   chooseCombo,
   startGame,
   expectFits,
+  serveServiceClient,
 } from "./helpers.js";
 async function setupTab(page, name) {
   await openTraining(page);
@@ -31,6 +32,8 @@ async function productRecipe(page) {
   );
 }
 async function serveClient(page, { clock = false } = {}) {
+  if (await page.locator(".service-game").isVisible())
+    return serveServiceClient(page, { clock });
   while (
     await page
       .getByRole("button", { name: "Adicionar à bandeja", exact: true })
@@ -170,7 +173,6 @@ test("new player unlocks training and recipes by completing randomized levels", 
   const first = await page.locator(".assembly").getAttribute("data-recipe");
   await serveClient(page);
   await page.evaluate(() => (Math.random = () => 0.999));
-  await startGame(page, { button: "Próximo cliente" });
   await expect(page.locator(".ticket-caption")).toContainText("2/2");
   expect(await page.locator(".assembly").getAttribute("data-recipe")).not.toBe(
     first,
@@ -213,13 +215,12 @@ test("new player unlocks training and recipes by completing randomized levels", 
 test("failed customer does not unlock training or the next level", async ({
   page,
 }) => {
+  await page.clock.install();
   await openApp(page, { unlocked: false, training: false });
   await page.evaluate(() => (Math.random = () => 0));
   await startGame(page, { button: "Jogar nível 1" });
-  await page.getByRole("button", { name: "Servir pedido" }).click();
-  await expect(page.locator(".outcome-screen")).toBeVisible();
-  await startGame(page, { button: "Próximo cliente" });
   await serveClient(page);
+  await page.clock.fastForward(300000);
   await expect(
     page.getByRole("heading", { name: "Nível 1 por concluir" }),
   ).toBeVisible();
@@ -348,7 +349,6 @@ test("only levels and training remain; completing a phase reveals the next one w
   await page.evaluate(() => (Math.random = () => 0));
   await startGame(page, { button: "Jogar nível 1", clock: true });
   await serveClient(page, { clock: true });
-  await startGame(page, { button: "Próximo cliente", clock: true });
   await serveClient(page, { clock: true });
   await expect(page.locator(".completion-banner")).toContainText(
     "Nível 1 concluído!",
@@ -401,7 +401,6 @@ test("the last phase returns to the completed map with reduced motion and no pha
   await startGame(page, { button: "Jogar nível 12" });
   for (let i = 1; i <= 4; i++) {
     await serveClient(page);
-    if (i < 4) await startGame(page, { button: "Próximo cliente" });
   }
   await expect(page.locator(".completion-banner")).toContainText(
     "Percurso completo!",
@@ -436,7 +435,6 @@ for (const viewport of [
     await page.evaluate(() => (Math.random = () => 0));
     await startGame(page, { button: "Jogar nível 4" });
     await serveClient(page);
-    await startGame(page, { button: "Próximo cliente" });
     await serveClient(page);
     await expectFits(page);
     await expect(page.locator(".completion-banner")).toContainText(
@@ -475,7 +473,6 @@ test("replaying a completed phase keeps the chosen next level when the celebrati
   await page.evaluate(() => (Math.random = () => 0));
   await startGame(page, { button: "Jogar nível 1" });
   await serveClient(page);
-  await startGame(page, { button: "Próximo cliente" });
   await serveClient(page);
   await expect(page.locator(".new-level-badge")).toHaveCount(0);
   await expect(

@@ -139,3 +139,28 @@ test("training, recipes and advanced products unlock progressively without reset
   );
   assert.deepEqual(order, [{ recipeId: "krunch", quantity: 4 }]);
 });
+
+test("completion returns to the map and announces only newly unlocked levels and rewards", async () => {
+  const { resolveLevelCompletion } = await import("../src/challenges.js");
+  const first = resolveLevelCompletion({}, 1, 3);
+  assert.deepEqual(first.progress, { 1: 3 });
+  assert.equal(first.arrival.focusId, 2);
+  assert.equal(first.arrival.unlockedId, 2);
+  assert.deepEqual(first.arrival.rewards, ["training", "recipe:krunch"]);
+  const replay = resolveLevelCompletion({ 1: 3, 2: 2 }, 1, 1);
+  assert.equal(replay.progress[1], 3);
+  assert.equal(replay.arrival.unlockedId, null);
+  assert.deepEqual(replay.arrival.rewards, []);
+  const failed = resolveLevelCompletion({}, 1, 0);
+  assert.equal(failed.arrival.focusId, 1);
+  assert.equal(failed.arrival.passed, false);
+  assert.equal(failed.arrival.unlockedId, null);
+  assert.deepEqual(failed.progress, {});
+  const almost = Object.fromEntries(
+    Array.from({ length: 11 }, (_, i) => [i + 1, 3]),
+  );
+  const last = resolveLevelCompletion(almost, 12, 2);
+  assert.equal(last.arrival.finishedAll, true);
+  assert.equal(last.arrival.focusId, 12);
+  assert.equal(last.arrival.unlockedId, null);
+});

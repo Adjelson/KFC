@@ -116,3 +116,37 @@ export function challengeOrder(
     random,
   );
 }
+
+export function resolveLevelCompletion(progress, id, stars) {
+  const next = completeLevel(progress, id, stars);
+  const passed =
+    Number.isInteger(stars) &&
+    stars > 0 &&
+    stars <= 3 &&
+    isUnlocked(id, progress);
+  const previousAccess = trainingAccess(progress),
+    access = trainingAccess(next);
+  const rewards = [
+    ...(!previousAccess.training && access.training ? ["training"] : []),
+    ...access.recipeIds
+      .filter((recipeId) => !previousAccess.recipeIds.includes(recipeId))
+      .map((recipeId) => `recipe:${recipeId}`),
+    ...(!previousAccess.fries && access.fries ? ["fries"] : []),
+    ...(!previousAccess.double && access.double ? ["double"] : []),
+  ];
+  return {
+    progress: next,
+    arrival: {
+      completedId: id,
+      passed,
+      stars: passed ? stars : 0,
+      focusId: passed ? Math.min(id + 1, levels.length) : id,
+      unlockedId:
+        passed && id < levels.length && !isUnlocked(id + 1, progress)
+          ? id + 1
+          : null,
+      finishedAll: passed && levels.every((level) => next[level.id] > 0),
+      rewards,
+    },
+  };
+}

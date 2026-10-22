@@ -1,54 +1,6 @@
 import { test, expect } from "@playwright/test";
-import { openApp, chooseRecipe, startGame } from "./helpers.js";
+import { openApp, chooseRecipe, startGame, expectFits } from "./helpers.js";
 
-async function expectFits(page) {
-  const overflow = await page.evaluate(() =>
-    [
-      ...document.querySelectorAll(
-        "main,.home-screen,.support-content,.guide-page,.audio-settings,.recipe-picker,.recipe-options,.time-picker,.mode-picker,.outcome-body,.workstation",
-      ),
-    ]
-      .filter((e) => e.getClientRects().length)
-      .filter(
-        (e) =>
-          e.scrollHeight > e.clientHeight + 2 ||
-          e.scrollWidth > e.clientWidth + 2,
-      )
-      .map((e) => ({
-        name: e.className || e.tagName,
-        height: e.clientHeight,
-        content: e.scrollHeight,
-        width: e.clientWidth,
-        contentWidth: e.scrollWidth,
-      })),
-  );
-  expect(overflow).toEqual([]);
-  const dialog = page.getByRole("dialog"),
-    scope = (await dialog.isVisible()) ? dialog : page.locator(".app");
-  const clipped = await scope
-    .locator("button,input,select")
-    .evaluateAll((elements) =>
-      elements
-        .filter((e) => e.getClientRects().length)
-        .filter((e) => {
-          const r = e.getBoundingClientRect(),
-            hit = document.elementFromPoint(
-              r.x + r.width / 2,
-              r.y + r.height / 2,
-            );
-          return (
-            r.x < -0.5 ||
-            r.y < -0.5 ||
-            r.right > innerWidth + 0.5 ||
-            r.bottom > innerHeight + 0.5 ||
-            !hit ||
-            !e.contains(hit)
-          );
-        })
-        .map((e) => e.getAttribute("aria-label") || e.textContent.trim()),
-    );
-  expect(clipped).toEqual([]);
-}
 for (const viewport of [
   { width: 390, height: 844 },
   { width: 320, height: 568 },
@@ -65,7 +17,7 @@ for (const viewport of [
       .getByRole("button", { name: "Escolher receita", exact: true })
       .click();
     await expectFits(page);
-    for (const name of ["Modo", "Tempo"]) {
+    for (const name of ["Modo", "Pedido", "Tempo"]) {
       await page.getByRole("tab", { name, exact: true }).click();
       await expectFits(page);
     }
@@ -77,6 +29,8 @@ for (const viewport of [
     }
     await page.getByRole("tab", { name: "Receitas", exact: true }).click();
     await page.locator("#help-recipe").selectOption("cheddar");
+    await expectFits(page);
+    await page.getByRole("tab", { name: "Contadores", exact: true }).click();
     await expectFits(page);
     await page.getByRole("tab", { name: "Sobre", exact: true }).click();
     await expectFits(page);

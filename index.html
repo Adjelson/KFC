@@ -1,1 +1,65 @@
-<!doctype html><html lang="pt-PT"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/><meta name="theme-color" content="#bd1833"/><title>Treino de Montagem</title></head><body><div id="root"></div><script type="module" src="/src/main.jsx"></script></body></html>
+<!doctype html>
+<html lang="pt-PT">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+    />
+    <meta name="theme-color" content="#8c1933" />
+    <title>Treino de Montagem</title>
+    <style>
+      html,
+      body {
+        margin: 0;
+        height: 100%;
+        background: #8c1933;
+      }
+      .boot-fallback {
+        height: 100vh;
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+        align-items: center;
+        justify-content: center;
+        color: #ffdf9f;
+        font-family: system-ui, sans-serif;
+        font-weight: 850;
+        letter-spacing: 4px;
+      }
+      .boot-fallback i {
+        width: 28px;
+        height: 28px;
+        border: 2px solid #d58f6c;
+        border-top-color: #ffdf9f;
+        border-radius: 50%;
+        animation: boot-spin 1s linear infinite;
+      }
+      .boot-fallback small {
+        font-size: 10px;
+        letter-spacing: 1px;
+        color: #eeb996;
+      }
+      @keyframes boot-spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .boot-fallback i {
+          animation: none;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root">
+      <div class="boot-fallback" role="status">
+        <i aria-hidden="true"></i>MONTA & TREINA<small
+          >A abrir a cozinha…</small
+        >
+      </div>
+    </div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>

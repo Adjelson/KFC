@@ -1,6 +1,7 @@
 import { test, expect } from "@playwright/test";
 import {
   openApp,
+  openTraining,
   enterHome,
   chooseRecipe,
   chooseCombo,
@@ -8,13 +9,16 @@ import {
   expectFits,
 } from "./helpers.js";
 async function setupTab(page, name) {
+  await openTraining(page);
   await page
     .getByRole("button", { name: "Escolher receita", exact: true })
     .click();
   await page.getByRole("tab", { name, exact: true }).click();
 }
 async function close(page) {
-  await page.getByRole("button", { name: "Fechar", exact: true }).click();
+  await page
+    .getByRole("button", { name: "Fechar painel", exact: true })
+    .click();
 }
 async function assemble(page, ids) {
   for (const id of ids) await page.locator(`[data-ingredient="${id}"]`).click();
@@ -141,43 +145,75 @@ for (const size of ["small", "medium", "large"])
       ),
     ).toEqual({ orders: 2, sandwiches: 1, fries: 2 });
   });
-test("challenge unlocks after all customers, survives reload and starts the next level", async ({
+test("new player unlocks training and recipes by completing randomized levels", async ({
   page,
 }) => {
-  await openApp(page);
-  await page.getByRole("button", { name: /Percurso de desafios/ }).click();
+  await openApp(page, { unlocked: false, training: false });
+  await page
+    .getByRole("navigation")
+    .getByRole("button", { name: "Treino", exact: true })
+    .click();
   await expect(
-    page.getByRole("button", { name: "Jogar nível 1" }),
-  ).toBeEnabled();
-  await page.getByRole("button", { name: /Nível 2:/ }).click();
-  await expect(
-    page.getByRole("button", { name: "Nível bloqueado" }),
-  ).toBeDisabled();
-  await page.getByRole("button", { name: /Nível 1:/ }).click();
-  await startGame(page, { button: "Jogar nível 1" });
-  await serveClient(page);
-  await startGame(page, { button: "Próximo cliente" });
-  await serveClient(page);
-  await expect(
-    page.getByRole("heading", { name: "Nível concluído!" }),
+    page.getByText("Conclui o nível 1 para desbloquear.", { exact: true }),
   ).toBeVisible();
-  expect(
-    await page.evaluate(
-      () => JSON.parse(localStorage.getItem("montagem-levels"))["1"],
-    ),
-  ).toBeGreaterThan(0);
-  await startGame(page, { button: "Próximo nível" });
-  await expect(page.locator(".ticket-caption")).toContainText("NÍVEL 2");
+  await page
+    .getByRole("navigation")
+    .getByRole("button", { name: "Níveis", exact: true })
+    .click();
+  await page.evaluate(() => (Math.random = () => 0));
+  await startGame(page, { button: "Jogar nível 1" });
+  await expect(page.locator(".ticket-caption")).toContainText("1/2");
+  const first = await page.locator(".assembly").getAttribute("data-recipe");
+  await serveClient(page);
+  await page.evaluate(() => (Math.random = () => 0.999));
+  await startGame(page, { button: "Próximo cliente" });
+  await expect(page.locator(".ticket-caption")).toContainText("2/2");
+  expect(await page.locator(".assembly").getAttribute("data-recipe")).not.toBe(
+    first,
+  );
+  await serveClient(page);
+  await expect(
+    page.getByRole("heading", { name: "Nível concluído!", exact: true }),
+  ).toBeVisible();
+  await page
+    .getByRole("button", { name: "Percurso de desafios", exact: true })
+    .click();
+  await page
+    .getByRole("navigation")
+    .getByRole("button", { name: "Treino", exact: true })
+    .click();
+  await expect(
+    page.getByRole("button", { name: "Começar treino", exact: true }),
+  ).toBeVisible();
+  await setupTab(page, "Receita");
+  await expect(
+    page.getByRole("button", { name: "Krunch Clássico", exact: true }),
+  ).toBeEnabled();
+  await expect(
+    page.getByRole("button", { name: "Krunch BBQ", exact: true }),
+  ).toBeDisabled();
+  await expect(
+    page.getByRole("button", { name: "Double", exact: true }),
+  ).toBeDisabled();
+  await close(page);
   await page.reload();
-  await enterHome(page);
-  await page.getByRole("button", { name: /Percurso de desafios/ }).click();
+  await enterHome(page, { training: false });
+  await page
+    .getByRole("navigation")
+    .getByRole("button", { name: "Níveis", exact: true })
+    .click();
   await expect(
     page.getByRole("button", { name: "Jogar nível 2" }),
   ).toBeEnabled();
+  await page.evaluate(() => (Math.random = () => 0.999));
+  await startGame(page, { button: "Jogar nível 2" });
+  await expect(page.locator(".ticket-caption")).toContainText("1/4");
 });
-test("failed customer does not unlock the next level", async ({ page }) => {
-  await openApp(page);
-  await page.getByRole("button", { name: /Percurso de desafios/ }).click();
+test("failed customer does not unlock training or the next level", async ({
+  page,
+}) => {
+  await openApp(page, { unlocked: false, training: false });
+  await page.evaluate(() => (Math.random = () => 0));
   await startGame(page, { button: "Jogar nível 1" });
   await page.getByRole("button", { name: "Servir pedido" }).click();
   await expect(page.locator(".outcome-screen")).toBeVisible();
@@ -185,9 +221,6 @@ test("failed customer does not unlock the next level", async ({ page }) => {
   await serveClient(page);
   await expect(
     page.getByRole("heading", { name: "Tenta novamente o nível" }),
-  ).toBeVisible();
-  await expect(
-    page.getByRole("button", { name: "Repetir nível" }),
   ).toBeVisible();
   expect(
     await page.evaluate(
@@ -214,13 +247,26 @@ for (const viewport of [
       ),
     );
     await openApp(page);
-    await page.getByRole("button", { name: /Percurso de desafios/ }).click();
+    await page
+      .getByRole("navigation")
+      .getByRole("button", { name: "Níveis", exact: true })
+      .click();
     await expectFits(page);
-    for (const tab of await page.getByRole("tab").all()) {
-      await tab.click();
+    for (const id of [1, 5, 9, 12]) {
+      const node = page.getByRole("button", {
+        name: new RegExp(`^Nível ${id}:`),
+      });
+      await node.scrollIntoViewIfNeeded();
+      await node.click();
+      await expect(node).toBeInViewport();
       await expectFits(page);
     }
-    await startGame(page, { button: "Jogar nível 9" });
+    expect(
+      await page
+        .locator(".stage-scroll")
+        .evaluate((e) => e.scrollHeight > e.clientHeight),
+    ).toBe(true);
+    await startGame(page, { button: "Jogar nível 12" });
     await expectFits(page);
     await page.getByRole("button", { name: "Abandonar treino" }).click();
     await chooseRecipe(page, "krunch");
@@ -255,3 +301,32 @@ for (const viewport of [
       await page.getByRole("button", { name: "Receita seguinte" }).click();
     }
   });
+
+test("recipe book stays locked outside a phase and helps with the current random order", async ({
+  page,
+}) => {
+  await openApp(page, { unlocked: false, training: false });
+  await page.getByRole("button", { name: "Abrir ajuda" }).click();
+  await page.getByRole("tab", { name: "Receitas", exact: true }).click();
+  await expect(page.locator(".locked-recipe")).toBeVisible();
+  await expect(page.locator(".reference-ingredients")).toHaveCount(0);
+  await expect(
+    page.getByRole("button", { name: "Fechar painel", exact: true }),
+  ).toHaveText("×");
+  await expect(page.locator(".support-footer")).toHaveCount(0);
+  await close(page);
+  await startGame(page, { button: "Jogar nível 1" });
+  const recipe = await productRecipe(page);
+  await page.getByRole("button", { name: "Abrir ajuda" }).click();
+  await page.getByRole("tab", { name: "Receitas", exact: true }).click();
+  await expect(page.locator(".reference-selector strong")).toHaveText(
+    recipe.name,
+  );
+  await expect(page.locator(".reference-ingredients li")).toHaveCount(
+    recipe.items.length,
+  );
+  await page.getByRole("button", { name: "Receita seguinte" }).click();
+  await expect(page.locator(".locked-recipe")).toBeVisible();
+  await close(page);
+  await expect(page.getByRole("timer")).toBeVisible();
+});

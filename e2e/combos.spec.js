@@ -10,7 +10,7 @@ import {
   expectFits,
 } from "./helpers.js";
 const items = {
-  krunch: ["Pão Core", "Filete", "Alface", "Maionese"],
+  krunch: ["Pão H1", "Mini Filete", "Alface", "Maionese"],
   bbq: ["Pão H1", "Mini Filete", "Queijo", "Molho BBQ"],
   cheddar: [
     "Pão brioche",

@@ -14,7 +14,7 @@ test("complete a correct recipe offline and retain personal best", async ({
   await chooseRecipe(page, "krunch");
   await context.setOffline(true);
   await startGame(page);
-  for (const n of ["Pão Core", "Filete", "Alface", "Maionese"])
+  for (const n of ["Pão H1", "Mini Filete", "Alface", "Maionese"])
     await page.getByRole("button", { name: n, exact: true }).click();
   await page.getByRole("button", { name: "Servir pedido" }).click();
   await expect(
@@ -78,7 +78,7 @@ test("sandwich layers respond to ingredients and every recipe can be served", as
   page,
 }) => {
   const recipes = {
-    krunch: ["Pão Core", "Filete", "Alface", "Maionese"],
+    krunch: ["Pão H1", "Mini Filete", "Alface", "Maionese"],
     bbq: ["Pão H1", "Mini Filete", "Queijo", "Molho BBQ"],
     cheddar: [
       "Pão brioche",

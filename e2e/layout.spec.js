@@ -21,7 +21,9 @@ for (const viewport of [
       await page.getByRole("tab", { name, exact: true }).click();
       await expectFits(page);
     }
-    await page.getByRole("button", { name: "Fechar", exact: true }).click();
+    await page
+      .getByRole("button", { name: "Fechar painel", exact: true })
+      .click();
     await page
       .getByRole("button", { name: "Abrir ajuda", exact: true })
       .click();
@@ -40,14 +42,18 @@ for (const viewport of [
     await expectFits(page);
     await page.getByRole("tab", { name: "Sobre", exact: true }).click();
     await expectFits(page);
-    await page.getByRole("button", { name: "Fechar", exact: true }).click();
+    await page
+      .getByRole("button", { name: "Fechar painel", exact: true })
+      .click();
     await page
       .getByRole("button", { name: "Abrir definições", exact: true })
       .click();
     await expectFits(page);
     await page.getByRole("tab", { name: "Movimento", exact: true }).click();
     await expectFits(page);
-    await page.getByRole("button", { name: "Fechar", exact: true }).click();
+    await page
+      .getByRole("button", { name: "Fechar painel", exact: true })
+      .click();
     await startGame(page);
     await expectFits(page);
     for (const button of await page.locator(".ingredient").all())
@@ -63,6 +69,14 @@ for (const viewport of [
 test("animated opening and loading finish before the round timer starts", async ({
   page,
 }) => {
+  await page.addInitScript(() =>
+    localStorage.setItem(
+      "montagem-levels",
+      JSON.stringify(
+        Object.fromEntries(Array.from({ length: 11 }, (_, i) => [i + 1, 3])),
+      ),
+    ),
+  );
   await page.clock.install();
   await page.goto("/");
   await expect(
@@ -77,6 +91,10 @@ test("animated opening and loading finish before the round timer starts", async 
     page.getByRole("button", { name: "Entrar na cozinha" }),
   ).toBeInViewport();
   await page.clock.runFor(2100);
+  await page
+    .getByRole("navigation", { name: "Menu principal" })
+    .getByRole("button", { name: "Treino", exact: true })
+    .click();
   await expect(
     page.getByRole("button", { name: "Começar treino", exact: true }),
   ).toBeVisible();

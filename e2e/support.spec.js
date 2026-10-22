@@ -72,7 +72,9 @@ test("sound, volume, music and animation preferences persist across reload", asy
   await expect(
     page.getByRole("switch", { name: "Animações", exact: true }),
   ).not.toBeChecked();
-  await page.getByRole("button", { name: "Fechar", exact: true }).click();
+  await page
+    .getByRole("button", { name: "Fechar painel", exact: true })
+    .click();
   await startGame(page);
   await page.getByRole("button", { name: "Alface", exact: true }).click();
   await expect(page.locator(".ingredient-flight")).toHaveCount(0);
@@ -86,13 +88,13 @@ test("ingredient flight, landing and serving animate without double submission",
   await openApp(page);
   await chooseRecipe(page, "krunch");
   await startGame(page, { clock: true });
-  await page.getByRole("button", { name: "Pão Core", exact: true }).click();
+  await page.getByRole("button", { name: "Pão H1", exact: true }).click();
   await expect(page.locator(".ingredient-flight")).toHaveCount(1);
   await expect(page.locator(".fresh-layer")).toHaveCount(1);
-  await expect(page.locator(".ingredient-feedback")).toHaveText("+ Pão Core");
+  await expect(page.locator(".ingredient-feedback")).toHaveText("+ Pão H1");
   await page.clock.fastForward(600);
   await expect(page.locator(".ingredient-flight")).toHaveCount(0);
-  for (const name of ["Filete", "Alface", "Maionese"])
+  for (const name of ["Mini Filete", "Alface", "Maionese"])
     await page.getByRole("button", { name, exact: true }).click();
   await page.getByRole("button", { name: "Servir pedido" }).click();
   await expect(page.getByRole("button", { name: "A servir…" })).toBeDisabled();
@@ -160,7 +162,9 @@ test("master mute blocks playback and music stops when disabled or backgrounded"
   await page
     .getByRole("switch", { name: "Som da aplicação", exact: true })
     .uncheck();
-  await page.getByRole("button", { name: "Fechar", exact: true }).click();
+  await page
+    .getByRole("button", { name: "Fechar painel", exact: true })
+    .click();
   const muted = await page.evaluate(() => window.audioStarts);
   await startGame(page);
   await page.getByRole("button", { name: "Filete", exact: true }).click();
@@ -170,7 +174,7 @@ test("master mute blocks playback and music stops when disabled or backgrounded"
     .getByRole("switch", { name: "Som da aplicação", exact: true })
     .check();
   await page
-    .getByRole("button", { name: "Voltar ao treino", exact: true })
+    .getByRole("button", { name: "Fechar painel", exact: true })
     .click();
   await page.getByRole("button", { name: "Alface", exact: true }).click();
   expect(await page.evaluate(() => window.audioStarts)).toBeGreaterThan(muted);

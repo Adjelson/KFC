@@ -7,6 +7,7 @@ import {
   ingredientName,
 } from "./game.js";
 import { Burger, Customer, FoodArt } from "./FoodArt.jsx";
+import { productUnlocked, productUnlockLevel } from "./challenges.js";
 import { Icon } from "./Icons.jsx";
 
 const guide = [
@@ -45,6 +46,8 @@ export function SupportPanel({
   sandwichesMade = 0,
   served = 0,
   currentRecipe = "krunch",
+  levelProgress,
+  access,
 }) {
   const dialog = useRef(null),
     [section, setSection] = useState(
@@ -63,6 +66,9 @@ export function SupportPanel({
     };
   }, []);
   const recipe = productById(recipeId) || recipes[0];
+  const canRead =
+    productUnlocked(recipe.id, levelProgress) ||
+    (inGame && recipe.id === currentRecipe);
   const tabs =
     page === "help"
       ? [
@@ -91,7 +97,7 @@ export function SupportPanel({
         : "Prepara o teu treino";
   return (
     <dialog
-      className="support-dialog"
+      className="support-dialog minimal-dialog"
       ref={dialog}
       aria-label="Ajuda e definições"
       onCancel={(e) => {
@@ -101,6 +107,13 @@ export function SupportPanel({
     >
       <div className="support-header">
         <h2>{title}</h2>
+        <button
+          className="dialog-close"
+          aria-label="Fechar painel"
+          onClick={onClose}
+        >
+          ×
+        </button>
         {inGame && (
           <span className="pause-notice" role="status">
             Ⅱ Treino em pausa
@@ -197,7 +210,13 @@ export function SupportPanel({
                 ←
               </button>
               <span>
-                <Burger items={recipe.items} compact />
+                {canRead ? (
+                  <Burger items={recipe.items} compact />
+                ) : (
+                  <span className="reference-lock" aria-hidden="true">
+                    🔒
+                  </span>
+                )}
                 <strong>{recipe.name}</strong>
               </span>
               <button
@@ -212,20 +231,29 @@ export function SupportPanel({
                 →
               </button>
             </div>
-            <ul className="reference-ingredients">
-              {recipe.items.map((id, index) => (
-                <li key={`${id}-${index}`}>
-                  <FoodArt id={id} />
-                  <span>{ingredientName(id)}</span>
-                </li>
-              ))}
-            </ul>
+            {canRead ? (
+              <ul className="reference-ingredients">
+                {recipe.items.map((id, index) => (
+                  <li key={`${id}-${index}`}>
+                    <FoodArt id={id} />
+                    <span>{ingredientName(id)}</span>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <div className="locked-recipe">
+                <span aria-hidden="true">🔒</span>
+                <p>Conclui o nível {productUnlockLevel(recipe.id)}</p>
+              </div>
+            )}
             <p className="tiny-note">
-              {recipe.double
-                ? "Dois filetes; queijo entre os dois quando incluído."
-                : recipe.kind === "fries"
-                  ? "Escolhe a porção indicada no talão: pequena, média ou grande."
-                  : "Ingredientes ilustrados a partir das referências fornecidas."}
+              {!canRead
+                ? "Receita por desbloquear"
+                : recipe.double
+                  ? "Dois filetes; queijo entre os dois quando incluído."
+                  : recipe.kind === "fries"
+                    ? "Escolhe a porção indicada no talão: pequena, média ou grande."
+                    : "Ingredientes ilustrados a partir das referências fornecidas."}
             </p>
           </div>
         )}
@@ -383,13 +411,19 @@ export function SupportPanel({
                   key={r.id}
                   aria-pressed={training.choice === r.id}
                   aria-label={r.name}
+                  disabled={!productUnlocked(r.id, levelProgress)}
                   className={training.choice === r.id ? "chosen" : ""}
                   onClick={() => onTraining({ choice: r.id })}
                 >
                   <div aria-hidden="true">
                     <Burger items={r.items} compact />
                   </div>
-                  <span>{r.name}</span>
+                  <span>
+                    {r.name}
+                    {!productUnlocked(r.id, levelProgress) && (
+                      <small>🔒 Nível {productUnlockLevel(r.id)}</small>
+                    )}
+                  </span>
                 </button>
               ))}
             </div>
@@ -401,6 +435,12 @@ export function SupportPanel({
               ].map(([id, label]) => (
                 <button
                   key={id}
+                  disabled={id !== "single" && !access.double}
+                  title={
+                    id !== "single" && !access.double
+                      ? "Conclui o nível 9"
+                      : undefined
+                  }
                   aria-pressed={training.variant === id}
                   className={training.variant === id ? "chosen" : ""}
                   onClick={() => onTraining({ variant: id })}
@@ -460,7 +500,10 @@ export function SupportPanel({
               ].map(([id, label]) => (
                 <button
                   key={id}
-                  disabled={training.quantity === 1}
+                  disabled={
+                    training.quantity === 1 ||
+                    (id === "mixed" && access.recipeIds.length < 2)
+                  }
                   aria-pressed={training.assortment === id}
                   className={training.assortment === id ? "chosen" : ""}
                   onClick={() => onTraining({ assortment: id })}
@@ -490,6 +533,12 @@ export function SupportPanel({
               ].map(([id, label, art]) => (
                 <button
                   key={id}
+                  disabled={id !== "none" && !access.fries}
+                  title={
+                    id !== "none" && !access.fries
+                      ? "Conclui o nível 5"
+                      : undefined
+                  }
                   className={training.side === id ? "chosen" : ""}
                   aria-pressed={training.side === id}
                   onClick={() => onTraining({ side: id })}
@@ -499,7 +548,9 @@ export function SupportPanel({
                 </button>
               ))}
             </div>
-            <h3>Tamanho das batatas</h3>
+            <h3>
+              {access.fries ? "Tamanho das batatas" : "🔒 Conclui o nível 5"}
+            </h3>
             <div className="fries-options">
               {fries.map((f) => (
                 <button
@@ -507,7 +558,7 @@ export function SupportPanel({
                   aria-label={f.name}
                   aria-pressed={training.friesSize === f.size}
                   className={training.friesSize === f.size ? "chosen" : ""}
-                  disabled={training.side === "none"}
+                  disabled={training.side === "none" || !access.fries}
                   onClick={() => onTraining({ friesSize: f.size })}
                 >
                   <FoodArt id={f.id} />
@@ -547,20 +598,6 @@ export function SupportPanel({
             </p>
           </div>
         )}
-      </div>
-      <div className="support-footer">
-        <button
-          className="primary"
-          aria-label={inGame ? "Voltar ao treino" : "Fechar"}
-          onClick={onClose}
-        >
-          {inGame
-            ? "Voltar ao treino"
-            : page === "setup"
-              ? "Guardar e voltar"
-              : "Fechar"}
-          <span aria-hidden="true">→</span>
-        </button>
       </div>
     </dialog>
   );

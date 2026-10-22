@@ -1,28 +1,34 @@
 # Monta & Treina
 
-Simulador de treino para Android, em português de Portugal. Cozinha visual com cliente, talão de pedido, ingredientes na bancada e um sanduíche que ganha camadas a cada toque. Quatro receitas base com versões Double, batatas de três tamanhos, 12 níveis progressivos, treino livre, revisão de erros e recordes locais. Funciona offline no APK; não usa conta, servidor, análise de utilização ou serviços externos.
+Simulador de treino para Android, em português de Portugal. Cozinha visual com cliente, talão de pedido, ingredientes na bancada e um sanduíche que ganha camadas a cada toque. Quatro receitas base com versões Double, batatas de três tamanhos, 12 níveis com pedidos e clientes aleatórios, treino livre, revisão de erros e recordes locais. Funciona offline no APK; não usa conta, servidor, análise de utilização ou serviços externos.
 
 ## Como jogar
 
-1. Escolhe **Percurso de desafios** para jogar níveis ou configura o **Treino livre** nos cartões do início.
-2. No percurso, há três caminhos de quatro níveis. Os desafios introduzem quantidades, pedidos variados, batatas, Double e sequências de dois a cinco clientes. Cada nível define produtos e tempo; serve todos os clientes corretamente para desbloquear o seguinte.
-3. No treino livre, configura **Receita**, **Modo**, **Pedido**, **Batatas** e **Tempo**. Escolhe sandes simples, Double ou mistura; batatas individuais ou uma porção por sandes. Toca em **Treino livre** para começar.
-4. O talão mostra produtos e quantidades. Toca nos ingredientes para montar e novamente para retirar. No Double, dois toques no filete adicionam duas unidades; um terceiro limpa essas unidades. Usa **↶** para desfazer o último ingrediente. Se houver queijo, coloca-o entre os dois filetes.
-5. Nas batatas, escolhe a porção pequena, média ou grande indicada no talão. As embalagens são pretas nas pequenas, vermelhas nas médias e cinzentas nas grandes. Nos pedidos com vários produtos, toca em **Adicionar à bandeja** para validar cada unidade. Só produtos corretos contam. Serve o pedido completo antes do prazo.
-6. Alterna **Resumo** e **Revisão** nos resultados e avança para o próximo cliente. No fim de um nível, podes repetir ou jogar o seguinte. As estrelas, contadores e preferências ficam no dispositivo.
+1. Usa a barra inferior: **Início** mostra o próximo desafio, **Níveis** abre o mapa e **Treino** abre o treino livre quando desbloqueado.
+2. O mapa tem um caminho sinuoso com 12 fases, três cenários e scroll vertical próprio. Podes consultar fases bloqueadas; o botão de jogar só fica disponível após concluir a anterior. Ao abrir o mapa, o nível atual fica visível.
+3. Cada tentativa sorteia o número de clientes uma vez: 2–4 nos níveis 1–4, 3–6 nos níveis 5–8 e 4–8 nos níveis 9–12. Esse total mantém-se durante a tentativa. A receita e as quantidades são sorteadas por cliente, com batatas a partir do nível 5 e versões Double a partir do 9. Repetir uma fase faz novos sorteios.
+4. O **Treino livre** desbloqueia ao concluir o nível 1. As receitas Krunch Clássico, Krunch BBQ, Clássica e O’Cheddar desbloqueiam após os níveis 1, 2, 3 e 4, respetivamente. Batatas desbloqueiam após o nível 5 e Double após o 9. O treino só sorteia receitas já desbloqueadas. A ajuda permite consultar a receita do pedido atual durante uma fase, mesmo antes de a desbloquear para treino.
+5. No treino livre, configura receita, modo, pedido, batatas e tempo nos cartões ilustrados. Os painéis fecham no **X** superior; as alterações são aplicadas ao escolher.
+6. Toca nos ingredientes para montar e novamente para retirar. No Double, dois toques adicionam dois filetes; um terceiro limpa essas unidades. Usa **↶** para desfazer o último ingrediente. Se houver queijo, coloca-o entre os dois filetes.
+7. Nas batatas, escolhe a porção indicada no talão: pequena preta, média vermelha ou grande cinzenta. Nos pedidos com vários produtos, toca em **Adicionar à bandeja** para validar cada unidade. Serve o pedido completo antes do prazo e avança para o próximo cliente.
+8. Todos os clientes têm de ficar corretos para concluir uma fase. Estrelas, receitas desbloqueadas, contadores e preferências ficam no dispositivo e são preservados ao atualizar.
 
 O nível ganha uma estrela ao servir todos os clientes; ganha duas se todos forem servidos até 80% do tempo e três se todos forem servidos até metade do tempo. Repetir um nível preserva a melhor classificação. Falhas ou desistências não desbloqueiam o seguinte.
 
 ![Percurso de desafios](docs/desafios.png)
 
-A interface usa a altura do ecrã e não exige deslocação vertical: início, preparação, ajuda, definições, cozinha e resultados. Os conteúdos mais longos estão divididos em abas e páginas; os testes verificam também se os controlos continuam visíveis e clicáveis, em vez de apenas ocultar o scroll. São verificados ecrãs de 320 × 568, 390 × 844, 740 × 360 e 1024 × 768.
+Apenas o mapa de níveis tem scroll. Início, treino, receitas, definições, cozinha e resultados ajustam-se à altura disponível, com abas e páginas quando necessário. Os testes verificam os controlos em ecrãs de 320 × 568, 390 × 844, 740 × 360 e 1024 × 768 e confirmam que o mapa permite alcançar as fases sem deslocar o resto da aplicação.
+
+![Treino livre com receitas desbloqueadas](docs/treino.png)
+
+![Krunch Clássico com pão H1 e Mini Filete](docs/receitas.png)
 
 ## Pedidos combinados e contadores
 
 Em **Treino livre → Pedido**, escolhe de 1 a 4 unidades por cliente e a composição:
 
 - **Iguais:** repete a receita escolhida; com receita aleatória, o tipo é sorteado e repetido.
-- **Variados:** inclui pelo menos dois tipos. A receita escolhida participa no pedido e os restantes produtos são sorteados. Pode haver tipos repetidos e diferentes no mesmo talão.
+- **Variados:** disponível após desbloquear duas receitas; inclui pelo menos dois tipos. A receita escolhida participa no pedido e os restantes produtos são sorteados. Pode haver tipos repetidos e diferentes no mesmo talão.
 
 O talão apresenta **preparados/quantidade pedida** por produto e o total do pedido. Podes tocar num produto ainda em falta para o preparar; ao mudar, a montagem atual é limpa. Depois de cada unidade válida, a bancada fica pronta para o próximo sanduíche em falta. As quotas impedem acrescentar produtos a mais. Um pedido de três sanduíches só fica concluído quando os três estiverem na bandeja e o cliente for servido.
 
@@ -58,7 +64,7 @@ Antes de cada pedido, uma transição animada prepara a bancada e aguarda a prep
 
 ## Instalar no telemóvel
 
-[Descarregar o APK de teste para Android](https://github.com/Adjelson/KFC/raw/refs/heads/main/downloads/monta-treino-debug.apk) · Android 7.0 ou superior · versão 1.5.1 · 4,2 MB.
+[Descarregar o APK de teste para Android](https://github.com/Adjelson/KFC/raw/refs/heads/main/downloads/monta-treino-debug.apk) · Android 7.0 ou superior · versão 1.6 · 4,2 MB.
 
 Abre o ficheiro no Android e permite a instalação desta origem, se solicitado. A assinatura do APK foi verificada; ainda não foi feita validação num telemóvel real.
 
@@ -90,9 +96,9 @@ O APK é uma versão de teste assinada com chave de desenvolvimento, para instal
 
 ## Receitas e limites do treino
 
-Ingredientes transcritos das descrições fornecidas pelo utilizador:
+Ingredientes baseados nas referências e correções fornecidas pelo utilizador:
 
-- Krunch Clássico: pão Core, 1 Filete, alface, maionese.
+- Krunch Clássico: pão H1, 1 Mini Filete, alface, maionese.
 - Krunch BBQ: pão H1, 1 Mini Filete, queijo, molho BBQ.
 - O’Cheddar: pão brioche, 1 Filete, queijo, bacon, molho cheddar, maionese.
 - Clássica: pão Core, 1 Filete, tomate, alface, maionese.

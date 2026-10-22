@@ -64,7 +64,7 @@ export async function expectFits(page) {
   const overflow = await page.evaluate(() =>
     [
       ...document.querySelectorAll(
-        "main,.home-screen,.support-content,.guide-page,.audio-settings,.recipe-picker,.recipe-options,.time-picker,.mode-picker,.outcome-body,.workstation,.order-settings,.quantity-options,.assortment-options,.counter-page,.order-lines,.order-review",
+        "main,.challenge-screen,.level-detail,.side-picker,.reference-selector,.prepared-tray,.home-screen,.support-content,.guide-page,.audio-settings,.recipe-picker,.recipe-options,.time-picker,.mode-picker,.outcome-body,.workstation,.order-settings,.quantity-options,.assortment-options,.counter-page,.order-lines,.order-review",
       ),
     ]
       .filter((e) => e.getClientRects().length)

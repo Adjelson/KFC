@@ -17,24 +17,33 @@ for (const viewport of [
       .getByRole("button", { name: "Escolher receita", exact: true })
       .click();
     await expectFits(page);
-    for (const name of ["Modo", "Pedido", "Tempo"]) {
+    for (const name of ["Modo", "Pedido", "Batatas", "Tempo"]) {
       await page.getByRole("tab", { name, exact: true }).click();
       await expectFits(page);
     }
-    await page.getByRole("tab", { name: "Ajuda", exact: true }).click();
+    await page.getByRole("button", { name: "Fechar", exact: true }).click();
+    await page
+      .getByRole("button", { name: "Abrir ajuda", exact: true })
+      .click();
     await expectFits(page);
     for (let i = 0; i < 3; i++) {
       await page.getByRole("button", { name: "Passo seguinte" }).click();
       await expectFits(page);
     }
     await page.getByRole("tab", { name: "Receitas", exact: true }).click();
-    await page.locator("#help-recipe").selectOption("cheddar");
+    for (let i = 0; i < 6; i++)
+      await page
+        .getByRole("button", { name: "Receita seguinte", exact: true })
+        .click();
     await expectFits(page);
     await page.getByRole("tab", { name: "Contadores", exact: true }).click();
     await expectFits(page);
     await page.getByRole("tab", { name: "Sobre", exact: true }).click();
     await expectFits(page);
-    await page.getByRole("tab", { name: "Definições", exact: true }).click();
+    await page.getByRole("button", { name: "Fechar", exact: true }).click();
+    await page
+      .getByRole("button", { name: "Abrir definições", exact: true })
+      .click();
     await expectFits(page);
     await page.getByRole("tab", { name: "Movimento", exact: true }).click();
     await expectFits(page);

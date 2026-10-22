@@ -15,9 +15,19 @@ test("help pauses the active timer, shows recipes, and resumes on Escape", async
   await page.clock.fastForward(120000);
   await expect(page.getByRole("timer")).toHaveText(left);
   await page.getByRole("tab", { name: "Receitas", exact: true }).click();
-  await page.locator("#help-recipe").selectOption("cheddar");
+  for (
+    let i = 0;
+    i < 11 &&
+    (await page.locator(".reference-selector strong").textContent()) !==
+      "O’Cheddar";
+    i++
+  )
+    await page
+      .getByRole("button", { name: "Receita seguinte", exact: true })
+      .click();
   await expect(dialog.getByRole("list").last()).toContainText("Molho cheddar");
-  await page.getByRole("tab", { name: "Definições", exact: true }).click();
+  await page.keyboard.press("Escape");
+  await page.getByRole("button", { name: "Abrir definições" }).click();
   await expect(
     page.getByRole("switch", { name: "Som da aplicação", exact: true }),
   ).toBeChecked();
@@ -27,17 +37,16 @@ test("help pauses the active timer, shows recipes, and resumes on Escape", async
   expect(
     Number((await page.getByRole("timer").textContent()).replace("seg", "")),
   ).toBe(Number(left.replace("seg", "")) - 3);
-  await expect(page.getByRole("button", { name: "Abrir ajuda" })).toBeFocused();
+  await expect(
+    page.getByRole("button", { name: "Abrir definições" }),
+  ).toBeFocused();
 });
 
 test("sound, volume, music and animation preferences persist across reload", async ({
   page,
 }) => {
   await openApp(page);
-  await page
-    .getByRole("navigation", { name: "Menu principal" })
-    .getByRole("button", { name: "Definições" })
-    .click();
+  await page.getByRole("button", { name: "Abrir definições" }).click();
   await page.getByRole("switch", { name: "Música de fundo" }).check();
   await page.getByRole("slider", { name: "Volume", exact: true }).fill("35");
   await page.getByRole("tab", { name: "Movimento", exact: true }).click();
@@ -77,17 +86,13 @@ test("ingredient flight, landing and serving animate without double submission",
   await openApp(page);
   await chooseRecipe(page, "krunch");
   await startGame(page, { clock: true });
-  await page
-    .getByRole("button", { name: "Pão com sementes", exact: true })
-    .click();
+  await page.getByRole("button", { name: "Pão Core", exact: true }).click();
   await expect(page.locator(".ingredient-flight")).toHaveCount(1);
   await expect(page.locator(".fresh-layer")).toHaveCount(1);
-  await expect(page.locator(".ingredient-feedback")).toHaveText(
-    "+ Pão com sementes",
-  );
+  await expect(page.locator(".ingredient-feedback")).toHaveText("+ Pão Core");
   await page.clock.fastForward(600);
   await expect(page.locator(".ingredient-flight")).toHaveCount(0);
-  for (const name of ["Filete de frango", "Alface", "Maionese"])
+  for (const name of ["Filete", "Alface", "Maionese"])
     await page.getByRole("button", { name, exact: true }).click();
   await page.getByRole("button", { name: "Servir pedido" }).click();
   await expect(page.getByRole("button", { name: "A servir…" })).toBeDisabled();
@@ -151,14 +156,22 @@ test("master mute blocks playback and music stops when disabled or backgrounded"
     };
   });
   await openApp(page);
-  await page.getByRole("button", { name: "Silenciar som" }).click();
+  await page.getByRole("button", { name: "Abrir definições" }).click();
+  await page
+    .getByRole("switch", { name: "Som da aplicação", exact: true })
+    .uncheck();
+  await page.getByRole("button", { name: "Fechar", exact: true }).click();
   const muted = await page.evaluate(() => window.audioStarts);
   await startGame(page);
-  await page
-    .getByRole("button", { name: "Filete de frango", exact: true })
-    .click();
+  await page.getByRole("button", { name: "Filete", exact: true }).click();
   expect(await page.evaluate(() => window.audioStarts)).toBe(muted);
-  await page.getByRole("button", { name: "Ativar som" }).click();
+  await page.getByRole("button", { name: "Abrir definições" }).click();
+  await page
+    .getByRole("switch", { name: "Som da aplicação", exact: true })
+    .check();
+  await page
+    .getByRole("button", { name: "Voltar ao treino", exact: true })
+    .click();
   await page.getByRole("button", { name: "Alface", exact: true }).click();
   expect(await page.evaluate(() => window.audioStarts)).toBeGreaterThan(muted);
   await page.getByRole("button", { name: "Abrir definições" }).click();

@@ -10,23 +10,17 @@ import {
   expectFits,
 } from "./helpers.js";
 const items = {
-  krunch: ["Pão com sementes", "Filete de frango", "Alface", "Maionese"],
-  bbq: ["Pão mini de sésamo", "Tender de frango", "Queijo", "Molho BBQ"],
+  krunch: ["Pão Core", "Filete", "Alface", "Maionese"],
+  bbq: ["Pão H1", "Mini Filete", "Queijo", "Molho BBQ"],
   cheddar: [
     "Pão brioche",
-    "Filete de frango",
+    "Filete",
     "Queijo",
     "Bacon",
     "Molho cheddar",
     "Maionese",
   ],
-  classic: [
-    "Pão com sementes",
-    "Filete de frango",
-    "Tomate",
-    "Alface",
-    "Maionese",
-  ],
+  classic: ["Pão Core", "Filete", "Tomate", "Alface", "Maionese"],
 };
 async function assemble(page, id) {
   for (const name of items[id])
@@ -47,16 +41,16 @@ test("duplicate sandwiches are counted once per valid assembly and persist after
   await startGame(page);
   await page.getByRole("button", { name: "Adicionar à bandeja" }).click();
   await expect(page.getByRole("alert")).toContainText("faltam 4");
-  await expect(page.getByLabel("0 de 2 sanduíches preparados")).toBeVisible();
+  await expect(page.getByLabel("0 de 2 produtos preparados")).toBeVisible();
   await assemble(page, "krunch");
   await page.getByRole("button", { name: "Adicionar à bandeja" }).dblclick();
   await expect(page.locator(".ingredient[aria-pressed=true]")).toHaveCount(0);
-  await expect(page.getByLabel("1 de 2 sanduíches preparados")).toBeVisible();
+  await expect(page.getByLabel("1 de 2 produtos preparados")).toBeVisible();
   expect(
     await page.evaluate(() =>
       JSON.parse(localStorage.getItem("montagem-totals")),
     ),
-  ).toEqual({ orders: 0, sandwiches: 1 });
+  ).toEqual({ orders: 0, sandwiches: 1, fries: 0 });
   await assemble(page, "krunch");
   await addToTray(page);
   await expect(
@@ -73,7 +67,8 @@ test("duplicate sandwiches are counted once per valid assembly and persist after
   await page.getByRole("button", { name: "Voltar ao início" }).click();
   await page.reload();
   await enterHome(page);
-  await page.getByRole("button", { name: "Ver contadores" }).click();
+  await page.getByRole("button", { name: "Abrir ajuda" }).click();
+  await page.getByRole("tab", { name: "Contadores", exact: true }).click();
   await expect(
     page
       .locator(".counter-card")
@@ -119,7 +114,7 @@ test("a mixed order supports choosing a product and advances to the remaining du
     await assemble(page, "krunch");
     await addToTray(page);
   }
-  await expect(page.getByLabel("3 de 3 sanduíches preparados")).toBeVisible();
+  await expect(page.getByLabel("3 de 3 produtos preparados")).toBeVisible();
   await page.getByRole("button", { name: "Servir pedido" }).click();
   await expect(
     page.getByRole("heading", { name: "Pedido perfeito!" }),
@@ -132,12 +127,12 @@ test("a mixed order supports choosing a product and advances to the remaining du
     page.locator(".order-review-line").filter({ hasText: "Krunch BBQ" }),
   ).toContainText("1/1");
   await startGame(page, { button: "Próximo cliente" });
-  await expect(page.getByLabel("0 de 3 sanduíches preparados")).toBeVisible();
+  await expect(page.getByLabel("0 de 3 produtos preparados")).toBeVisible();
   expect(
     await page.evaluate(() =>
       JSON.parse(localStorage.getItem("montagem-totals")),
     ),
-  ).toEqual({ orders: 1, sandwiches: 3 });
+  ).toEqual({ orders: 1, sandwiches: 3, fries: 0 });
 });
 
 test("wrong ingredients never fill the order and correcting them allows preparation", async ({
@@ -151,13 +146,13 @@ test("wrong ingredients never fill the order and correcting them allows preparat
   await page.getByRole("button", { name: "Bacon", exact: true }).click();
   await page.getByRole("button", { name: "Adicionar à bandeja" }).click();
   await expect(page.getByRole("alert")).toContainText("a mais 1");
-  await expect(page.getByLabel("0 de 2 sanduíches preparados")).toBeVisible();
+  await expect(page.getByLabel("0 de 2 produtos preparados")).toBeVisible();
   expect(
     await page.evaluate(() => localStorage.getItem("montagem-totals")),
   ).toBeNull();
   await page.getByRole("button", { name: "Bacon", exact: true }).click();
   await addToTray(page);
-  await expect(page.getByLabel("1 de 2 sanduíches preparados")).toBeVisible();
+  await expect(page.getByLabel("1 de 2 produtos preparados")).toBeVisible();
 });
 
 test("a timed-out partial order preserves the prepared count without counting a completed customer", async ({
@@ -181,7 +176,7 @@ test("a timed-out partial order preserves the prepared count without counting a 
     await page.evaluate(() =>
       JSON.parse(localStorage.getItem("montagem-totals")),
     ),
-  ).toEqual({ orders: 0, sandwiches: 1 });
+  ).toEqual({ orders: 0, sandwiches: 1, fries: 0 });
   await page.getByRole("tab", { name: "Revisão", exact: true }).click();
   await expect(page.locator(".order-review-line")).toContainText("1/3");
 });
@@ -212,7 +207,7 @@ for (const viewport of [
       await assemble(page, id);
       await addToTray(page);
     }
-    await expect(page.getByLabel("4 de 4 sanduíches preparados")).toBeVisible();
+    await expect(page.getByLabel("4 de 4 produtos preparados")).toBeVisible();
     await expectFits(page);
     await page.getByRole("button", { name: "Servir pedido" }).click();
     await expect(
@@ -223,7 +218,8 @@ for (const viewport of [
     await expect(page.locator(".order-review-line")).toHaveCount(4);
     await expectFits(page);
     await page.getByRole("button", { name: "Voltar ao início" }).click();
-    await page.getByRole("button", { name: "Ver contadores" }).click();
+    await page.getByRole("button", { name: "Abrir ajuda" }).click();
+    await page.getByRole("tab", { name: "Contadores", exact: true }).click();
     await expectFits(page);
   });
 }
@@ -254,5 +250,5 @@ test("expiration during the last preparation keeps sandwich totals but never inv
     await page.evaluate(() =>
       JSON.parse(localStorage.getItem("montagem-totals")),
     ),
-  ).toEqual({ orders: 0, sandwiches: 2 });
+  ).toEqual({ orders: 0, sandwiches: 2, fries: 0 });
 });

@@ -14,13 +14,8 @@ test("complete a correct recipe offline and retain personal best", async ({
   await chooseRecipe(page, "krunch");
   await context.setOffline(true);
   await startGame(page);
-  for (const n of [
-    "Pão com sementes",
-    "Filete de frango",
-    "Alface",
-    "Maionese",
-  ])
-    await page.getByRole("button", { name: new RegExp(n) }).click();
+  for (const n of ["Pão Core", "Filete", "Alface", "Maionese"])
+    await page.getByRole("button", { name: n, exact: true }).click();
   await page.getByRole("button", { name: "Servir pedido" }).click();
   await expect(
     page.getByRole("heading", { name: "Pedido perfeito!" }),
@@ -48,12 +43,7 @@ test("identify missing and extra ingredients and allow removal", async ({
     page.getByRole("heading", { name: "Vamos aperfeiçoar?" }),
   ).toBeVisible();
   await page.getByRole("tab", { name: "Revisão", exact: true }).click();
-  for (const item of [
-    "Pão mini de sésamo",
-    "Tender de frango",
-    "Queijo",
-    "Molho BBQ",
-  ])
+  for (const item of ["Pão H1", "Mini Filete", "Queijo", "Molho BBQ"])
     await expect(page.getByLabel("Faltaram", { exact: true })).toContainText(
       item,
     );
@@ -88,23 +78,17 @@ test("sandwich layers respond to ingredients and every recipe can be served", as
   page,
 }) => {
   const recipes = {
-    krunch: ["Pão com sementes", "Filete de frango", "Alface", "Maionese"],
-    bbq: ["Pão mini de sésamo", "Tender de frango", "Queijo", "Molho BBQ"],
+    krunch: ["Pão Core", "Filete", "Alface", "Maionese"],
+    bbq: ["Pão H1", "Mini Filete", "Queijo", "Molho BBQ"],
     cheddar: [
       "Pão brioche",
-      "Filete de frango",
+      "Filete",
       "Queijo",
       "Bacon",
       "Molho cheddar",
       "Maionese",
     ],
-    classic: [
-      "Pão com sementes",
-      "Filete de frango",
-      "Tomate",
-      "Alface",
-      "Maionese",
-    ],
+    classic: ["Pão Core", "Filete", "Tomate", "Alface", "Maionese"],
   };
   await openApp(page);
   for (const [id, items] of Object.entries(recipes)) {
@@ -138,12 +122,7 @@ test("five customer shift counts only correct orders and resets the next shift",
       page.getByText(`PEDIDO #00${round} · ${round}/5`),
     ).toBeVisible();
     if (round !== 3 && round !== 5)
-      for (const ingredient of [
-        "Pão mini de sésamo",
-        "Tender de frango",
-        "Queijo",
-        "Molho BBQ",
-      ])
+      for (const ingredient of ["Pão H1", "Mini Filete", "Queijo", "Molho BBQ"])
         await page
           .getByRole("button", { name: ingredient, exact: true })
           .click();
@@ -189,9 +168,7 @@ test("kitchen fits a mobile screen with all ingredients and serving action avail
     ).toBeInViewport();
   }
   await page.getByRole("button", { name: "Pão brioche", exact: true }).click();
-  await page
-    .getByRole("button", { name: "Filete de frango", exact: true })
-    .click();
+  await page.getByRole("button", { name: "Filete", exact: true }).click();
   await page.getByRole("button", { name: "Queijo", exact: true }).click();
   await page.screenshot({
     path: "artifacts/cozinha-telemovel.png",

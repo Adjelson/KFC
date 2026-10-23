@@ -101,7 +101,9 @@ test("sandwich layers respond to ingredients and every recipe can be served", as
         name: `Sanduíche com ${items.length} ingredientes`,
       }),
     ).toBeVisible();
-    await expect(page.locator(".burger-layer")).toHaveCount(items.length + 1);
+    await expect(page.locator(".assembly .burger-layer")).toHaveCount(
+      items.length + 1,
+    );
     await page.getByRole("button", { name: "Servir pedido" }).click();
     await expect(
       page.getByRole("heading", { name: "Pedido perfeito!" }),

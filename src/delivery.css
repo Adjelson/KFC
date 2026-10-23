@@ -1,0 +1,515 @@
+/* Pratos interativos: o envio parte da própria montagem. */
+.delivery-surface {
+  position: absolute;
+  inset: 28px 0 0;
+  min-width: 0;
+  min-height: 0;
+  outline-offset: -3px;
+  border-radius: 16px;
+  touch-action: none;
+  user-select: none;
+}
+.delivery-surface.can-deliver {
+  cursor: grab;
+}
+.delivery-surface.is-dragging {
+  cursor: grabbing;
+}
+.assembly:has(.delivery-surface.is-dragging) {
+  z-index: 55;
+}
+.delivery-surface.is-dragging > .burger-stack,
+.delivery-surface.is-dragging > .prepared-tray {
+  opacity: 0.35;
+}
+.delivery-surface > .burger-stack {
+  bottom: 13px;
+}
+.delivery-surface .prepared-tray {
+  top: 0;
+  bottom: 22px;
+}
+.delivery-cue {
+  position: absolute;
+  bottom: 1px;
+  left: 50%;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  padding: 4px 8px;
+  border: 1px solid #c8d19d;
+  border-radius: 8px;
+  color: #4e6731;
+  background: #f2f4d5f5;
+  font-size: 9px;
+  font-weight: 850;
+  pointer-events: none;
+  animation: delivery-invite 1.5s ease-in-out infinite;
+}
+.delivery-ghost {
+  position: fixed;
+  z-index: 90;
+  width: 150px;
+  height: 130px;
+  transform: translate(-50%, -65%);
+  pointer-events: none;
+  filter: drop-shadow(0 7px 8px #42251866);
+}
+.kitchen .assembly .delivery-ghost > .burger-stack {
+  transform: translateX(-50%) scale(0.45);
+  bottom: 0;
+}
+.app:has(.delivery-surface.is-dragging) .mastery-toast {
+  opacity: 0;
+}
+.kitchen .assembly .delivery-surface .tray-product:only-child .burger-stack {
+  transform: translateX(-50%) scale(0.5);
+}
+[data-drop-state="ready"] {
+  filter: drop-shadow(0 0 6px #e6eaa0);
+}
+[data-drop-state="hover"] {
+  filter: drop-shadow(0 0 9px #d8ff75);
+}
+[data-drop-state="wrong"] {
+  filter: drop-shadow(0 0 7px #ef5552);
+}
+[data-drop-state="other"] {
+  opacity: 0.65;
+}
+.ready-on-plate {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 3px 7px;
+  border-radius: 7px;
+  background: #edf0c9;
+  color: #61723d;
+  font-size: 9px;
+  font-weight: 850;
+  pointer-events: none;
+}
+.ready-on-plate svg {
+  width: 14px;
+  height: 14px;
+}
+.assembly-title {
+  z-index: 12;
+  pointer-events: none;
+}
+.assembly-title button {
+  pointer-events: auto;
+}
+.assembly > .empty,
+.ingredient-feedback,
+.assembly-error {
+  pointer-events: none;
+}
+.kitchen .ingredient-pan:has(.ingredient-stock) {
+  border: 0;
+  border-radius: 0;
+  background: none;
+  box-shadow: none;
+  transform: none;
+}
+.kitchen .ingredient-pan:has(.ingredient-stock)::before {
+  display: none;
+}
+.ingredient-stock {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+.ingredient-stock .food-art {
+  width: 104px;
+  height: 64px;
+  transform: none !important;
+  filter: none !important;
+}
+.ingredient.selected .ingredient-stock {
+  filter: drop-shadow(0 0 3px #c9e587);
+}
+.service-game .service-controls {
+  position: absolute;
+  z-index: 20;
+  top: 6px;
+  right: 7px;
+  bottom: auto;
+  left: auto;
+  height: 21px;
+  width: auto;
+  display: block;
+}
+.service-game .service-controls .tray-meter {
+  position: static;
+  width: auto;
+  min-width: 0;
+  height: 100%;
+  padding: 2px 5px;
+  gap: 3px;
+  border-radius: 6px;
+  font-size: 9px;
+}
+.service-controls .tray-meter > div {
+  display: none;
+}
+.service-controls .tray-meter > svg {
+  width: 14px;
+  height: 14px;
+}
+.service-game .queue-heading {
+  padding-right: 60px;
+}
+.kitchen.service-game {
+  grid-template-rows:
+    110px calc(90px + var(--ticket-extra, 0px)) minmax(80px, 1fr)
+    minmax(160px, 0.9fr);
+  grid-template-areas: "queue" "ticket" "assembly" "bins";
+}
+.kitchen:not(.service-game) .serve-bar {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  padding: 0;
+  background: none;
+  border: 0;
+  width: auto;
+  height: auto;
+  z-index: 20;
+}
+.kitchen:not(.service-game) .serve-hint {
+  padding: 4px 7px;
+  font-size: 10px;
+  border-radius: 8px;
+  background: #fff0cf;
+}
+.customer-goodbye {
+  pointer-events: none;
+}
+.customer-goodbye > span {
+  white-space: nowrap;
+}
+/* O resultado aguarda o jogador antes de revelar a próxima fase no mapa. */
+.screen-service-result {
+  background: #60402d url("./assets/restaurant-scene.webp") center/cover;
+}
+.level-result[open] {
+  position: fixed;
+  width: min(430px, calc(100% - 28px));
+  max-height: calc(100dvh - 24px);
+  padding: 24px;
+  border: 2px solid #eac77c;
+  border-radius: 26px;
+  background: radial-gradient(ellipse at 50% 0, #fffbed, #f3dfb3);
+  color: #6a472e;
+  overflow: hidden;
+  box-shadow:
+    0 12px 0 #5d342966,
+    0 22px 60px #281b1877;
+  text-align: center;
+  animation: result-arrive 0.55s cubic-bezier(0.2, 0.8, 0.3, 1.2) both;
+}
+.level-result::backdrop {
+  background: #271c1988;
+  backdrop-filter: blur(5px);
+}
+.level-result > .dialog-close {
+  position: absolute;
+  right: 12px;
+  top: 12px;
+  z-index: 5;
+}
+.level-result h1 {
+  font-size: clamp(23px, 5vw, 30px);
+  margin: 7px 0;
+  line-height: 1.1;
+}
+.level-result-copy {
+  position: relative;
+}
+.level-result-copy > p {
+  font-size: 12px;
+  margin: 10px 0 15px;
+}
+.level-result .eyebrow {
+  color: #9b7851;
+  font-size: 10px;
+}
+.level-result-art {
+  position: relative;
+  height: 65px;
+  display: grid;
+  place-items: center;
+}
+.result-wreath {
+  display: grid;
+  place-items: center;
+  font-size: 48px;
+  width: 64px;
+  height: 64px;
+  color: #fff4ba;
+  background: linear-gradient(#edbe54, #b97d2f);
+  border: 3px solid #fff0ad;
+  border-radius: 50%;
+  box-shadow: 0 4px 0 #a9743b44;
+}
+.level-lost .result-wreath {
+  background: #96715b;
+  color: #f9e3bd;
+}
+.level-result-stars {
+  display: flex;
+  justify-content: center;
+  gap: 11px;
+  font-size: 44px;
+  line-height: 1.2;
+  color: #d6c4a1;
+}
+.level-result-stars span.earned {
+  color: #e9a72c;
+  text-shadow: 0 3px #aa6b28;
+  animation: reward-star 0.55s cubic-bezier(0.2, 0.8, 0.3, 1.4) both;
+  animation-delay: calc(var(--n) * 0.18s);
+}
+.level-result-stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 9px;
+  margin: 13px 0 8px;
+}
+.level-result-stats > div {
+  display: grid;
+  grid-template-columns: 24px auto;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  background: #fff8e6;
+  border: 1px solid #dfc28b;
+  border-radius: 14px;
+  padding: 12px 6px;
+}
+.level-result-stats svg {
+  width: 23px;
+  height: 23px;
+  color: #b98124;
+}
+.level-result-stats strong {
+  font-size: 24px;
+}
+.level-result-stats small {
+  grid-column: 1/-1;
+  font-size: 10px;
+  color: #9a7a50;
+}
+.result-coins-note {
+  display: block;
+  margin: 9px 0 17px;
+  font-size: 10px;
+  color: #9b7e58;
+}
+.level-result .primary {
+  width: 100%;
+  padding: 12px;
+}
+@keyframes delivery-invite {
+  50% {
+    translate: 0 -3px;
+  }
+}
+@keyframes result-arrive {
+  from {
+    opacity: 0;
+    transform: scale(0.75) translateY(25px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes reward-star {
+  from {
+    opacity: 0;
+    transform: scale(0.2) rotate(-25deg);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@media (orientation: portrait) and (max-height: 700px) {
+  .kitchen.service-game {
+    grid-template-rows:
+      105px calc(72px + var(--ticket-extra, 0px)) minmax(80px, 1fr)
+      minmax(130px, 0.9fr);
+    gap: 5px;
+    padding: 5px;
+  }
+  .service-game .queue-heading {
+    gap: 5px;
+    padding-right: 48px;
+  }
+  .service-game .queue-heading h1 {
+    font-size: 12px;
+  }
+  .service-game .queue-next {
+    display: none;
+  }
+  .delivery-cue {
+    font-size: 8px;
+    padding: 3px 5px;
+  }
+  .level-result[open] {
+    padding: 16px;
+  }
+}
+@media (orientation: landscape) {
+  .service-game .queue-heading {
+    padding-right: 0;
+    right: 185px;
+  }
+  .service-game .queue-heading .queue-next {
+    display: none;
+  }
+  .landscape-kitchen .service-controls {
+    top: 6px;
+    right: 120px;
+    height: 30px;
+  }
+  .landscape-kitchen .service-controls .tray-meter {
+    height: 30px;
+    padding: 4px 7px;
+    font-size: 11px;
+  }
+  .landscape-kitchen .queue-cards {
+    top: 12%;
+    height: 37%;
+  }
+  .landscape-kitchen .service-ticket {
+    height: 34%;
+  }
+  .landscape-kitchen .assembly,
+  .landscape-kitchen .service-assembly {
+    top: 51%;
+    height: 45%;
+  }
+  .landscape-kitchen .workstation,
+  .landscape-kitchen .service-workstation {
+    inset: 50% 2% 3%;
+  }
+  .landscape-kitchen .assembly-title {
+    top: -2px;
+  }
+  .landscape-kitchen .delivery-surface {
+    inset: 25px 0 0;
+  }
+  .landscape-kitchen .delivery-surface > .burger-stack {
+    bottom: 22px;
+  }
+  .landscape-kitchen .delivery-surface .prepared-tray {
+    top: 0;
+    bottom: 24px;
+  }
+  .landscape-kitchen .delivery-cue {
+    font-size: 8px;
+    padding: 3px 5px;
+  }
+  .landscape-kitchen .ghost-pace {
+    top: 40px;
+    bottom: auto;
+    right: 2%;
+    height: 16px;
+    width: 24%;
+  }
+  .landscape-kitchen:not(.service-game) .serve-bar {
+    left: 8px;
+    right: auto;
+    top: 6px;
+    bottom: auto;
+    height: 30px;
+  }
+  .landscape-kitchen:not(.service-game) .serve-hint {
+    position: static;
+    height: 30px;
+  }
+  .level-result[open] {
+    width: min(580px, calc(100% - 28px));
+    padding: 17px 24px;
+    display: grid;
+    grid-template-columns: 115px minmax(0, 1fr);
+    gap: 15px;
+    align-items: center;
+  }
+  .level-result-art {
+    height: 140px;
+  }
+  .result-wreath {
+    width: 100px;
+    height: 100px;
+    font-size: 70px;
+  }
+  .level-result h1 {
+    font-size: 26px;
+  }
+  .level-result-stars {
+    font-size: 35px;
+  }
+  .level-result-copy > p {
+    margin: 5px 0 8px;
+    font-size: 11px;
+  }
+  .level-result-stats {
+    margin: 6px 0;
+  }
+  .level-result-stats > div {
+    padding: 7px 5px;
+  }
+  .level-result-stats strong {
+    font-size: 22px;
+  }
+  .result-coins-note {
+    margin: 6px 0 9px;
+    font-size: 9px;
+  }
+  .level-result .primary {
+    padding: 9px;
+    min-height: 34px;
+  }
+}
+@media (orientation: landscape) and (min-height: 600px) {
+  .landscape-kitchen .service-controls {
+    top: 10px;
+    right: 165px;
+    height: 40px;
+  }
+  .landscape-kitchen .service-controls .tray-meter {
+    height: 40px;
+    font-size: 15px;
+    padding: 5px 10px;
+  }
+  .service-game .queue-heading {
+    right: 260px;
+  }
+  .landscape-kitchen .delivery-cue {
+    font-size: 12px;
+    padding: 5px 9px;
+  }
+  .landscape-kitchen .ghost-pace {
+    top: 57px;
+    height: 23px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .delivery-cue,
+  .level-result[open],
+  .level-result-stars span.earned {
+    animation: none;
+  }
+}
+.motion-off .delivery-cue,
+.motion-off .level-result[open],
+.motion-off .level-result-stars span.earned {
+  animation: none;
+}

@@ -33,6 +33,8 @@ import { visibleIngredients, purchasedDrinks } from "./pantry.js";
 import { trayCapacity } from "./career.js";
 import { Icon } from "./Icons.jsx";
 import { KitchenScene } from "./KitchenScene.jsx";
+import { DeliverySurface } from "./DeliverySurface.jsx";
+import { IngredientStock, ingredientContainer } from "./IngredientStock.jsx";
 function KitchenBackdrop({ renovated }) {
   return (
     <svg
@@ -170,7 +172,9 @@ export function ServiceGame(props) {
     flightTimers = useRef(new Set()),
     assembly = useRef(null),
     serial = useRef(0),
-    lastTick = useRef(-1);
+    lastTick = useRef(-1),
+    moods = useRef(new Map()),
+    lastReaction = useRef(0);
   const customer = state.customers.find(
       (c) => c.id === state.selected && c.status === "active",
     ),
@@ -231,6 +235,20 @@ export function ServiceGame(props) {
     if (recipe) callbacks.current.onContext(recipe.id);
   }, [recipe?.id]);
   useEffect(() => {
+    if (paused || finished.current) return;
+    let reaction;
+    for (const c of state.customers.filter((c) => c.status === "active")) {
+      const mood = customerMood(c, now),
+        previous = moods.current.get(c.id);
+      if (previous && previous !== mood && mood !== "happy") reaction = mood;
+      moods.current.set(c.id, mood);
+    }
+    if (reaction && now - lastReaction.current >= 1800) {
+      sound.reaction(reaction);
+      lastReaction.current = now;
+    }
+  }, [state, now, paused]);
+  useEffect(() => {
     if (remaining > 0 && remaining <= 5 && lastTick.current !== remaining) {
       lastTick.current = remaining;
       sound.play("tick");
@@ -262,7 +280,6 @@ export function ServiceGame(props) {
       items,
       kind,
       reward,
-      person: kind === "serve" && reward > 0 ? customer : null,
       departureX: `${((active.findIndex((c) => c.id === customer?.id) + 0.5) / Math.max(1, active.length)) * 100}%`,
     });
     timerRef.current = setTimeout(
@@ -303,22 +320,43 @@ export function ServiceGame(props) {
     flightTimers.current.add(t);
   }
   function toggle(id, event) {
-    if (!canAct() || allReady) return;
-    const double = recipe.double && ["fillet", "tender"].includes(id),
-      count = selected.filter((x) => x === id).length,
+    if (!canAct()) return;
+    const current = stateRef.current.customers.find(
+      (c) => c.id === stateRef.current.selected,
+    );
+    if (customerProgress(current).complete) return;
+    const product = productById(current.current);
+    const draft = current.drafts[current.current] || [];
+    if (trayUsed(stateRef.current) >= capacity) {
+      setError("Bandeja cheia · desliza os produtos até ao cliente.");
+      sound.play("error");
+      return;
+    }
+    const double = product.double && ["fillet", "tender"].includes(id),
+      count = draft.filter((x) => x === id).length,
       remove = count >= (double ? 2 : 1),
-      items = ["fries", "drink"].includes(recipe.kind)
+      items = ["fries", "drink"].includes(product.kind)
         ? remove
           ? []
           : [id]
         : remove
-          ? selected.filter((x) => x !== id)
-          : [...selected, id];
+          ? draft.filter((x) => x !== id)
+          : [...draft, id];
     publish(setDraft(stateRef.current, items));
     setAction({ id, remove, key: ++serial.current });
     setError("");
     sound.ingredient(id, remove);
     fly(id, event.currentTarget, remove);
+    const verdict = evaluate(product, items);
+    if (verdict.perfect) prepare();
+    else if (items.length >= product.items.length) {
+      setError(
+        verdict.stackError
+          ? "Coloca o queijo entre os dois filetes."
+          : "Revê os ingredientes da montagem.",
+      );
+      sound.play("error");
+    }
   }
   function prepare() {
     if (!canAct()) {
@@ -359,7 +397,7 @@ export function ServiceGame(props) {
     callbacks.current.onProduct(product.id);
     setError("");
     setAction(null);
-    sound.play("serve");
+    sound.play("ready");
     animate(items, "prepare");
   }
   function deliver() {
@@ -375,7 +413,8 @@ export function ServiceGame(props) {
     if (result.complete) callbacks.current.onCustomer(result.reward);
     setError("");
     setAction(null);
-    sound.play(result.complete ? "success" : "serve");
+    sound.play(result.complete ? "orderComplete" : "serve");
+    if (result.patienceGain) sound.reaction("happy");
     animate(art, "serve", result.reward);
   }
   function choose(id) {
@@ -404,13 +443,12 @@ export function ServiceGame(props) {
     >
       <KitchenScene />
       <section className="customer-queue" aria-label="Fila de clientes">
-        {fx?.person && (
+        {fx?.reward > 0 && (
           <div
             className="customer-goodbye"
             style={{ left: fx.departureX }}
             aria-hidden="true"
           >
-            <Customer number={fx.person.number} type={fx.person.type} />
             <span>
               ＋{fx.reward} <Icon name="coin" />
             </span>
@@ -455,6 +493,7 @@ export function ServiceGame(props) {
                 key={c.id}
                 className={`customer-card ${c.id === state.selected ? "current" : ""} type-${c.type} ${ratio < 0.25 ? "impatient" : ""}`}
                 data-mood={mood}
+                data-delivery-customer={c.id}
                 aria-label={`Cliente ${c.number}, ${type.name}`}
                 aria-pressed={c.id === state.selected}
                 disabled={busy}
@@ -546,6 +585,7 @@ export function ServiceGame(props) {
         <>
           <section
             className="order-board service-ticket"
+            data-delivery-customer={customer.id}
             aria-label="Pedido do cliente"
           >
             <div className="ticket">
@@ -606,22 +646,45 @@ export function ServiceGame(props) {
                 ↶
               </button>
             </div>
-            {allReady ? (
-              <PreparedTray
-                lines={customer.order.map((l) => ({
-                  ...l,
-                  prepared: customer.prepared[l.recipeId] || 0,
-                }))}
-              />
-            ) : (
-              <Burger items={selected} action={action} fit />
-            )}
-            {!selected.length && !allReady && (
-              <p className="empty">
-                <span aria-hidden="true">＋</span>
-                <small>Toca nos ingredientes</small>
-              </p>
-            )}
+            <DeliverySurface
+              enabled={!busy && !paused && readyToDeliver > 0}
+              customerId={customer.id}
+              label={`Deslizar pedido até ao cliente ${customer.number}`}
+              items={
+                productById(
+                  customer.order.find((l) => customer.prepared[l.recipeId] > 0)
+                    ?.recipeId || recipe.id,
+                ).items
+              }
+              onDeliver={deliver}
+              onMiss={() => {
+                setError(`Este pedido é do cliente ${customer.number}.`);
+                sound.play("error");
+              }}
+            >
+              {allReady || (!selected.length && readyToDeliver > 0) ? (
+                <PreparedTray
+                  lines={customer.order.map((l) => ({
+                    ...l,
+                    prepared: customer.prepared[l.recipeId] || 0,
+                  }))}
+                />
+              ) : (
+                <Burger items={selected} action={action} fit />
+              )}
+              {!selected.length && !allReady && !readyToDeliver && (
+                <p className="empty">
+                  <span aria-hidden="true">＋</span>
+                  <small>Toca nos ingredientes</small>
+                </p>
+              )}
+              {readyToDeliver > 0 && !allReady && (
+                <span className="ready-on-plate">
+                  <Icon name="tray" /> {readyToDeliver} pronto
+                  {readyToDeliver > 1 ? "s" : ""}
+                </span>
+              )}
+            </DeliverySurface>
             {action && (
               <div
                 key={action.key}
@@ -679,20 +742,14 @@ export function ServiceGame(props) {
                   key={item.id}
                   className={`ingredient ${selected.includes(item.id) ? "selected" : ""}`}
                   data-ingredient={item.id}
-                  data-container={
-                    ["Pães", "Vegetais", "Extras"].includes(item.type)
-                      ? "plate"
-                      : item.type === "Molhos"
-                        ? "bowl"
-                        : "tray"
-                  }
+                  data-container={ingredientContainer(item)}
                   aria-label={item.name}
                   aria-pressed={selected.includes(item.id)}
                   disabled={busy || allReady}
                   onClick={(e) => toggle(item.id, e)}
                 >
                   <span className="ingredient-pan">
-                    <FoodArt id={item.id} />
+                    <IngredientStock item={item} />
                     <span className="check">
                       {selected.includes(item.id)
                         ? recipe.double &&
@@ -722,24 +779,6 @@ export function ServiceGame(props) {
                 ))}
               </div>
             </div>
-            <button
-              className="prepare-button"
-              aria-label="Adicionar à bandeja"
-              disabled={busy || allReady}
-              onClick={prepare}
-            >
-              <Icon name="tray" />
-              <span>Preparar</span>
-            </button>
-            <button
-              className="primary deliver-button"
-              aria-label={`Entregar ao cliente ${customer.number}`}
-              disabled={busy || readyToDeliver === 0}
-              onClick={deliver}
-            >
-              Entregar <b>{readyToDeliver || ""}</b>
-              <span aria-hidden="true">→</span>
-            </button>
           </div>
         </>
       ) : (

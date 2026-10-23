@@ -19,12 +19,12 @@ const guide = [
   },
   {
     title: "Toca para montar",
-    text: "Escolhe os ingredientes na bancada. Toca novamente para retirar. No Double, toca duas vezes no filete; usa ↶ para desfazer.",
+    text: "Escolhe os ingredientes na bancada. A montagem correta passa sozinha para a bandeja. Antes disso, toca novamente para retirar ou usa ↶. No Double, coloca o queijo entre os filetes.",
     art: "ingredients",
   },
   {
     title: "Serve a tempo",
-    text: "Nos níveis, as entregas parciais libertam a bandeja e recuperam um pouco de tempo. Cada cliente tem o seu relógio.",
+    text: "Desliza o prato ou a bandeja até ao respetivo cliente. As entregas parciais libertam espaço e recuperam um pouco de tempo. Com teclado, seleciona o prato e carrega em Enter.",
     art: "burger",
   },
   {

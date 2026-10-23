@@ -365,6 +365,7 @@ export function Burger({ items, compact = false, action, fit = false }) {
 }
 
 export function Customer({ number = 1, type = "regular", mood = "happy" }) {
+  const crop = useId().replace(/:/g, "");
   const skin = ["#dba274", "#f1c69b", "#e4b18c", "#ac714d", "#f0cfb2"][
     (number - 1) % 5
   ];
@@ -373,6 +374,11 @@ export function Customer({ number = 1, type = "regular", mood = "happy" }) {
   ];
   return (
     <svg viewBox="0 0 70 80" aria-hidden="true">
+      <defs>
+        <clipPath id={`${crop}-portrait`}>
+          <rect width="70" height="80" />
+        </clipPath>
+      </defs>
       <g className="customer-vector">
         <path d="M8 80V65Q35 48 62 65V80" fill={shirt} />
         <path d="M26 60L35 70 44 60V80H26Z" fill="#fff3db" />
@@ -423,6 +429,7 @@ export function Customer({ number = 1, type = "regular", mood = "happy" }) {
       </g>
       <image
         className="customer-render"
+        clipPath={`url(#${crop}-portrait)`}
         href={mood === "happy" ? customersAtlas : customerEmotions}
         x={-((number - 1) % 4) * 70}
         y={mood === "angry" ? -96.4 : 0}

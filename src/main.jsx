@@ -62,6 +62,10 @@ import "./landscape.css";
 
 import { buyIngredient, visibleIngredients } from "./pantry.js";
 import "./progression.css";
+import { DeliverySurface } from "./DeliverySurface.jsx";
+import { IngredientStock, ingredientContainer } from "./IngredientStock.jsx";
+import { LevelResult } from "./LevelResult.jsx";
+import "./delivery.css";
 const name = ingredientName;
 function readBest() {
   try {
@@ -147,11 +151,14 @@ function App() {
       saveProgress(completion.progress);
       changeCareer((old) => saveServiceRecord(old, summary));
     }
-    setMapArrival({ ...completion.arrival, earned: summary.earned });
+    setServiceResult({
+      ...summary,
+      arrival: { ...completion.arrival, earned: summary.earned },
+    });
     setServing(false);
     setPanel(null);
-    setScreen("challenges");
-    sound.play(summary.passed ? "success" : "timeout");
+    setScreen("service-result");
+    sound.play(summary.passed ? "levelWin" : "levelLose");
   }
 
   const [limit, setLimit] = useState(60);
@@ -162,6 +169,7 @@ function App() {
     [friesSize, setFriesSize] = useState("small");
   const [levelProgress, setLevelProgress] = useState(loadProgress);
   const [mapArrival, setMapArrival] = useState(null);
+  const [serviceResult, setServiceResult] = useState(null);
   const [run, setRun] = useState({ limit: 60, clients: 1, challengeId: null });
   const access = trainingAccess(levelProgress, career);
   const runMode = run.clients;
@@ -431,7 +439,7 @@ function App() {
     if (timeout || !settings.animations) complete();
     else {
       setServing(true);
-      sound.play("serve");
+      sound.play("orderComplete");
       delivery.current = setTimeout(complete, 560);
     }
   }
@@ -473,7 +481,7 @@ function App() {
     };
     if (settings.animations) {
       setServing(true);
-      sound.play("serve");
+      sound.play("ready");
       delivery.current = setTimeout(complete, 450);
     } else complete();
   }
@@ -542,6 +550,7 @@ function App() {
       performance.current = [];
     }
     setMapArrival(null);
+    setServiceResult(null);
     sound.unlock();
     sound.play("click");
     clearTimeout(delivery.current);
@@ -608,6 +617,14 @@ function App() {
     launchIngredient(id, event?.currentTarget, remove);
     selection.current = next;
     setSelected(next);
+    if (isCombo) {
+      const verdict = evaluate(recipe, next);
+      if (verdict.perfect) prepareSandwich();
+      else if (next.length >= recipe.items.length) {
+        setAssemblyError(verdict);
+        sound.play("error");
+      }
+    }
   }
   function home() {
     active.current = false;
@@ -781,15 +798,38 @@ function App() {
             onBusy={setServing}
           />
         )}
+        {screen === "service-result" && serviceResult && (
+          <LevelResult
+            summary={serviceResult}
+            onContinue={() => {
+              setMapArrival(serviceResult.arrival);
+              setServiceResult(null);
+              setScreen("challenges");
+            }}
+          />
+        )}
         {screen === "game" && (
           <div
             className={`kitchen landscape-kitchen ${isCombo ? "has-combo" : ""} ${serving ? "is-serving" : ""}`}
             aria-busy={serving}
           >
             <KitchenScene />
-            <section className="order-board" aria-label="Pedido do cliente">
+            <section
+              className="order-board"
+              aria-label="Pedido do cliente"
+              data-delivery-customer="training"
+            >
               <div className="customer" aria-hidden="true">
-                <Customer number={round} />
+                <Customer
+                  number={round}
+                  mood={
+                    remaining / roundLimit > 0.6
+                      ? "happy"
+                      : remaining / roundLimit > 0.25
+                        ? "waiting"
+                        : "angry"
+                  }
+                />
               </div>
               <div className="ticket">
                 <span className="ticket-caption">
@@ -878,18 +918,28 @@ function App() {
                   ↶
                 </button>
               </div>
-              {ready && !serving ? (
-                <PreparedTray lines={progress.lines} />
-              ) : (
-                <Burger items={selected} action={action} fit />
-              )}
-              {selected.length > 0 && !ready && (
-                <div className="steam" aria-hidden="true">
-                  <i />
-                  <i />
-                  <i />
-                </div>
-              )}
+              <DeliverySurface
+                enabled={
+                  !serving && !panel && (isCombo ? ready : selected.length > 0)
+                }
+                customerId="training"
+                label="Deslizar pedido até ao cliente"
+                items={ready ? productById(order[0].recipeId).items : selected}
+                onDeliver={() => finish(Date.now() >= deadline.current)}
+              >
+                {ready && !serving ? (
+                  <PreparedTray lines={progress.lines} />
+                ) : (
+                  <Burger items={selected} action={action} fit />
+                )}
+                {selected.length > 0 && !ready && (
+                  <div className="steam" aria-hidden="true">
+                    <i />
+                    <i />
+                    <i />
+                  </div>
+                )}
+              </DeliverySurface>
               {action && !ready && (
                 <div
                   className={`ingredient-feedback ${action.remove ? "removed" : ""}`}
@@ -939,20 +989,14 @@ function App() {
                     className={`ingredient ${selected.includes(i.id) ? "selected" : ""} ${action?.id === i.id ? "ingredient-tapped" : ""}`}
                     key={i.id}
                     data-ingredient={i.id}
-                    data-container={
-                      ["Pães", "Vegetais", "Extras"].includes(i.type)
-                        ? "plate"
-                        : i.type === "Molhos"
-                          ? "bowl"
-                          : "tray"
-                    }
+                    data-container={ingredientContainer(i)}
                     onClick={(e) => toggle(i.id, e)}
                     disabled={serving || ready}
                     aria-label={i.name}
                     aria-pressed={selected.includes(i.id)}
                   >
                     <span className="ingredient-pan">
-                      <FoodArt id={i.id} />
+                      <IngredientStock item={i} />
                       <span className="check">
                         {selected.includes(i.id)
                           ? recipe.double && ["fillet", "tender"].includes(i.id)
@@ -981,22 +1025,6 @@ function App() {
                     ? `✓ ${served} · ${round}/${runMode}`
                     : "🍔 → 👤"}
               </span>
-              <button
-                className="primary serve-button"
-                disabled={serving}
-                onClick={() =>
-                  isCombo && !ready
-                    ? prepareSandwich()
-                    : finish(Date.now() >= deadline.current)
-                }
-              >
-                {serving
-                  ? "A servir…"
-                  : isCombo && !ready
-                    ? "Adicionar à bandeja"
-                    : "Servir pedido"}{" "}
-                <span aria-hidden="true">→</span>
-              </button>
             </div>
           </div>
         )}

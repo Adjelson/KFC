@@ -65,7 +65,42 @@ export const fries = ["small", "medium", "large"].map((size, index) => ({
   kind: "fries",
   items: [`fries-${size}`],
 }));
-export const products = [...recipes, ...doubles, ...fries];
+export const basicRecipes = [
+  {
+    id: "bread",
+    name: "Pão simples",
+    kind: "basic",
+    items: ["mini"],
+    tag: "Primeiro passo",
+  },
+  {
+    id: "mini-bun",
+    name: "Pão com Mini Filete",
+    kind: "basic",
+    items: ["mini", "tender"],
+    tag: "O primeiro recheio",
+  },
+  {
+    id: "mayo-bun",
+    name: "Pão com frango e maionese",
+    kind: "basic",
+    items: ["mini", "tender", "mayo"],
+    tag: "O primeiro molho",
+  },
+];
+export const drinks = [
+  { id: "drink-coke", name: "Coca-Cola", color: "#d53235" },
+  { id: "drink-pepsi", name: "Pepsi", color: "#2373ce" },
+  { id: "drink-sumol", name: "Sumol", color: "#41944b" },
+].map((d) => ({ ...d, kind: "drink", items: [d.id] }));
+export const trainingRecipes = [...recipes, ...basicRecipes];
+export const products = [
+  ...recipes,
+  ...doubles,
+  ...fries,
+  ...basicRecipes,
+  ...drinks,
+];
 export const productById = (id) =>
   products.find((product) => product.id === id);
 export const ingredientName = (id) =>

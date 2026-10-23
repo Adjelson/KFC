@@ -1,5 +1,6 @@
 import { challengeOrder } from "./challenges.js";
 import { orderDuration, orderProgress } from "./orders.js";
+import { campaignRecipes, purchasedDrinks, ownsIngredient } from "./pantry.js";
 import { productById } from "./game.js";
 export const CUSTOMER_TYPES = {
   regular: {
@@ -36,26 +37,47 @@ const draw = (random) =>
 export function createServicePlan(run, career, random = Math.random) {
   let previous;
   const types = Object.keys(CUSTOMER_TYPES);
+  const allowedRecipeIds = campaignRecipes(career).map((p) => p.id);
+  const availableDrinks = run.challengeId >= 3 ? purchasedDrinks(career) : [];
+  const stockedRun = {
+    ...run,
+    allowedRecipeIds,
+    side: ownsIngredient(career, "fries") ? run.side : "none",
+  };
   const customers = Array.from({ length: run.clients }, (_, i) => {
     const type = types[Math.floor(draw(random) * types.length)],
       person = CUSTOMER_TYPES[type];
     const config =
       type === "rushed"
-        ? { ...run, maxQuantity: 1 }
+        ? { ...stockedRun, maxQuantity: 1 }
         : type === "family"
-          ? { ...run, maxQuantity: Math.max(2, run.maxQuantity) }
-          : run;
+          ? { ...stockedRun, maxQuantity: Math.max(2, run.maxQuantity) }
+          : stockedRun;
     let order = challengeOrder(config, i + 1, previous, random);
     previous = order[0].recipeId;
+    if (availableDrinks.length && (i === 0 || draw(random) < 0.55)) {
+      const drink =
+        availableDrinks[Math.floor(draw(random) * availableDrinks.length)];
+      if (i > 0 && draw(random) < 0.15)
+        order = [{ recipeId: drink.id, quantity: 1 }];
+      else
+        order = [
+          ...order,
+          { recipeId: drink.id, quantity: type === "family" ? 2 : 1 },
+        ];
+    }
     return {
       id: `c${i + 1}`,
       type,
       number: i + 1,
       order,
-      duration: Math.round(
-        orderDuration(order, run.limit) *
-          person.patience *
-          (1 + career.upgrades.bench * 0.08),
+      duration: Math.max(
+        10,
+        Math.round(
+          orderDuration(order, run.limit) *
+            person.patience *
+            (1 + career.upgrades.bench * 0.08),
+        ),
       ),
     };
   });
@@ -71,6 +93,9 @@ export function startService(plan, now) {
       deadline: i < 2 ? now + c.duration * 1000 : null,
       arrivedAt: i < 2 ? now : null,
       prepared: {},
+      bonusSeconds: 0,
+      lastBonusAt: null,
+      lastBonusGain: 0,
       delivered: {},
       drafts: {},
       current: c.order[0].recipeId,
@@ -235,9 +260,18 @@ export function deliverCustomer(state, id, now) {
       ) +
       Math.min(streak - 1, 4) * 2
     : 0;
+  const units = Object.values(c.prepared).reduce((n, v) => n + v, 0);
+  const budget = Math.min(15, Math.max(3, Math.round(c.duration * 0.2)));
+  const patienceGain = complete
+    ? 0
+    : Math.max(0, Math.min(6, units * 3, budget - (c.bonusSeconds || 0)));
   let next = updateCustomer(state, id, (c) => ({
     ...c,
     delivered,
+    deadline: c.deadline + patienceGain * 1000,
+    bonusSeconds: (c.bonusSeconds || 0) + patienceGain,
+    lastBonusAt: patienceGain ? now : c.lastBonusAt,
+    lastBonusGain: patienceGain || c.lastBonusGain || 0,
     prepared: {},
     status: complete ? "served" : "active",
   }));
@@ -251,7 +285,13 @@ export function deliverCustomer(state, id, now) {
       ratios: [...state.ratios, ratio],
       nextArrivalAt: Math.min(state.nextArrivalAt, now + 1000),
     };
-  return { state: settle(next, now), delivered: true, reward, complete };
+  return {
+    state: settle(next, now),
+    delivered: true,
+    reward,
+    complete,
+    patienceGain,
+  };
 }
 export function pauseService(state, delta) {
   return {
@@ -260,7 +300,12 @@ export function pauseService(state, delta) {
     nextArrivalAt: state.nextArrivalAt + delta,
     customers: state.customers.map((c) =>
       c.status === "active"
-        ? { ...c, deadline: c.deadline + delta, arrivedAt: c.arrivedAt + delta }
+        ? {
+            ...c,
+            deadline: c.deadline + delta,
+            arrivedAt: c.arrivedAt + delta,
+            lastBonusAt: c.lastBonusAt === null ? null : c.lastBonusAt + delta,
+          }
         : c,
     ),
   };
@@ -286,3 +331,20 @@ export function serviceSummary(state, now) {
 }
 export const ghostServed = (record, elapsed) =>
   record?.milestones.filter((at) => at <= elapsed).length || 0;
+
+export const customerSeconds = (c, now) =>
+  Math.max(0, Math.ceil((c.deadline - now) / 1000));
+export const customerPatience = (c, now) =>
+  Math.max(0, Math.min(1, (c.deadline - now) / (c.duration * 1000)));
+export function customerMood(c, now) {
+  if (
+    c.lastBonusAt !== null &&
+    c.lastBonusAt !== undefined &&
+    now - c.lastBonusAt < 1500
+  )
+    return "happy";
+  const ratio = customerPatience(c, now);
+  return ratio > 0.6 ? "happy" : ratio > 0.25 ? "waiting" : "angry";
+}
+export const waitLabel = (seconds) =>
+  `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, "0")}`;

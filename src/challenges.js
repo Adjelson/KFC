@@ -1,3 +1,5 @@
+import { basicRecipes, productById } from "./game.js";
+import { canMake, ownsIngredient } from "./pantry.js";
 import { makeOrder } from "./orders.js";
 export const chapters = [
   { name: "Primeiros passos", icon: "🌱" },
@@ -65,21 +67,26 @@ export function saveProgress(progress) {
 }
 export const recipeUnlocks = { krunch: 1, bbq: 2, classic: 3, cheddar: 4 };
 export function productUnlockLevel(id) {
+  if (id.startsWith("drink-")) return 3;
   if (id.startsWith("fries-")) return 5;
   return id.endsWith("-double")
     ? Math.max(9, recipeUnlocks[id.replace("-double", "")] || 1)
     : recipeUnlocks[id] || 1;
 }
-export function productUnlocked(id, progress) {
-  return progress[productUnlockLevel(id)] > 0;
+export function productUnlocked(id, progress, career) {
+  return (
+    progress[productUnlockLevel(id)] > 0 &&
+    (!career || canMake(career, productById(id)))
+  );
 }
-export function trainingAccess(progress) {
+export function trainingAccess(progress, career) {
   return {
     training: progress[1] > 0,
-    recipeIds: Object.keys(recipeUnlocks).filter((id) =>
-      productUnlocked(id, progress),
-    ),
-    fries: progress[5] > 0,
+    recipeIds: [
+      ...(career ? basicRecipes.map((p) => p.id) : []),
+      ...Object.keys(recipeUnlocks),
+    ].filter((id) => productUnlocked(id, progress, career)),
+    fries: progress[5] > 0 && ownsIngredient(career, "fries"),
     double: progress[9] > 0,
   };
 }
@@ -106,6 +113,7 @@ export function challengeOrder(
   return makeOrder(
     {
       choice: "random",
+      allowedRecipeIds: level.allowedRecipeIds,
       quantity: 1 + Math.floor(draw(random) * level.maxQuantity),
       assortment: "mixed",
       variant: level.variant,
@@ -117,15 +125,15 @@ export function challengeOrder(
   );
 }
 
-export function resolveLevelCompletion(progress, id, stars) {
+export function resolveLevelCompletion(progress, id, stars, career) {
   const next = completeLevel(progress, id, stars);
   const passed =
     Number.isInteger(stars) &&
     stars > 0 &&
     stars <= 3 &&
     isUnlocked(id, progress);
-  const previousAccess = trainingAccess(progress),
-    access = trainingAccess(next);
+  const previousAccess = trainingAccess(progress, career),
+    access = trainingAccess(next, career);
   const rewards = [
     ...(!previousAccess.training && access.training ? ["training"] : []),
     ...access.recipeIds

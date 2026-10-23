@@ -1,4 +1,5 @@
 import { products, productById } from "./game.js";
+import { STARTER_INGREDIENTS, pantryIds } from "./pantry.js";
 export const CAREER_KEY = "montagem-career";
 export const UPGRADES = [
   {
@@ -41,6 +42,8 @@ export const RENOVATIONS = [
 ];
 const count = (n) => (Number.isSafeInteger(n) && n >= 0 ? Math.min(n, 1e9) : 0);
 export const emptyCareer = () => ({
+  pantryVersion: 1,
+  ingredients: [...STARTER_INGREDIENTS],
   coins: 0,
   lifetimeCoins: 0,
   spentStars: 0,
@@ -68,7 +71,7 @@ export function validPlan(plan) {
         c.duration <= 1500 &&
         Array.isArray(c.order) &&
         c.order.length > 0 &&
-        c.order.length <= 5 &&
+        c.order.length <= 6 &&
         new Set(c.order.map((l) => l.recipeId)).size === c.order.length &&
         c.order.every(
           (l) =>
@@ -117,6 +120,44 @@ export function loadCareer(storage = globalThis.localStorage) {
         )
       )
         base.records[key] = record;
+    if (raw?.pantryVersion === 1 && Array.isArray(raw.ingredients)) {
+      base.ingredients = [
+        ...new Set([
+          ...STARTER_INGREDIENTS,
+          ...raw.ingredients.filter((id) => pantryIds.includes(id)),
+        ]),
+      ];
+    } else {
+      let progress = {};
+      try {
+        progress =
+          JSON.parse(storage?.getItem("montagem-levels") || "{}") || {};
+      } catch {}
+      const played =
+        Object.values(progress).some((n) => typeof n === "number" && n > 0) ||
+        base.lifetimeCoins > 0 ||
+        Object.keys(base.mastery).length > 0 ||
+        Object.keys(base.records).length > 0;
+      if (played)
+        base.ingredients = [
+          ...new Set([
+            ...STARTER_INGREDIENTS,
+            ...products
+              .filter((p) => !["drink", "basic"].includes(p.kind))
+              .flatMap((p) => p.items)
+              .filter((id) => !id.startsWith("fries-")),
+            ...(progress[5] > 0 ||
+            Object.keys(base.mastery).some((id) => id.startsWith("fries-")) ||
+            Object.values(base.records).some((r) =>
+              r.plan.customers.some((c) =>
+                c.order.some((l) => l.recipeId.startsWith("fries-")),
+              ),
+            )
+              ? ["fries"]
+              : []),
+          ]),
+        ];
+    }
     return base;
   } catch {
     return base;

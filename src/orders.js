@@ -1,4 +1,4 @@
-import { recipes, pickRecipe, productById } from "./game.js";
+import { recipes, trainingRecipes, pickRecipe, productById } from "./game.js";
 export const MAX_ORDER_SIZE = 4;
 const TOTALS_KEY = "montagem-totals";
 const safeCount = (n) => (Number.isSafeInteger(n) && n >= 0 ? n : 0);
@@ -19,7 +19,9 @@ export function makeOrder(
   const count = Number.isInteger(quantity)
     ? Math.max(1, Math.min(MAX_ORDER_SIZE, quantity))
     : 1;
-  const available = recipes.filter((r) => allowedRecipeIds.includes(r.id));
+  const available = trainingRecipes.filter((r) =>
+    allowedRecipeIds.includes(r.id),
+  );
   if (!available.length) return [];
   const first =
     available.find((r) => r.id === choice) ||
@@ -39,7 +41,10 @@ export function makeOrder(
   if (side === "only") ids.length = 0;
   else
     for (let i = 0; i < ids.length; i++)
-      if (variant === "double" || (variant === "mixed" && random() < 0.5))
+      if (
+        recipes.some((r) => r.id === ids[i]) &&
+        (variant === "double" || (variant === "mixed" && random() < 0.5))
+      )
         ids[i] += "-double";
   if (side !== "none") {
     const size = ["small", "medium", "large"].includes(friesSize)
@@ -128,7 +133,7 @@ export function orderDuration(order, limit) {
     (total, line) =>
       total +
       line.quantity *
-        (productById(line.recipeId)?.kind === "fries"
+        (["fries", "drink"].includes(productById(line.recipeId)?.kind)
           ? Math.max(10, Math.round(limit * 0.4))
           : limit),
     0,

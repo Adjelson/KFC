@@ -174,7 +174,7 @@ test("new player unlocks training and recipes by completing randomized levels", 
   await serveClient(page);
   await page.evaluate(() => (Math.random = () => 0.999));
   await expect(page.locator(".ticket-caption")).toContainText("2/2");
-  expect(await page.locator(".assembly").getAttribute("data-recipe")).not.toBe(
+  expect(await page.locator(".assembly").getAttribute("data-recipe")).toBe(
     first,
   );
   await serveClient(page);
@@ -190,8 +190,12 @@ test("new player unlocks training and recipes by completing randomized levels", 
   ).toBeVisible();
   await setupTab(page, "Receita");
   await expect(
-    page.getByRole("button", { name: "Krunch Clássico", exact: true }),
+    page.getByRole("button", { name: "Pão simples", exact: true }),
   ).toBeEnabled();
+  await page.getByRole("button", { name: "Receitas anteriores" }).click();
+  await expect(
+    page.getByRole("button", { name: "Krunch Clássico", exact: true }),
+  ).toBeDisabled();
   await expect(
     page.getByRole("button", { name: "Krunch BBQ", exact: true }),
   ).toBeDisabled();
@@ -330,7 +334,7 @@ test("recipe book stays locked outside a phase and helps with the current random
   await page.getByRole("button", { name: "Receita seguinte" }).click();
   await expect(page.locator(".locked-recipe")).toBeVisible();
   await close(page);
-  await expect(page.getByRole("timer")).toBeVisible();
+  await expect(page.getByRole("timer").first()).toBeVisible();
 });
 
 test("only levels and training remain; completing a phase reveals the next one without starting it", async ({

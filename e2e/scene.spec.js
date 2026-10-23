@@ -1,5 +1,11 @@
 import { test, expect } from "@playwright/test";
-import { openApp, startGame, enterHome, expectFits } from "./helpers.js";
+import {
+  openApp,
+  startGame,
+  enterHome,
+  expectFits,
+  stockKitchen,
+} from "./helpers.js";
 for (const viewport of [
   { width: 740, height: 360 },
   { width: 1280, height: 720 },
@@ -8,6 +14,7 @@ for (const viewport of [
     page,
   }) => {
     await page.setViewportSize(viewport);
+    await stockKitchen(page);
     await page.clock.install();
     await openApp(page, { training: false, unlocked: false });
     await page.evaluate(() => (Math.random = () => 0.55));
@@ -82,5 +89,5 @@ test("the first round waits for local scene artwork before starting its clock", 
   release();
   await (await response).finished();
   await page.clock.runFor(800);
-  await expect(page.getByRole("timer")).toBeVisible();
+  await expect(page.getByRole("timer").first()).toBeVisible();
 });

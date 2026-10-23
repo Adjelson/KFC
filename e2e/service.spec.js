@@ -5,6 +5,7 @@ import {
   startGame,
   expectFits,
   serveServiceClient,
+  stockKitchen,
 } from "./helpers.js";
 const plan = {
   levelId: 12,
@@ -67,6 +68,7 @@ test("customers keep independent drafts and every clock pauses with help", async
   page,
 }) => {
   await fixedClock(page);
+  await stockKitchen(page);
   await openApp(page, { training: false, unlocked: false });
   await page.evaluate(() => (Math.random = () => 0.55));
   await startGame(page, { button: "Jogar nível 1", clock: true });
@@ -184,7 +186,7 @@ test("preparation and service animate while duplicate actions stay blocked", asy
   await expect(page.locator(".ingredient-flight")).toHaveCount(1);
   await expect(page.locator(".fresh-layer")).toHaveCount(1);
   await page.clock.runFor(500);
-  await assemble(page, ["tender", "lettuce", "mayo"]);
+
   await page
     .getByRole("button", { name: "Adicionar à bandeja" })
     .evaluate((b) => {
@@ -238,6 +240,7 @@ for (const viewport of [
     });
     await openApp(page, { training: false });
     await page.getByRole("button", { name: "Abrir restaurante" }).click();
+    await page.getByRole("tab", { name: "Melhorias", exact: true }).click();
     await expectFits(page);
     await page
       .getByRole("button", { name: "Melhorar Bandeja maior por 40 moedas" })

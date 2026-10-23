@@ -86,7 +86,7 @@ export async function startGame(
   if (button === "Começar treino") await openTraining(page);
   await page.getByRole("button", { name: button, exact: true }).click();
   if (clock) await page.clock.runFor(700);
-  await expect(page.getByRole("timer")).toBeVisible();
+  await expect(page.getByRole("timer").first()).toBeVisible();
 }
 export async function chooseCombo(page, n = 3, mixed = true) {
   await page
@@ -190,4 +190,30 @@ export async function serveServiceClient(page, { clock = false } = {}) {
     }
   }
   throw Error("Customer did not finish within the product limit");
+}
+
+export async function stockKitchen(page) {
+  await page.addInitScript(() => {
+    localStorage.setItem(
+      "montagem-career",
+      JSON.stringify({
+        pantryVersion: 1,
+        ingredients: [
+          "mini",
+          "seeds",
+          "brioche",
+          "fillet",
+          "tender",
+          "lettuce",
+          "tomato",
+          "cheese",
+          "bacon",
+          "mayo",
+          "bbq",
+          "cheddar",
+          "fries",
+        ],
+      }),
+    );
+  });
 }

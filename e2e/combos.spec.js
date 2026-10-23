@@ -23,8 +23,12 @@ const items = {
   classic: ["Pão Core", "Filete", "Tomate", "Alface", "Maionese"],
 };
 async function assemble(page, id) {
-  for (const name of items[id])
-    await page.getByRole("button", { name, exact: true }).click();
+  const ids = await page.evaluate(
+    async (id) => (await import("/src/game.js")).productById(id).items,
+    id,
+  );
+  for (const item of ids)
+    await page.locator(`[data-ingredient="${item}"]`).click();
 }
 async function addToTray(page, clock = false) {
   await page.getByRole("button", { name: "Adicionar à bandeja" }).click();

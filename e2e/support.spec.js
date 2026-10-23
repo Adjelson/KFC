@@ -1,4 +1,5 @@
 import { openApp, enterHome, chooseRecipe, startGame } from "./helpers.js";
+import { products } from "../src/game.js";
 import { test, expect } from "@playwright/test";
 
 test("help pauses the active timer, shows recipes, and resumes on Escape", async ({
@@ -17,7 +18,7 @@ test("help pauses the active timer, shows recipes, and resumes on Escape", async
   await page.getByRole("tab", { name: "Receitas", exact: true }).click();
   for (
     let i = 0;
-    i < 11 &&
+    i < products.length &&
     (await page.locator(".reference-selector strong").textContent()) !==
       "O’Cheddar";
     i++

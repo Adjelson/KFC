@@ -10,8 +10,8 @@ Simulador de treino para Android, em português de Portugal. Cozinha visual com 
 4. O **Treino livre** desbloqueia ao concluir o nível 1, com as receitas simples disponíveis. As receitas Krunch Clássico, Krunch BBQ, Clássica e O’Cheddar ficam disponíveis após os níveis 1, 2, 3 e 4, respetivamente, desde que os seus ingredientes tenham sido comprados. Batatas requerem o nível 5 e a estação de batatas; Double requer o nível 9. As receitas simples não têm versão Double. O treino só sorteia receitas já desbloqueadas. A ajuda permite consultar todas as receitas.
 5. No treino livre, configura receita, modo, pedido, batatas e tempo nos cartões ilustrados. Os painéis fecham no **X** superior; as alterações são aplicadas ao escolher.
 6. Toca nos ingredientes para montar e novamente para retirar. No Double, dois toques adicionam dois filetes; um terceiro limpa essas unidades. Usa **↶** para desfazer o último ingrediente. Se houver queijo, coloca-o entre os dois filetes.
-7. Nas batatas, escolhe a porção indicada no talão: pequena preta, média vermelha ou grande cinzenta. Nos pedidos com vários produtos, toca em **Adicionar à bandeja** para validar cada unidade. Nos níveis, usa **Preparar** e **Entregar**; podes entregar parte do pedido para libertar a bandeja e trocar de cliente. No treino livre, serve o pedido completo antes do prazo.
-8. Todos os clientes têm de ficar corretos para concluir uma fase. Depois do último cliente, o jogo regressa automaticamente ao mapa e mostra as estrelas e recompensas. O próximo nível fica selecionado, com animação de desbloqueio e selo NOVO, e aguarda um toque para começar. Se a fase falhar, o mapa permite repetir; no nível 12, mostra o percurso concluído. Estrelas, receitas desbloqueadas, contadores e preferências ficam no dispositivo e são preservados ao atualizar.
+7. Nas batatas, escolhe a porção indicada no talão: pequena preta, média vermelha ou grande cinzenta. Nos níveis e nos pedidos combinados, **a montagem correta passa automaticamente para a bandeja**. Para entregar, **desliza o prato ou a bandeja até ao cliente ou ao seu talão**. Podes entregar parte de um pedido nos níveis para libertar espaço. No treino livre, serve o pedido completo antes do prazo. Com teclado, seleciona o prato e carrega em Enter ou Espaço.
+8. Todos os clientes têm de ficar corretos para concluir uma fase. Depois do último cliente, uma janela mostra **vitória ou derrota, estrelas, clientes servidos e moedas ganhas**, com animação e som próprios. A janela aguarda o jogador; as moedas já foram creditadas durante o serviço e não se repetem ao fechar. Ao tocar em **Ver níveis** ou no **X**, o mapa seleciona a fase seguinte e apresenta a animação de desbloqueio e o selo NOVO. Se a fase falhar, permite repetir; no nível 12, mostra o percurso concluído. Estrelas, receitas desbloqueadas, contadores e preferências ficam no dispositivo e são preservados ao atualizar.
 
 O nível ganha uma estrela ao servir todos os clientes; ganha duas se todos forem servidos até 80% do tempo e três se todos forem servidos até metade do tempo. Repetir um nível preserva a melhor classificação. Falhas ou desistências não desbloqueiam o seguinte.
 
@@ -38,11 +38,11 @@ Nos níveis, a cozinha atende até **três clientes em simultâneo**. Toca num r
 - **Família:** pedidos que podem ter mais unidades e mais tempo para os preparar.
 - **Gourmet:** paciência normal e prémio de atendimento maior.
 
-A bandeja começa com **dois espaços partilhados** entre os clientes. **Preparar** valida uma unidade; **Entregar** leva os produtos prontos ao cliente selecionado e liberta esses espaços. Podes fazer entregas parciais. O talão soma o que já foi entregue ao que está pronto, e só fecha quando todas as quantidades estiverem completas. Ingredientes errados, filetes em falta e bandejas cheias não aumentam os contadores. Se a paciência acabar, o cliente sai e a fase fica por concluir; podes servir os restantes para continuar a ganhar moedas.
+A bandeja começa com **dois espaços partilhados** entre os clientes. A montagem é validada a cada ingrediente e, quando fica correta, passa sozinha para a bandeja. O prato central permite arrastar os produtos prontos até ao respetivo cliente ou talão, libertando os espaços. Uma entrega ao cliente errado ou um gesto cancelado conserva os produtos. Não há botões de preparar ou entregar por baixo da mesa; o indicador de capacidade fica no topo. O talão soma o que já foi entregue ao que está pronto, e só fecha quando todas as quantidades estiverem completas. Ingredientes errados, filetes em falta e bandejas cheias não aumentam os contadores. Se a paciência acabar, o cliente sai e a fase fica por concluir; podes servir os restantes para continuar a ganhar moedas.
 
 Cada entrega parcial recupera **3 segundos por produto novo, até 6 segundos por entrega**, apenas para esse cliente, com indicação animada e uma reação contente. O limite acumulado é 20% do prazo inicial, arredondado ao segundo, com mínimo de 3 e máximo de 15 segundos por cliente. Repetir a ação sem novos produtos não dá tempo; pedidos completos ou expirados também não recebem o bónus.
 
-**Coca-Cola, Pepsi e Sumol** podem acompanhar as sandes ou constituir pedidos só de bebidas. Seleciona a bebida no talão e prepara a lata correta na bandeja; trocar de marca não valida o produto. As três marcas têm cores e desenhos próprios. O pão Core, o H1 e o brioche também têm formas diferentes, e o Filete distingue-se do Mini Filete. Pratos, taças e bandejas metálicas organizam os alimentos na bancada.
+**Coca-Cola, Pepsi e Sumol** podem acompanhar as sandes ou constituir pedidos só de bebidas. Seleciona a bebida no talão e toca na lata correta para a acrescentar à bandeja; trocar de marca não valida o produto. As três marcas têm cores e desenhos próprios. O pão Core, o H1 e o brioche também têm formas diferentes, e o Filete distingue-se do Mini Filete. Os pães ficam em cestos, os alimentos e bebidas em bandejas e os molhos dentro de tigelas com colher. Cada recipiente é desenhado com o seu conteúdo, evitando um prato genérico atrás de todos os alimentos.
 
 Um cliente completo dá moedas: uma base, valor por produto, gorjeta conforme a rapidez e o tipo de cliente, e bónus de sequência até cinco clientes. A entrega parcial não dá moedas. O treino livre também dá moedas ao concluir um pedido correto. O prémio fica guardado logo ao servir; uma fase falhada não retira os prémios dos clientes que foram servidos.
 
@@ -66,6 +66,12 @@ O cenário e os quatro personagens, incluindo as expressões de impaciência e i
 ![Bebidas em bandejas e relógios de todos os clientes](docs/bebidas.png)
 
 ![Entrega parcial com recuperação de paciência](docs/entrega-parcial.png)
+
+![Entrega por deslize até ao cliente](docs/entrega-deslize.png)
+
+![Resultado da fase com estrelas e moedas](docs/resultado-vitoria.png)
+
+![Resultado de uma fase por concluir](docs/resultado-derrota.png)
 
 ![Primeiro serviço só com pão H1](docs/primeiro-servico.png)
 
@@ -116,7 +122,7 @@ Antes de cada fase ou ronda de treino, uma transição animada prepara a bancada
 
 - **Ajuda:** disponível no botão de interrogação no topo. Tem abas **Como jogar**, **Receitas**, **Contadores** e **Sobre**. O guia avança passo a passo e as receitas usam ingredientes ilustrados. O relógio fica em pausa enquanto o painel está aberto e retoma ao fechá-lo.
 - **Definições:** abas **Áudio** e **Movimento**, com som geral, efeitos, música de fundo tranquila (melodia original a 72 BPM), volume, animações e preferência de cozinha horizontal guardados no dispositivo. Por defeito, os efeitos estão ativos, o volume fica a 60% e a música está desligada. A preferência de movimento reduzido do sistema é respeitada.
-- **Sons offline:** efeitos originais sintetizados no dispositivo para pão, frango, vegetais, queijo, bacon, molhos, batatas e bebidas; entrada do pedido, entrega, sucesso, erro e aviso nos últimos cinco segundos. Não há ficheiros de áudio remotos. “Testar som” permite verificar o volume.
+- **Sons offline:** efeitos originais sintetizados no dispositivo para pão, frango, vegetais, queijo, bacon, molhos, batatas e bebidas. Há sons distintos para entrar na partida, concluir uma montagem, entregar um pedido, ganhar ou perder uma fase, e reações de satisfação, impaciência e irritação. As reações de espera soam apenas quando a expressão muda, com intervalo entre avisos. Efeitos, volume, som geral e segundo plano controlam também estes sons. Não há ficheiros de áudio remotos. “Testar som” permite verificar o volume.
 - **Animações:** ingredientes voam entre os recipientes e a bandeja, assentam no sanduíche e a bandeja sai ao servir. As ações ficam bloqueadas durante a entrega para evitar duplicação. Os resultados apresentam estrelas e celebram um pedido perfeito com confettis.
 - **Segundo plano:** a música e os efeitos param quando a aplicação deixa de estar visível. O cronómetro continua; ajuda, definições e loja pausam os relógios enquanto estão abertas. O áudio é iniciado após um toque do utilizador.
 
@@ -124,7 +130,7 @@ Antes de cada fase ou ronda de treino, uma transição animada prepara a bancada
 
 ## Instalar no telemóvel
 
-[Descarregar o APK de teste para Android](https://github.com/Adjelson/KFC/raw/refs/heads/main/downloads/monta-treino-debug.apk) · Android 7.0 ou superior · versão 1.10 · cerca de 5,1 MB.
+[Descarregar o APK de teste para Android](https://github.com/Adjelson/KFC/raw/refs/heads/main/downloads/monta-treino-debug.apk) · Android 7.0 ou superior · versão 1.11 · cerca de 5,2 MB.
 
 Abre o ficheiro no Android e permite a instalação desta origem, se solicitado. A assinatura do APK foi verificada; ainda não foi feita validação num telemóvel real.
 

@@ -206,13 +206,38 @@ export class SoundEngine {
     this.unlock();
     return !!this.context;
   }
+  reaction(mood) {
+    if (!this.canPlay()) return;
+    const now = this.context.currentTime;
+    const pitches =
+      mood === "happy"
+        ? [340, 490]
+        : mood === "angry"
+          ? [180, 120]
+          : [240, 205];
+    pitches.forEach((frequency, i) =>
+      this.note(
+        frequency,
+        now + i * 0.12,
+        0.17,
+        0.16,
+        "triangle",
+        "effect",
+        frequency * (mood === "happy" ? 1.15 : 0.8),
+      ),
+    );
+  }
   play(event) {
     if (!this.canPlay()) return;
     const now = this.context.currentTime;
     const melodies = {
       click: [700],
-      start: [440, 660, 880],
+      start: [392, 523, 659, 784],
+      ready: [740, 988],
       serve: [600, 900],
+      orderComplete: [659, 784, 1047],
+      levelWin: [523, 659, 784, 1047, 784, 1047, 1319],
+      levelLose: [392, 349, 294, 262, 196],
       success: [523, 659, 784, 1047],
       error: [300, 220],
       timeout: [440, 330, 220],
@@ -223,8 +248,8 @@ export class SoundEngine {
     notes.forEach((frequency, i) =>
       this.note(
         frequency,
-        now + i * 0.1,
-        event === "tick" ? 0.055 : 0.18,
+        now + i * (event.startsWith("level") ? 0.16 : 0.1),
+        event === "tick" ? 0.055 : event.startsWith("level") ? 0.32 : 0.18,
         event === "tick" ? 0.14 : 0.25,
         "sine",
       ),

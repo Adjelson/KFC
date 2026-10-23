@@ -31,8 +31,8 @@ async function assemble(page, id) {
     await page.locator(`[data-ingredient="${item}"]`).click();
 }
 async function addToTray(page, clock = false) {
-  await page.getByRole("button", { name: "Adicionar à bandeja" }).click();
   if (clock) await page.clock.runFor(500);
+  await expect(page.locator(".kitchen")).not.toHaveClass(/is-serving/);
   await expect(page.locator(".ingredient[aria-pressed=true]")).toHaveCount(0);
 }
 
@@ -43,11 +43,14 @@ test("duplicate sandwiches are counted once per valid assembly and persist after
   await chooseRecipe(page, "krunch");
   await chooseCombo(page, 2, false);
   await startGame(page);
-  await page.getByRole("button", { name: "Adicionar à bandeja" }).click();
-  await expect(page.getByRole("alert")).toContainText("faltam 4");
+  await expect(page.locator(".delivery-surface")).toHaveAttribute(
+    "aria-disabled",
+    "true",
+  );
   await expect(page.getByLabel("0 de 2 produtos preparados")).toBeVisible();
   await assemble(page, "krunch");
-  await page.getByRole("button", { name: "Adicionar à bandeja" }).dblclick();
+  await expect(page.locator(".kitchen")).not.toHaveClass(/is-serving/);
+  await expect(page.locator(".kitchen")).not.toHaveClass(/is-serving/);
   await expect(page.locator(".ingredient[aria-pressed=true]")).toHaveCount(0);
   await expect(page.getByLabel("1 de 2 produtos preparados")).toBeVisible();
   expect(
@@ -63,7 +66,7 @@ test("duplicate sandwiches are counted once per valid assembly and persist after
       exact: true,
     }),
   ).toBeDisabled();
-  await page.getByRole("button", { name: "Servir pedido" }).click();
+  await page.locator(".delivery-surface").press("Enter");
   await expect(
     page.getByRole("heading", { name: "Pedido perfeito!" }),
   ).toBeVisible();
@@ -119,7 +122,7 @@ test("a mixed order supports choosing a product and advances to the remaining du
     await addToTray(page);
   }
   await expect(page.getByLabel("3 de 3 produtos preparados")).toBeVisible();
-  await page.getByRole("button", { name: "Servir pedido" }).click();
+  await page.locator(".delivery-surface").press("Enter");
   await expect(
     page.getByRole("heading", { name: "Pedido perfeito!" }),
   ).toBeVisible();
@@ -146,9 +149,8 @@ test("wrong ingredients never fill the order and correcting them allows preparat
   await chooseRecipe(page, "krunch");
   await chooseCombo(page, 2, false);
   await startGame(page);
-  await assemble(page, "krunch");
   await page.getByRole("button", { name: "Bacon", exact: true }).click();
-  await page.getByRole("button", { name: "Adicionar à bandeja" }).click();
+  await assemble(page, "krunch");
   await expect(page.getByRole("alert")).toContainText("a mais 1");
   await expect(page.getByLabel("0 de 2 produtos preparados")).toBeVisible();
   expect(
@@ -203,8 +205,6 @@ for (const viewport of [
     await startGame(page);
     await expect(page.locator(".order-line")).toHaveCount(4);
     await expectFits(page);
-    await page.getByRole("button", { name: "Adicionar à bandeja" }).click();
-    await expect(page.getByRole("alert")).toBeVisible();
     await expectFits(page);
     for (let i = 0; i < 4; i++) {
       const id = await page.locator(".assembly").getAttribute("data-recipe");
@@ -213,7 +213,7 @@ for (const viewport of [
     }
     await expect(page.getByLabel("4 de 4 produtos preparados")).toBeVisible();
     await expectFits(page);
-    await page.getByRole("button", { name: "Servir pedido" }).click();
+    await page.locator(".delivery-surface").press("Enter");
     await expect(
       page.getByRole("heading", { name: "Pedido perfeito!" }),
     ).toBeVisible();
@@ -243,7 +243,6 @@ test("expiration during the last preparation keeps sandwich totals but never inv
   await addToTray(page, true);
   await page.clock.fastForward(59000);
   await assemble(page, "krunch");
-  await page.getByRole("button", { name: "Adicionar à bandeja" }).click();
   await page.clock.runFor(600);
   await expect(
     page.getByRole("heading", { name: "O tempo acabou!" }),

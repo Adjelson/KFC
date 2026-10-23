@@ -72,9 +72,6 @@ const seconds = async (p, n) =>
 async function prepare(page, items) {
   for (const id of items)
     await page.locator(`[data-ingredient="${id}"]`).click();
-  await page
-    .getByRole("button", { name: "Adicionar à bandeja", exact: true })
-    .click();
   await page.clock.runFor(400);
 }
 
@@ -167,7 +164,7 @@ test("every customer has a ticking clock and an expression, with capped relief a
   await prepare(page, ["mini"]);
   const before = await seconds(page, 1),
     other = await seconds(page, 2);
-  await page.locator(".deliver-button").click();
+  await page.locator(".delivery-surface").press("Enter");
   await expect.poll(() => seconds(page, 1)).toBe(before + 3);
   expect(await seconds(page, 2)).toBe(other);
   await expect(page.locator(".patience-gain")).toHaveText("＋3s");
@@ -203,7 +200,7 @@ test("beverage brands are distinct and a wrong drink cannot fill the order or ad
   for (const id of ["drink-coke", "drink-pepsi", "drink-sumol"])
     await expect(page.locator(`[data-ingredient="${id}"]`)).toBeVisible();
   await prepare(page, ["drink-coke"]);
-  await expect(page.getByRole("alert")).toContainText("faltam 1");
+  await expect(page.getByRole("alert")).toContainText("Revê");
   expect(
     await page.evaluate(
       () =>
@@ -213,7 +210,7 @@ test("beverage brands are distinct and a wrong drink cannot fill the order or ad
     ),
   ).toBe(0);
   await prepare(page, ["drink-pepsi"]);
-  await page.locator(".deliver-button").click();
+  await page.locator(".delivery-surface").press("Enter");
   await page.clock.runFor(600);
   const saved = await page.evaluate(() => ({
     career: JSON.parse(localStorage.getItem("montagem-career")),
@@ -324,7 +321,7 @@ test("buying the three beverages spends real coins and adds drink requests to la
     .click();
   await expect(page.locator(".drinks-grid .ingredient")).toHaveCount(3);
   await prepare(page, ["drink-coke"]);
-  await page.locator(".deliver-button").click();
+  await page.locator(".delivery-surface").press("Enter");
   await page.clock.runFor(600);
   expect(
     await page.evaluate(

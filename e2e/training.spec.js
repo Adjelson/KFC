@@ -16,7 +16,7 @@ test("complete a correct recipe offline and retain personal best", async ({
   await startGame(page);
   for (const n of ["Pão H1", "Mini Filete", "Alface", "Maionese"])
     await page.getByRole("button", { name: n, exact: true }).click();
-  await page.getByRole("button", { name: "Servir pedido" }).click();
+  await page.locator(".delivery-surface").press("Enter");
   await expect(
     page.getByRole("heading", { name: "Pedido perfeito!" }),
   ).toBeVisible();
@@ -38,7 +38,7 @@ test("identify missing and extra ingredients and allow removal", async ({
   await page.getByRole("button", { name: "Tomate", exact: true }).click();
   await expect(page.getByRole("img", { name: "Bandeja vazia" })).toBeAttached();
   await page.getByRole("button", { name: /Bacon/ }).click();
-  await page.getByRole("button", { name: "Servir pedido" }).click();
+  await page.locator(".delivery-surface").press("Enter");
   await expect(
     page.getByRole("heading", { name: "Vamos aperfeiçoar?" }),
   ).toBeVisible();
@@ -104,7 +104,7 @@ test("sandwich layers respond to ingredients and every recipe can be served", as
     await expect(page.locator(".assembly .burger-layer")).toHaveCount(
       items.length + 1,
     );
-    await page.getByRole("button", { name: "Servir pedido" }).click();
+    await page.locator(".delivery-surface").press("Enter");
     await expect(
       page.getByRole("heading", { name: "Pedido perfeito!" }),
     ).toBeVisible();
@@ -128,7 +128,8 @@ test("five customer shift counts only correct orders and resets the next shift",
         await page
           .getByRole("button", { name: ingredient, exact: true })
           .click();
-    await page.getByRole("button", { name: "Servir pedido" }).click();
+    else await page.getByRole("button", { name: "Bacon", exact: true }).click();
+    await page.locator(".delivery-surface").press("Enter");
     if (round < 5) await startGame(page, { button: "Próximo cliente" });
   }
   await expect(
@@ -165,9 +166,7 @@ test("kitchen fits a mobile screen with all ingredients and serving action avail
     ).toBe(true);
     for (const button of await page.locator(".ingredient").all())
       await expect(button).toBeInViewport();
-    await expect(
-      page.getByRole("button", { name: "Servir pedido" }),
-    ).toBeInViewport();
+    await expect(page.locator(".delivery-surface")).toBeInViewport();
   }
   await page.getByRole("button", { name: "Pão brioche", exact: true }).click();
   await page.getByRole("button", { name: "Filete", exact: true }).click();
@@ -192,7 +191,5 @@ test("compact kitchen leaves space for Android system bars", async ({
       () => document.documentElement.scrollHeight <= innerHeight + 1,
     ),
   ).toBe(true);
-  await expect(
-    page.getByRole("button", { name: "Servir pedido" }),
-  ).toBeInViewport();
+  await expect(page.locator(".delivery-surface")).toBeInViewport();
 });

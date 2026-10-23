@@ -157,6 +157,14 @@ export async function expectFits(page) {
   expect(clipped).toEqual([]);
 }
 
+export async function waitForAssembly(page, clock = false) {
+  if (clock) await page.clock.runFor(500);
+  await expect.poll(() => page.locator(".is-serving").count()).toBe(0);
+}
+export async function closeLevelResult(page) {
+  if (await page.locator(".level-result").isVisible())
+    await page.getByRole("button", { name: "Ver níveis", exact: true }).click();
+}
 export async function serveServiceClient(page, { clock = false } = {}) {
   if (clock) await page.clock.runFor(1200);
   const cards = page.locator('.customer-card[aria-pressed="true"]');
@@ -164,15 +172,19 @@ export async function serveServiceClient(page, { clock = false } = {}) {
   const label = await cards.getAttribute("aria-label");
   const customer = page.getByRole("button", { name: label, exact: true });
   for (let guard = 0; guard < 30; guard++) {
-    if (!(await customer.isVisible())) return;
-    const prepare = page.getByRole("button", {
-      name: "Adicionar à bandeja",
-      exact: true,
-    });
-    if (
-      (await prepare.isEnabled()) &&
-      !(await page.locator(".tray-meter.full").isVisible())
-    ) {
+    if (!(await customer.isVisible())) {
+      await closeLevelResult(page);
+      return;
+    }
+    const ready =
+      (await page
+        .locator(".delivery-surface")
+        .getAttribute("aria-disabled")) === "false";
+    if (ready) {
+      await page.locator(".delivery-surface").press("Enter");
+      if (clock) await page.clock.runFor(600);
+      await expect.poll(() => page.locator(".is-serving").count()).toBe(0);
+    } else {
       const id = await page.locator(".assembly").getAttribute("data-recipe");
       const items = await page.evaluate(
         async (id) => (await import("/src/game.js")).productById(id).items,
@@ -180,13 +192,7 @@ export async function serveServiceClient(page, { clock = false } = {}) {
       );
       for (const item of items)
         await page.locator(`[data-ingredient="${item}"]`).click();
-      await prepare.click();
-      if (clock) await page.clock.runFor(400);
-      await expect.poll(() => page.locator(".is-serving").count()).toBe(0);
-    } else {
-      await page.locator(".deliver-button").click();
-      if (clock) await page.clock.runFor(600);
-      await expect.poll(() => page.locator(".is-serving").count()).toBe(0);
+      await waitForAssembly(page, clock);
     }
   }
   throw Error("Customer did not finish within the product limit");

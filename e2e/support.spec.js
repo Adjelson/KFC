@@ -97,8 +97,11 @@ test("ingredient flight, landing and serving animate without double submission",
   await expect(page.locator(".ingredient-flight")).toHaveCount(0);
   for (const name of ["Mini Filete", "Alface", "Maionese"])
     await page.getByRole("button", { name, exact: true }).click();
-  await page.getByRole("button", { name: "Servir pedido" }).click();
-  await expect(page.getByRole("button", { name: "A servir…" })).toBeDisabled();
+  await page.locator(".delivery-surface").press("Enter");
+  await expect(page.locator(".delivery-surface")).toHaveAttribute(
+    "aria-disabled",
+    "true",
+  );
   await expect(page.locator(".kitchen")).toHaveClass(/is-serving/);
   await expect(
     page.getByRole("button", { name: "Alface", exact: true }),

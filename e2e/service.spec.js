@@ -6,6 +6,7 @@ import {
   expectFits,
   serveServiceClient,
   stockKitchen,
+  closeLevelResult,
 } from "./helpers.js";
 const plan = {
   levelId: 12,
@@ -54,13 +55,10 @@ async function assemble(page, items) {
     await page.locator(`[data-ingredient="${id}"]`).click();
 }
 async function prepare(page) {
-  await page
-    .getByRole("button", { name: "Adicionar à bandeja", exact: true })
-    .click();
   await page.clock.runFor(400);
 }
 async function deliver(page) {
-  await page.locator(".deliver-button").click();
+  await page.locator(".delivery-surface").press("Enter");
   await page.clock.runFor(600);
 }
 
@@ -107,6 +105,8 @@ test("customers keep independent drafts and every clock pauses with help", async
     page.getByRole("button", { name: "Queijo", exact: true }),
   ).toHaveAttribute("aria-pressed", "true");
   await page.clock.fastForward(300000);
+  await expect(page.locator(".level-result")).toBeVisible();
+  await closeLevelResult(page);
   await expect(page.locator(".completion-banner")).toContainText(
     "por concluir",
   );
@@ -137,7 +137,6 @@ test("a full tray requires partial delivery and coins are earned once per comple
   }
   await expect(page.getByLabel("Bandeja: 2 de 2 espaços")).toBeVisible();
   await assemble(page, ["mini", "tender", "lettuce", "mayo"]);
-  await page.getByRole("button", { name: "Adicionar à bandeja" }).click();
   await expect(page.getByRole("alert")).toContainText("Bandeja cheia");
   await deliver(page);
   await expect(page.locator(".order-line")).toContainText("2/3");
@@ -147,6 +146,7 @@ test("a full tray requires partial delivery and coins are earned once per comple
     ),
   ).toBe(0);
   await expect(page.getByLabel("Bandeja: 0 de 2 espaços")).toBeVisible();
+  await assemble(page, ["mini", "tender", "lettuce", "mayo"]);
   await prepare(page);
   await deliver(page);
   const earned = await page.evaluate(
@@ -184,15 +184,7 @@ test("preparation and service animate while duplicate actions stay blocked", asy
   await startGame(page, { button: "Jogar nível 1", clock: true });
   await page.getByRole("button", { name: "Pão H1", exact: true }).click();
   await expect(page.locator(".ingredient-flight")).toHaveCount(1);
-  await expect(page.locator(".fresh-layer")).toHaveCount(1);
-  await page.clock.runFor(500);
-
-  await page
-    .getByRole("button", { name: "Adicionar à bandeja" })
-    .evaluate((b) => {
-      b.click();
-      b.click();
-    });
+  await expect(page.locator(".ingredient-flight")).toHaveCount(1);
   await expect(page.locator(".package-prepare")).toBeVisible();
   await expect(page.locator(".customer-card").first()).toBeDisabled();
   await expect(
@@ -205,9 +197,13 @@ test("preparation and service animate while duplicate actions stay blocked", asy
     ),
   ).toBe(1);
   await page.clock.runFor(400);
-  await page.locator(".deliver-button").evaluate((b) => {
-    b.click();
-    b.click();
+  await page.locator(".delivery-surface").evaluate((b) => {
+    b.dispatchEvent(
+      new KeyboardEvent("keydown", { key: "Enter", bubbles: true }),
+    );
+    b.dispatchEvent(
+      new KeyboardEvent("keydown", { key: "Enter", bubbles: true }),
+    );
   });
   await expect(page.locator(".package-serve")).toBeVisible();
   await page.clock.runFor(600);
@@ -353,13 +349,11 @@ test("reduced motion cannot prepare the same assembly twice", async ({
     button: "Desafiar recorde do nível 12",
     clock: true,
   });
-  await assemble(page, ["mini", "tender", "lettuce", "mayo"]);
-  await page
-    .getByRole("button", { name: "Adicionar à bandeja" })
-    .evaluate((b) => {
-      b.click();
-      b.click();
-    });
+  await assemble(page, ["mini", "tender", "lettuce"]);
+  await page.locator('[data-ingredient="mayo"]').evaluate((b) => {
+    b.click();
+    b.click();
+  });
   expect(
     await page.evaluate(
       () => JSON.parse(localStorage.getItem("montagem-totals")).sandwiches,

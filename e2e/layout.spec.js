@@ -58,7 +58,8 @@ for (const viewport of [
     await expectFits(page);
     for (const button of await page.locator(".ingredient").all())
       await expect(button).toBeInViewport();
-    await page.getByRole("button", { name: "Servir pedido" }).click();
+    await page.getByRole("button", { name: "Bacon", exact: true }).click();
+    await page.locator(".delivery-surface").press("Enter");
     await expect(page.locator(".outcome-screen")).toBeVisible();
     await expectFits(page);
     await page.getByRole("tab", { name: "Revisão", exact: true }).click();
@@ -122,7 +123,7 @@ test("all extra ingredients remain available through review pages", async ({
   await startGame(page);
   for (const button of await page.locator(".ingredient").all())
     await button.click();
-  await page.getByRole("button", { name: "Servir pedido" }).click();
+  await page.locator(".delivery-surface").press("Enter");
   await page.getByRole("tab", { name: "Revisão", exact: true }).click();
   await page.getByRole("button", { name: /A mais/ }).click();
   await expect(page.locator(".visual-ingredient")).toHaveCount(6);

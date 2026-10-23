@@ -8,6 +8,7 @@ import {
   startGame,
   expectFits,
   serveServiceClient,
+  closeLevelResult,
 } from "./helpers.js";
 async function setupTab(page, name) {
   await openTraining(page);
@@ -34,26 +35,14 @@ async function productRecipe(page) {
 async function serveClient(page, { clock = false } = {}) {
   if (await page.locator(".service-game").isVisible())
     return serveServiceClient(page, { clock });
-  while (
-    await page
-      .getByRole("button", { name: "Adicionar à bandeja", exact: true })
-      .isVisible()
-  ) {
+  while (!(await page.locator(".prepared-tray").isVisible())) {
     const recipe = await productRecipe(page);
     await assemble(page, recipe.items);
-    await page
-      .getByRole("button", { name: "Adicionar à bandeja", exact: true })
-      .click();
     if (clock) await page.clock.runFor(500);
     await expect(page.locator(".kitchen")).not.toHaveClass(/is-serving/);
+    if (!(await page.locator(".has-combo").isVisible())) break;
   }
-  if (!(await page.locator(".prepared-tray").isVisible())) {
-    const recipe = await productRecipe(page);
-    await assemble(page, recipe.items);
-  }
-  await page
-    .getByRole("button", { name: "Servir pedido", exact: true })
-    .click();
+  await page.locator(".delivery-surface").press("Enter");
   if (clock) await page.clock.runFor(600);
   await expect(
     page.locator(".outcome-screen").or(page.locator(".completion-banner")),
@@ -79,14 +68,12 @@ test("Double enforces quantity, renders both filets and rejects cheese above the
     "mayo",
   ]);
   await expect(page.locator(".assembly .layer-fillet")).toHaveCount(2);
-  await page.getByRole("button", { name: "Adicionar à bandeja" }).click();
   await expect(page.getByRole("alert")).toContainText("queijo entre");
   for (let i = 0; i < 5; i++)
     await page
       .getByRole("button", { name: "Retirar último ingrediente" })
       .click();
   await assemble(page, ["cheese", "fillet", "bacon", "cheddar", "mayo"]);
-  await page.getByRole("button", { name: "Adicionar à bandeja" }).click();
   await expect(page.locator(".kitchen")).not.toHaveClass(/is-serving/);
   await expect(page.getByLabel("1 de 2 produtos preparados")).toBeVisible();
   await assemble(page, [
@@ -97,12 +84,14 @@ test("Double enforces quantity, renders both filets and rejects cheese above the
     "cheddar",
     "mayo",
   ]);
-  await page.getByRole("button", { name: "Adicionar à bandeja" }).click();
-  await expect(page.getByRole("alert")).toContainText("faltam 1");
-  await page.getByRole("button", { name: "Filete", exact: true }).click();
-  await page.getByRole("button", { name: "Adicionar à bandeja" }).click();
+  await expect(page.getByLabel("1 de 2 produtos preparados")).toBeVisible();
+  for (let i = 0; i < 3; i++)
+    await page
+      .getByRole("button", { name: "Retirar último ingrediente" })
+      .click();
+  await assemble(page, ["fillet", "bacon", "cheddar", "mayo"]);
   await expect(page.locator(".kitchen")).not.toHaveClass(/is-serving/);
-  await page.getByRole("button", { name: "Servir pedido" }).click();
+  await page.locator(".delivery-surface").press("Enter");
   await expect(
     page.getByRole("heading", { name: "Pedido perfeito!" }),
   ).toBeVisible();
@@ -127,7 +116,7 @@ for (const size of ["small", "medium", "large"])
     );
     const wrong = size === "small" ? "large" : "small";
     await assemble(page, [`fries-${wrong}`]);
-    await page.getByRole("button", { name: "Servir pedido" }).click();
+    await page.locator(".delivery-surface").press("Enter");
     await expect(
       page.getByRole("heading", { name: "Vamos aperfeiçoar?" }),
     ).toBeVisible();
@@ -225,6 +214,7 @@ test("failed customer does not unlock training or the next level", async ({
   await startGame(page, { button: "Jogar nível 1" });
   await serveClient(page);
   await page.clock.fastForward(300000);
+  await closeLevelResult(page);
   await expect(
     page.getByRole("heading", { name: "Nível 1 por concluir" }),
   ).toBeVisible();

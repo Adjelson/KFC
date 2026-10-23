@@ -50,7 +50,15 @@ A **carteira no topo** abre o restaurante, com três abas e sem scroll:
 
 Ao concluir uma fase, é guardado o melhor tempo com **os pedidos exatos, as personalidades, os prazos e os instantes das entregas**. O botão com o fantasma no cartão desse nível inicia uma corrida aos mesmos pedidos. A barra compara clientes servidos por ti e pelo recorde ao longo do tempo. Uma tentativa mais lenta ou falhada não substitui o recorde. A ajuda e as definições pausam todos os clientes e a comparação.
 
+Na horizontal, a partida ocupa toda a largura e altura disponíveis. A sala, os clientes e a bancada formam uma cena contínua em perspetiva. Os ingredientes ficam em recipientes dos dois lados; o sanduíche é montado no centro. Os talões surgem junto de cada cliente, com miniaturas dos produtos e quantidades; o talão selecionado permite escolher e paginar produtos. Ajuda, definições e saída ficam em botões compactos sobre o cenário, sem uma faixa de cabeçalho separada. O treino livre usa a mesma bancada.
+
+O cenário e os quatro personagens são arte gerada para a aplicação, otimizada para WebP e incluída no APK. A primeira partida aguarda o carregamento e a descodificação das imagens antes de iniciar o relógio. Os clientes têm animação de entrada e movimento subtil em espera; as preferências de animação continuam a ser respeitadas.
+
 ![Serviço com fila na horizontal](docs/servico-horizontal.png)
+
+![Cozinha num ecrã grande](docs/servico-tablet.png)
+
+![Treino livre na horizontal](docs/treino-horizontal.png)
 
 ![Melhorias do restaurante](docs/restaurante.png)
 
@@ -58,7 +66,7 @@ Ao concluir uma fase, é guardado o melhor tempo com **os pedidos exatos, as per
 
 ![Decoração do restaurante](docs/decoracao.png)
 
-No **APK**, a cozinha e o carregamento passam para a horizontal por defeito. O mapa e a configuração do treino livre respeitam a orientação do dispositivo. Em **Definições → Movimento → Cozinha horizontal**, podes desativar essa preferência. A interface web adapta-se ao formato da janela. A rotação nativa foi compilada no APK; requer confirmação num dispositivo Android real.
+No **APK**, a cozinha e o carregamento passam para a horizontal por defeito. O mapa e a configuração do treino livre respeitam a orientação do dispositivo. Em **Definições → Movimento → Cozinha horizontal**, podes desativar essa preferência. A interface web adapta-se ao formato da janela. Durante a partida e o carregamento, o Android oculta as barras de estado e navegação; um gesto na margem permite mostrá-las temporariamente. As barras regressam ao sair da cozinha. A rotação e o modo de ecrã inteiro foram compilados no APK e requerem confirmação num dispositivo Android real.
 
 ![Serviço no formato vertical](docs/servico-vertical.png)
 
@@ -103,7 +111,7 @@ Antes de cada fase ou ronda de treino, uma transição animada prepara a bancada
 
 ## Instalar no telemóvel
 
-[Descarregar o APK de teste para Android](https://github.com/Adjelson/KFC/raw/refs/heads/main/downloads/monta-treino-debug.apk) · Android 7.0 ou superior · versão 1.8 · cerca de 4,3 MB.
+[Descarregar o APK de teste para Android](https://github.com/Adjelson/KFC/raw/refs/heads/main/downloads/monta-treino-debug.apk) · Android 7.0 ou superior · versão 1.9 · cerca de 4,8 MB.
 
 Abre o ficheiro no Android e permite a instalação desta origem, se solicitado. A assinatura do APK foi verificada; ainda não foi feita validação num telemóvel real.
 

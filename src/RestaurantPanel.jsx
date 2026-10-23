@@ -9,7 +9,8 @@ import {
 } from "./career.js";
 import { products } from "./game.js";
 import { productUnlocked } from "./challenges.js";
-import { Burger } from "./FoodArt.jsx";
+import { PANTRY_ITEMS } from "./pantry.js";
+import { Burger, FoodArt } from "./FoodArt.jsx";
 import { SceneArt } from "./MapScenery.jsx";
 import { Icon } from "./Icons.jsx";
 export function RestaurantPanel({
@@ -18,9 +19,11 @@ export function RestaurantPanel({
   onUpgrade,
   onRenovate,
   onClose,
+  onIngredient,
+  inGame = false,
 }) {
   const dialog = useRef(null),
-    [tab, setTab] = useState("upgrades"),
+    [tab, setTab] = useState("ingredients"),
     [page, setPage] = useState(0),
     [notice, setNotice] = useState(""),
     [purchase, setPurchase] = useState(0);
@@ -74,6 +77,7 @@ export function RestaurantPanel({
       </div>
       <div className="subtabs" role="tablist" aria-label="Restaurante">
         {[
+          ["ingredients", "Ingredientes"],
           ["upgrades", "Melhorias"],
           ["decor", "Decoração"],
           ["album", "Álbum"],
@@ -89,6 +93,54 @@ export function RestaurantPanel({
         ))}
       </div>
       <div className={`restaurant-body tab-${tab}`} key={`${tab}-${purchase}`}>
+        {tab === "ingredients" && (
+          <div className="pantry-grid">
+            {PANTRY_ITEMS.slice(page * 3, page * 3 + 3).map((item) => {
+              const owned = career.ingredients.includes(item.id);
+              return (
+                <article
+                  key={item.id}
+                  className={`pantry-card ${owned ? "owned" : ""}`}
+                >
+                  <div className="pantry-art" aria-hidden="true">
+                    <FoodArt id={item.art || item.id} />
+                  </div>
+                  <div>
+                    <h3>{item.name}</h3>
+                    <p>{item.description}</p>
+                  </div>
+                  <button
+                    className="shop-buy"
+                    disabled={owned || career.coins < item.cost}
+                    aria-label={
+                      owned
+                        ? `${item.name} comprado`
+                        : `Comprar ${item.name} por ${item.cost} moedas`
+                    }
+                    onClick={() => {
+                      const ok = onIngredient(item.id);
+                      setNotice(
+                        ok
+                          ? "Ingrediente comprado · novas receitas no próximo serviço."
+                          : "Faltam moedas.",
+                      );
+                      if (ok) setPurchase((n) => n + 1);
+                    }}
+                  >
+                    {owned ? (
+                      "✓"
+                    ) : (
+                      <>
+                        <Icon name="coin" />
+                        {item.cost}
+                      </>
+                    )}
+                  </button>
+                </article>
+              );
+            })}
+          </div>
+        )}
         {tab === "upgrades" && (
           <div className="upgrade-cards">
             {UPGRADES.map((u) => {
@@ -192,7 +244,7 @@ export function RestaurantPanel({
                     {tier ? "✦" : "◇"} {medalNames[tier]}
                   </span>
                   <small>
-                    {productUnlocked(product.id, progress)
+                    {productUnlocked(product.id, progress, career)
                       ? tier === 3
                         ? `${n} preparados`
                         : `${n}/${target} preparados`
@@ -220,13 +272,22 @@ export function RestaurantPanel({
               ←
             </button>
             <span>
-              {page + 1}/{tab === "decor" ? 3 : Math.ceil(products.length / 6)}
+              {page + 1}/
+              {tab === "ingredients"
+                ? Math.ceil(PANTRY_ITEMS.length / 3)
+                : tab === "decor"
+                  ? 3
+                  : Math.ceil(products.length / 6)}
             </span>
             <button
               aria-label="Página seguinte"
               disabled={
                 page ===
-                (tab === "decor" ? 2 : Math.ceil(products.length / 6) - 1)
+                (tab === "ingredients"
+                  ? Math.ceil(PANTRY_ITEMS.length / 3) - 1
+                  : tab === "decor"
+                    ? 2
+                    : Math.ceil(products.length / 6) - 1)
               }
               onClick={() => setPage((n) => n + 1)}
             >
@@ -238,7 +299,9 @@ export function RestaurantPanel({
           {notice ||
             (tab === "album"
               ? "Medalhas aos 1, 10 e 30 produtos corretos."
-              : "As melhorias ficam guardadas neste dispositivo.")}
+              : inGame
+                ? "Novos ingredientes entram nos próximos serviços."
+                : "Compra ingredientes para abrir novas receitas.")}
         </p>
       </div>
     </dialog>

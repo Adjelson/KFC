@@ -3,7 +3,9 @@ import { createRoot } from "react-dom/client";
 import {
   ingredients,
   recipes,
+  basicRecipes,
   fries,
+  drinks,
   productById,
   ingredientName,
   evaluate,
@@ -58,6 +60,8 @@ import "./service.css";
 import { KitchenScene, preloadKitchenScene } from "./KitchenScene.jsx";
 import "./landscape.css";
 
+import { buyIngredient, visibleIngredients } from "./pantry.js";
+import "./progression.css";
 const name = ingredientName;
 function readBest() {
   try {
@@ -94,6 +98,14 @@ function App() {
       masteryTimer.current = setTimeout(() => setMasteryToast(null), 2400);
     }
   }
+  function purchaseIngredient(id) {
+    const result = buyIngredient(careerRef.current, id);
+    if (result.bought) {
+      changeCareer(() => result.career);
+      sound.play("success");
+    }
+    return result.bought;
+  }
   function purchaseUpgrade(id) {
     const result = buyUpgrade(careerRef.current, id);
     if (result.bought) {
@@ -112,6 +124,7 @@ function App() {
   }
   function serviceProduct(id) {
     recordMastery(id);
+    if (productById(id).kind === "drink") return;
     recordProduction(
       productById(id).kind === "fries" ? { fries: 1 } : { sandwiches: 1 },
     );
@@ -127,6 +140,7 @@ function App() {
       levelProgress,
       summary.plan.levelId,
       summary.stars,
+      careerRef.current,
     );
     if (summary.passed) {
       setLevelProgress(completion.progress);
@@ -149,7 +163,7 @@ function App() {
   const [levelProgress, setLevelProgress] = useState(loadProgress);
   const [mapArrival, setMapArrival] = useState(null);
   const [run, setRun] = useState({ limit: 60, clients: 1, challengeId: null });
-  const access = trainingAccess(levelProgress);
+  const access = trainingAccess(levelProgress, career);
   const runMode = run.clients;
   const performance = useRef([]);
   const [quantity, setQuantity] = useState(1),
@@ -364,6 +378,7 @@ function App() {
           levelProgress,
           run.challengeId,
           levelStars,
+          careerRef.current,
         );
         if (levelPassed) {
           setLevelProgress(completion.progress);
@@ -646,7 +661,10 @@ function App() {
     friesSize,
   };
   function updateTraining(next) {
-    if (next.choice !== undefined) setChoice(next.choice);
+    if (next.choice !== undefined) {
+      setChoice(next.choice);
+      if (basicRecipes.some((p) => p.id === next.choice)) setVariant("single");
+    }
     if (next.limit !== undefined) setLimit(next.limit);
     if (next.mode !== undefined) setMode(next.mode);
     if (next.quantity !== undefined) setQuantity(next.quantity);
@@ -752,7 +770,8 @@ function App() {
           <ServiceGame
             plan={servicePlan}
             settings={settings}
-            paused={Boolean(panel)}
+            paused={Boolean(panel || shop)}
+            onRestaurant={() => setShop(true)}
             career={career}
             ghost={ghost}
             onProduct={serviceProduct}
@@ -912,11 +931,21 @@ function App() {
               <div
                 className={`ingredient-grid ${recipe.kind === "fries" ? "fries-grid" : ""}`}
               >
-                {(recipe.kind === "fries" ? fries : ingredients).map((i) => (
+                {(recipe.kind === "fries"
+                  ? fries
+                  : visibleIngredients(career)
+                ).map((i) => (
                   <button
                     className={`ingredient ${selected.includes(i.id) ? "selected" : ""} ${action?.id === i.id ? "ingredient-tapped" : ""}`}
                     key={i.id}
                     data-ingredient={i.id}
+                    data-container={
+                      ["Pães", "Vegetais", "Extras"].includes(i.type)
+                        ? "plate"
+                        : i.type === "Molhos"
+                          ? "bowl"
+                          : "tray"
+                    }
                     onClick={(e) => toggle(i.id, e)}
                     disabled={serving || ready}
                     aria-label={i.name}
@@ -1030,6 +1059,8 @@ function App() {
           career={career}
           progress={levelProgress}
           onUpgrade={purchaseUpgrade}
+          onIngredient={purchaseIngredient}
+          inGame={screen === "service"}
           onRenovate={purchaseRenovation}
           onClose={() => setShop(false)}
         />
@@ -1065,6 +1096,11 @@ function App() {
           served={served}
           currentRecipe={screen === "service" ? serviceRecipe : recipe.id}
           levelProgress={levelProgress}
+          career={career}
+          drinksPrepared={drinks.reduce(
+            (n, p) => n + (career.mastery[p.id] || 0),
+            0,
+          )}
           access={access}
         />
       )}

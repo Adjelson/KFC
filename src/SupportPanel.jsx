@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import {
   recipes,
+  trainingRecipes,
   products,
   fries,
   productById,
@@ -23,12 +24,12 @@ const guide = [
   },
   {
     title: "Serve a tempo",
-    text: "Nos níveis, prepara e entrega produtos para libertar a bandeja. Recebes moedas quando completas o talão. No treino, serve o pedido completo.",
+    text: "Nos níveis, as entregas parciais libertam a bandeja e recuperam um pouco de tempo. Cada cliente tem o seu relógio.",
     art: "burger",
   },
   {
     title: "Faz crescer o restaurante",
-    text: "Serve todos para abrir o próximo nível. A carteira abre melhorias, decoração e medalhas. Repete os mesmos pedidos no desafio ao recorde.",
+    text: "Começa com pão simples. Usa as moedas no restaurante para comprar ingredientes e bebidas e receber novas receitas nos próximos serviços.",
     art: "shift",
   },
 ];
@@ -48,12 +49,26 @@ export function SupportPanel({
   currentRecipe = "krunch",
   levelProgress,
   access,
+  career,
+  drinksPrepared = 0,
 }) {
   const dialog = useRef(null),
     [section, setSection] = useState(
       initialSection ||
         (page === "help" ? "guide" : page === "settings" ? "audio" : "recipe"),
     );
+  const [recipePage, setRecipePage] = useState(() =>
+    Math.max(
+      0,
+      Math.floor(
+        trainingRecipes.findIndex(
+          (p) =>
+            p.id === training?.choice ||
+            (training?.choice === "random" && access?.recipeIds.includes(p.id)),
+        ) / 4,
+      ),
+    ),
+  );
   const [recipeId, setRecipeId] = useState(currentRecipe),
     [step, setStep] = useState(0);
   useEffect(() => {
@@ -67,7 +82,7 @@ export function SupportPanel({
   }, []);
   const recipe = productById(recipeId) || recipes[0];
   const canRead =
-    productUnlocked(recipe.id, levelProgress) ||
+    productUnlocked(recipe.id, levelProgress, career) ||
     (inGame && recipe.id === currentRecipe);
   const tabs =
     page === "help"
@@ -274,6 +289,11 @@ export function SupportPanel({
               <strong>{totals.fries}</strong>
               <small>Porções de batatas</small>
             </div>
+            <div className="counter-card">
+              <span aria-hidden="true">🥤</span>
+              <strong>{drinksPrepared}</strong>
+              <small>Bebidas preparadas</small>
+            </div>
             <p className="counter-session">
               Neste turno: {served} pedidos · {sandwichesMade} sanduíches
             </p>
@@ -420,26 +440,52 @@ export function SupportPanel({
               <span aria-hidden="true">⚄</span>Surpreende-me
             </button>
             <div className="recipe-options">
-              {recipes.map((r) => (
-                <button
-                  key={r.id}
-                  aria-pressed={training.choice === r.id}
-                  aria-label={r.name}
-                  disabled={!productUnlocked(r.id, levelProgress)}
-                  className={training.choice === r.id ? "chosen" : ""}
-                  onClick={() => onTraining({ choice: r.id })}
-                >
-                  <div aria-hidden="true">
-                    <Burger items={r.items} compact />
-                  </div>
-                  <span>
-                    {r.name}
-                    {!productUnlocked(r.id, levelProgress) && (
-                      <small>🔒 Nível {productUnlockLevel(r.id)}</small>
-                    )}
-                  </span>
-                </button>
-              ))}
+              {trainingRecipes
+                .slice(recipePage * 4, recipePage * 4 + 4)
+                .map((r) => (
+                  <button
+                    key={r.id}
+                    aria-pressed={training.choice === r.id}
+                    aria-label={r.name}
+                    disabled={!productUnlocked(r.id, levelProgress, career)}
+                    className={training.choice === r.id ? "chosen" : ""}
+                    onClick={() => onTraining({ choice: r.id })}
+                  >
+                    <div aria-hidden="true">
+                      <Burger items={r.items} compact />
+                    </div>
+                    <span>
+                      {r.name}
+                      {!productUnlocked(r.id, levelProgress, career) && (
+                        <small>
+                          🔒{" "}
+                          {levelProgress[productUnlockLevel(r.id)] > 0
+                            ? "Ingredientes"
+                            : `Nível ${productUnlockLevel(r.id)}`}
+                        </small>
+                      )}
+                    </span>
+                  </button>
+                ))}
+            </div>
+            <div className="recipe-page-controls">
+              <button
+                aria-label="Receitas anteriores"
+                disabled={!recipePage}
+                onClick={() => setRecipePage((n) => n - 1)}
+              >
+                ‹
+              </button>
+              <span>
+                {recipePage + 1}/{Math.ceil(trainingRecipes.length / 4)}
+              </span>
+              <button
+                aria-label="Mais receitas"
+                disabled={(recipePage + 1) * 4 >= trainingRecipes.length}
+                onClick={() => setRecipePage((n) => n + 1)}
+              >
+                ›
+              </button>
             </div>
             <div className="variant-options" aria-label="Tipo de sandes">
               {[
@@ -449,7 +495,12 @@ export function SupportPanel({
               ].map(([id, label]) => (
                 <button
                   key={id}
-                  disabled={id !== "single" && !access.double}
+                  disabled={
+                    id !== "single" &&
+                    (!access.double ||
+                      (training.choice !== "random" &&
+                        !recipes.some((p) => p.id === training.choice)))
+                  }
                   title={
                     id !== "single" && !access.double
                       ? "Conclui o nível 9"

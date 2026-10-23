@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import {
   ingredients,
   fries,
+  drinks,
   productById,
   ingredientName,
   evaluate,
@@ -23,7 +24,12 @@ import {
   pauseService,
   serviceSummary,
   ghostServed,
+  customerSeconds,
+  customerPatience,
+  customerMood,
+  waitLabel,
 } from "./service.js";
+import { visibleIngredients, purchasedDrinks } from "./pantry.js";
 import { trayCapacity } from "./career.js";
 import { Icon } from "./Icons.jsx";
 import { KitchenScene } from "./KitchenScene.jsx";
@@ -301,14 +307,13 @@ export function ServiceGame(props) {
     const double = recipe.double && ["fillet", "tender"].includes(id),
       count = selected.filter((x) => x === id).length,
       remove = count >= (double ? 2 : 1),
-      items =
-        recipe.kind === "fries"
-          ? remove
-            ? []
-            : [id]
-          : remove
-            ? selected.filter((x) => x !== id)
-            : [...selected, id];
+      items = ["fries", "drink"].includes(recipe.kind)
+        ? remove
+          ? []
+          : [id]
+        : remove
+          ? selected.filter((x) => x !== id)
+          : [...selected, id];
     publish(setDraft(stateRef.current, items));
     setAction({ id, remove, key: ++serial.current });
     setError("");
@@ -415,11 +420,17 @@ export function ServiceGame(props) {
           <h1 tabIndex="-1">
             {ghost ? "Corrida ao recorde" : `Nível ${plan.levelId}`}
           </h1>
-          <span>
-            ✓ {state.served}/{plan.customers.length} <i>·</i>{" "}
+          <button
+            className="service-wallet"
+            aria-label="Melhorar restaurante"
+            disabled={busy}
+            onClick={props.onRestaurant}
+          >
+            ✓ {state.served}/{plan.customers.length} <i>·</i>
             <Icon name="coin" />
-            {state.earned}
-          </span>
+            {career.coins}
+            <b>＋</b>
+          </button>
           <span className="queue-next">
             {waiting
               ? `+${waiting} a chegar`
@@ -430,7 +441,9 @@ export function ServiceGame(props) {
         </div>
         <div className="queue-cards">
           {active.map((c) => {
-            const ratio = Math.max(0, (c.deadline - now) / (c.duration * 1000)),
+            const ratio = customerPatience(c, now),
+              mood = customerMood(c, now),
+              seconds = customerSeconds(c, now),
               type = CUSTOMER_TYPES[c.type],
               made = c.order.reduce(
                 (n, l) => n + (c.delivered[l.recipeId] || 0),
@@ -441,15 +454,28 @@ export function ServiceGame(props) {
               <button
                 key={c.id}
                 className={`customer-card ${c.id === state.selected ? "current" : ""} type-${c.type} ${ratio < 0.25 ? "impatient" : ""}`}
+                data-mood={mood}
                 aria-label={`Cliente ${c.number}, ${type.name}`}
                 aria-pressed={c.id === state.selected}
                 disabled={busy}
                 onClick={() => choose(c.id)}
               >
                 <div className="queue-avatar" aria-hidden="true">
-                  <Customer number={c.number} type={c.type} />
+                  <Customer number={c.number} type={c.type} mood={mood} />
                   <i>{type.icon}</i>
                 </div>
+                <span
+                  className={`customer-clock ${seconds <= 10 ? "urgent" : ""}`}
+                  role="timer"
+                  aria-label={`Tempo do cliente ${c.number}: ${seconds} segundos`}
+                >
+                  {waitLabel(seconds)}
+                </span>
+                {c.lastBonusAt !== null && now - c.lastBonusAt < 1500 && (
+                  <span className="patience-gain" role="status">
+                    ＋{c.lastBonusGain}s
+                  </span>
+                )}
                 <div className="customer-info">
                   <strong>{type.name}</strong>
                   <small>
@@ -543,8 +569,7 @@ export function ServiceGame(props) {
             </div>
             <div
               className={`timer ${remaining <= 10 ? "urgent" : ""}`}
-              role="timer"
-              aria-label={`${remaining} segundos restantes`}
+              aria-hidden="true"
             >
               {remaining}
               <small>seg</small>
@@ -633,18 +658,34 @@ export function ServiceGame(props) {
           >
             <div className="section-line">
               <h2>
-                {recipe.kind === "fries" ? "Escolhe a porção" : "Ingredientes"}
+                {recipe.kind === "drink"
+                  ? "Escolhe a bebida"
+                  : recipe.kind === "fries"
+                    ? "Escolhe a porção"
+                    : "Ingredientes"}
               </h2>
               <span aria-hidden="true">✦</span>
             </div>
             <div
-              className={`ingredient-grid ${recipe.kind === "fries" ? "fries-grid" : ""}`}
+              className={`ingredient-grid ${recipe.kind === "fries" ? "fries-grid" : recipe.kind === "drink" ? "drinks-grid" : ""}`}
             >
-              {(recipe.kind === "fries" ? fries : ingredients).map((item) => (
+              {(recipe.kind === "drink"
+                ? purchasedDrinks(career)
+                : recipe.kind === "fries"
+                  ? fries
+                  : visibleIngredients(career)
+              ).map((item) => (
                 <button
                   key={item.id}
                   className={`ingredient ${selected.includes(item.id) ? "selected" : ""}`}
                   data-ingredient={item.id}
+                  data-container={
+                    ["Pães", "Vegetais", "Extras"].includes(item.type)
+                      ? "plate"
+                      : item.type === "Molhos"
+                        ? "bowl"
+                        : "tray"
+                  }
                   aria-label={item.name}
                   aria-pressed={selected.includes(item.id)}
                   disabled={busy || allReady}

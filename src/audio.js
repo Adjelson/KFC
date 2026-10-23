@@ -41,6 +41,9 @@ export function saveSettings(settings) {
 }
 
 const profiles = {
+  "drink-coke": { tone: 330, noise: 0.1, filter: 4200, type: "triangle" },
+  "drink-pepsi": { tone: 290, noise: 0.12, filter: 3800, type: "triangle" },
+  "drink-sumol": { tone: 400, noise: 0.09, filter: 4700, type: "sine" },
   "fries-small": { tone: 250, noise: 0.1, filter: 2800, type: "triangle" },
   "fries-medium": { tone: 220, noise: 0.13, filter: 2600, type: "triangle" },
   "fries-large": { tone: 190, noise: 0.16, filter: 2400, type: "triangle" },

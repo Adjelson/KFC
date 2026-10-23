@@ -1,12 +1,13 @@
 import React from "react";
 import restaurantScene from "./assets/restaurant-scene.webp";
 import customersAtlas from "./assets/customer-atlas.webp";
-export { customersAtlas };
+import customerEmotions from "./assets/customer-emotions.webp";
+export { customersAtlas, customerEmotions };
 let ready;
 export function preloadKitchenScene() {
   if (!ready)
     ready = Promise.all(
-      [restaurantScene, customersAtlas].map(
+      [restaurantScene, customersAtlas, customerEmotions].map(
         (src) =>
           new Promise((resolve) => {
             const img = new Image();

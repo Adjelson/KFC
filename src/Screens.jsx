@@ -1,7 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { Burger, FoodArt, Customer } from "./FoodArt.jsx";
 import { Icon } from "./Icons.jsx";
-import { ingredients, recipes, ingredientName } from "./game.js";
+import {
+  ingredients,
+  recipes,
+  trainingRecipes,
+  ingredientName,
+} from "./game.js";
 import { PreparedTray, OrderReview } from "./OrderViews.jsx";
 
 export function Intro({ loading = false, recipe, onEnter, orderSize = 1 }) {
@@ -82,7 +87,12 @@ export function Training({
   onSetup,
   access,
 }) {
-  const recipe = recipes.find((r) => r.id === choice) || recipes[0];
+  const recipe =
+    trainingRecipes.find(
+      (r) => r.id === choice && access.recipeIds.includes(r.id),
+    ) ||
+    trainingRecipes.find((r) => r.id === access.recipeIds[0]) ||
+    recipes[0];
   if (!access.training)
     return (
       <section className="training-locked">

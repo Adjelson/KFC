@@ -1,5 +1,7 @@
 import React, { useLayoutEffect, useRef, useState } from "react";
 
+import { customersAtlas } from "./KitchenScene.jsx";
+
 const seeds = (
   <g fill="#fff0bf">
     <ellipse cx="35" cy="22" rx="2" ry="1" transform="rotate(-25 35 22)" />
@@ -250,46 +252,57 @@ export function Customer({ number = 1, type = "regular" }) {
   ];
   return (
     <svg viewBox="0 0 70 80" aria-hidden="true">
-      <path d="M8 80V65Q35 48 62 65V80" fill={shirt} />
-      <path d="M26 60L35 70 44 60V80H26Z" fill="#fff3db" />
-      <path d="M14 33C10 0 59 0 57 34L54 55H17Z" fill="#603f31" />
-      <ellipse cx="35" cy="36" rx="20" ry="25" fill={skin} />
-      <path
-        d="M14 29C11 4 61 -1 57 30Q49 24 45 16Q32 32 14 29"
-        fill="#603f31"
-      />
-      {type === "rushed" && (
-        <g>
-          <path d="M14 26Q35 1 57 25L62 29H15Z" fill="#477c85" />
-          <path d="M13 27H62" stroke="#31565a" strokeWidth="4" />
-        </g>
-      )}
-      {type === "foodie" && (
-        <g fill="none" stroke="#69503f" strokeWidth="2">
-          <circle cx="27" cy="36" r="7" />
-          <circle cx="43" cy="36" r="7" />
-          <path d="M34 36H36" />
-        </g>
-      )}
-      {type === "family" && (
+      <g className="customer-vector">
+        <path d="M8 80V65Q35 48 62 65V80" fill={shirt} />
+        <path d="M26 60L35 70 44 60V80H26Z" fill="#fff3db" />
+        <path d="M14 33C10 0 59 0 57 34L54 55H17Z" fill="#603f31" />
+        <ellipse cx="35" cy="36" rx="20" ry="25" fill={skin} />
         <path
-          d="M13 25Q35 13 56 25"
-          fill="none"
-          stroke="#ce6978"
-          strokeWidth="5"
+          d="M14 29C11 4 61 -1 57 30Q49 24 45 16Q32 32 14 29"
+          fill="#603f31"
         />
-      )}
-      <circle cx="27" cy="36" r="2" fill="#4b3027" />
-      <circle cx="43" cy="36" r="2" fill="#4b3027" />
-      <path
-        d="M29 47Q35 53 41 47"
-        fill="none"
-        stroke="#9e4c3d"
-        strokeWidth="2"
-        strokeLinecap="round"
+        {type === "rushed" && (
+          <g>
+            <path d="M14 26Q35 1 57 25L62 29H15Z" fill="#477c85" />
+            <path d="M13 27H62" stroke="#31565a" strokeWidth="4" />
+          </g>
+        )}
+        {type === "foodie" && (
+          <g fill="none" stroke="#69503f" strokeWidth="2">
+            <circle cx="27" cy="36" r="7" />
+            <circle cx="43" cy="36" r="7" />
+            <path d="M34 36H36" />
+          </g>
+        )}
+        {type === "family" && (
+          <path
+            d="M13 25Q35 13 56 25"
+            fill="none"
+            stroke="#ce6978"
+            strokeWidth="5"
+          />
+        )}
+        <circle cx="27" cy="36" r="2" fill="#4b3027" />
+        <circle cx="43" cy="36" r="2" fill="#4b3027" />
+        <path
+          d="M29 47Q35 53 41 47"
+          fill="none"
+          stroke="#9e4c3d"
+          strokeWidth="2"
+          strokeLinecap="round"
+        />
+        <circle cx="22" cy="44" r="3" fill="#d67c61" opacity=".5" />
+        <circle cx="48" cy="44" r="3" fill="#d67c61" opacity=".5" />
+      </g>
+      <image
+        className="customer-render"
+        href={customersAtlas}
+        x={-((number - 1) % 4) * 70}
+        y="0"
+        width="280"
+        height="96.4"
+        preserveAspectRatio="none"
       />
-      <circle cx="22" cy="44" r="3" fill="#d67c61" opacity=".5" />
-      <circle cx="48" cy="44" r="3" fill="#d67c61" opacity=".5" />
     </svg>
   );
 }

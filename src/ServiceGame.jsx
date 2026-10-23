@@ -26,6 +26,7 @@ import {
 } from "./service.js";
 import { trayCapacity } from "./career.js";
 import { Icon } from "./Icons.jsx";
+import { KitchenScene } from "./KitchenScene.jsx";
 function KitchenBackdrop({ renovated }) {
   return (
     <svg
@@ -386,10 +387,17 @@ export function ServiceGame(props) {
       : 0;
   return (
     <div
-      className={`kitchen service-game ${busy ? "is-serving" : ""} ${ghost ? "ghost-mode" : ""} ${career.renovations.includes("chef") ? "chef-renovated" : ""}`}
+      className={`kitchen service-game landscape-kitchen ${busy ? "is-serving" : ""} ${ghost ? "ghost-mode" : ""} ${career.renovations.includes("chef") ? "chef-renovated" : ""}`}
+      style={{
+        "--selected-slot": Math.max(
+          0,
+          active.findIndex((c) => c.id === state.selected),
+        ),
+      }}
       aria-label="Serviço de clientes"
       aria-busy={busy}
     >
+      <KitchenScene />
       <section className="customer-queue" aria-label="Fila de clientes">
         {fx?.person && (
           <div
@@ -442,7 +450,7 @@ export function ServiceGame(props) {
                   <Customer number={c.number} type={c.type} />
                   <i>{type.icon}</i>
                 </div>
-                <div>
+                <div className="customer-info">
                   <strong>{type.name}</strong>
                   <small>
                     #{String(c.number).padStart(2, "0")} · {made}/{total}{" "}
@@ -458,6 +466,19 @@ export function ServiceGame(props) {
                   >
                     <i style={{ width: `${ratio * 100}%` }} />
                   </div>
+                </div>
+                <div className="customer-order-preview" aria-hidden="true">
+                  {c.order.slice(0, 3).map((l) => (
+                    <div key={l.recipeId}>
+                      <Burger items={productById(l.recipeId).items} compact />
+                      <b>
+                        {(c.delivered[l.recipeId] || 0) +
+                          (c.prepared[l.recipeId] || 0)}
+                        /{l.quantity}
+                      </b>
+                    </div>
+                  ))}
+                  {c.order.length > 3 && <small>＋{c.order.length - 3}</small>}
                 </div>
                 {Object.values(c.prepared).some((n) => n > 0) && (
                   <span className="customer-ready" aria-hidden="true">

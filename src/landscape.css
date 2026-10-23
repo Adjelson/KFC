@@ -1,0 +1,1342 @@
+/* A horizontal é uma cena contínua: sala, clientes e bancada em profundidade. */
+.restaurant-scene,
+.customer-order-preview,
+.customer-render,
+.training-product-preview {
+  display: none;
+}
+@media (orientation: landscape) {
+  .app:is(.screen-service, .screen-game) {
+    max-width: none;
+    grid-template-rows: minmax(0, 1fr);
+    padding: env(safe-area-inset-top) env(safe-area-inset-right)
+      env(safe-area-inset-bottom) env(safe-area-inset-left);
+    background: #692b1c;
+    isolation: isolate;
+  }
+  .app:is(.screen-service, .screen-game) > .topbar {
+    position: absolute;
+    z-index: 40;
+    top: max(6px, env(safe-area-inset-top));
+    right: max(8px, env(safe-area-inset-right));
+    height: 32px;
+    padding: 0;
+    gap: 5px;
+    border: 0;
+    background: none;
+  }
+  .app:is(.screen-service, .screen-game) .topbar .brand,
+  .app:is(.screen-service, .screen-game) .wallet-button {
+    display: none;
+  }
+  .app:is(.screen-service, .screen-game) .header-tools {
+    gap: 5px;
+  }
+  .app:is(.screen-service, .screen-game) .tool-button,
+  .app:is(.screen-service, .screen-game) .exit-button {
+    width: 32px;
+    height: 32px;
+    min-height: 0;
+    border-radius: 10px;
+    border: 1px solid #d7ad69;
+    background: linear-gradient(#fff3d8, #ebd1a1);
+    box-shadow:
+      0 3px 0 #5b3328,
+      0 4px 10px #2b130c44;
+    color: #6b3d28;
+    padding: 5px;
+    font-size: 24px;
+  }
+  .app:is(.screen-service, .screen-game) .tool-button svg {
+    width: 19px;
+    height: 19px;
+  }
+  .app:is(.screen-service, .screen-game) > main {
+    height: 100%;
+  }
+  .kitchen.landscape-kitchen,
+  .kitchen.service-game.landscape-kitchen {
+    display: block;
+    position: relative;
+    width: 100%;
+    height: 100%;
+    padding: 0;
+    gap: 0;
+    background: #6c3426;
+    overflow: hidden;
+    isolation: isolate;
+  }
+  .restaurant-scene {
+    display: block;
+    position: absolute;
+    inset: 0;
+    z-index: -2;
+    background: #d2b17c url("./assets/restaurant-scene.webp") center/100% 100%
+      no-repeat;
+    pointer-events: none;
+  }
+  .scene-warmth {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(#3e150f33, transparent 20% 65%, #36130b22);
+  }
+  .counter-light {
+    position: absolute;
+    left: 1%;
+    right: 1%;
+    top: 47.5%;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, #fff3bd, transparent);
+    box-shadow: 0 2px 8px #ffedbe88;
+  }
+  .counter-engraving {
+    position: absolute;
+    bottom: 3%;
+    right: 4%;
+    color: #f2ba7377;
+    font-size: 10px;
+    font-weight: 900;
+    letter-spacing: 3px;
+    text-shadow: 0 -1px #320f0f;
+  }
+  .chef-renovated .counter-light {
+    background: #ffe6a5;
+    box-shadow: 0 1px 14px #fff1aa;
+  }
+  .landscape-kitchen .customer-vector {
+    display: none;
+  }
+  .landscape-kitchen .customer-render {
+    display: block;
+  }
+  .landscape-kitchen .customer-queue {
+    position: absolute;
+    inset: 0;
+    display: block;
+    color: #fff4dc;
+    pointer-events: none;
+  }
+  .landscape-kitchen .queue-heading {
+    position: absolute;
+    top: 6px;
+    left: 8px;
+    right: 120px;
+    height: 32px;
+    gap: 8px;
+  }
+  .landscape-kitchen .queue-heading h1,
+  .landscape-kitchen .queue-heading > span {
+    height: 30px;
+    padding: 5px 12px;
+    border: 1px solid #d6ad6f;
+    border-radius: 10px;
+    color: #fff4d1;
+    background: linear-gradient(#a64137, #762b29);
+    box-shadow: 0 3px 0 #50271c88;
+    font-size: 12px;
+    display: flex;
+    align-items: center;
+    line-height: 1;
+    letter-spacing: 0;
+    white-space: nowrap;
+  }
+  .landscape-kitchen .queue-heading > span {
+    color: #70472a;
+    background: linear-gradient(#fff4db, #efd6a6);
+    font-size: 12px;
+    font-variant-numeric: tabular-nums;
+  }
+  .landscape-kitchen .queue-heading > span svg {
+    width: 16px;
+    height: 16px;
+    color: #b47a28;
+  }
+  .landscape-kitchen .queue-heading .queue-next {
+    font-size: 10px;
+    height: 26px;
+    opacity: 1;
+    padding: 4px 9px;
+    margin-left: 0;
+    color: #fff0d1;
+    border-color: #d6ad6f77;
+    background: #5b3429c9;
+  }
+  .landscape-kitchen .queue-cards {
+    position: absolute;
+    top: 12%;
+    left: 3%;
+    right: 3%;
+    height: 34%;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-auto-flow: row;
+    grid-auto-columns: unset;
+    gap: 2%;
+    overflow: visible;
+    border-radius: 0;
+    pointer-events: none;
+  }
+  .landscape-kitchen .customer-card {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    min-width: 0;
+    min-height: 0;
+    display: block;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: none;
+    box-shadow: none;
+    color: #523827;
+    pointer-events: auto;
+    overflow: visible;
+    transition: filter 0.2s;
+    animation: scene-customer-arrive 0.5s cubic-bezier(0.2, 0.8, 0.3, 1) both;
+  }
+  .landscape-kitchen .customer-card.current {
+    width: 40%;
+    background: none;
+    border: 0;
+    box-shadow: none;
+  }
+  .landscape-kitchen .customer-card:hover {
+    translate: 0;
+    filter: brightness(1.06);
+  }
+  .landscape-kitchen .queue-avatar {
+    position: absolute;
+    left: 0;
+    bottom: 9px;
+    width: 42%;
+    height: calc(100% - 4px);
+    background: none;
+    border: 0;
+    border-radius: 0;
+    filter: drop-shadow(0 4px 3px #28130f66);
+  }
+  .landscape-kitchen .customer-card.current .queue-avatar {
+    width: 100%;
+  }
+  .landscape-kitchen .queue-avatar > svg {
+    width: 100%;
+    height: 100%;
+    display: block;
+    overflow: hidden;
+  }
+  .landscape-kitchen .queue-avatar i {
+    bottom: 8px;
+    right: 0;
+    width: 20px;
+    height: 20px;
+    font-size: 13px;
+    border: 2px solid #ffe6b7;
+    box-shadow: 0 2px 3px #3c221666;
+  }
+  .landscape-kitchen .customer-info {
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 40%;
+    height: 17px;
+    margin: 0;
+    padding: 1px 4px 3px;
+    background: linear-gradient(#fff1d5, #dcc294);
+    border: 1px solid #c7a26b;
+    border-radius: 5px;
+    box-shadow: 0 2px 3px #42291a44;
+  }
+  .landscape-kitchen .customer-card.current .customer-info {
+    width: 100%;
+  }
+  .landscape-kitchen .customer-info > strong {
+    font-size: 7px;
+    line-height: 1;
+    text-align: center;
+    color: #6a472e;
+  }
+  .landscape-kitchen .customer-info > small {
+    display: none;
+  }
+  .landscape-kitchen .customer-patience {
+    height: 3px;
+    margin-top: 2px;
+    background: #9b7b5455;
+  }
+  .landscape-kitchen .customer-patience i {
+    background: linear-gradient(90deg, #7c9e49, #b4ca65);
+  }
+  .landscape-kitchen .impatient .customer-patience i {
+    background: #cb5143;
+  }
+  .landscape-kitchen .customer-ready {
+    left: 26%;
+    right: auto;
+    top: 4%;
+    width: 18px;
+    height: 18px;
+    box-shadow: 0 1px 4px #26311c88;
+  }
+  .landscape-kitchen .customer-card.current .customer-ready {
+    left: auto;
+    right: 0;
+  }
+  .landscape-kitchen .customer-order-preview {
+    position: absolute;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-auto-rows: minmax(0, 1fr);
+    align-content: center;
+    gap: 4px;
+    right: 0;
+    top: 4%;
+    bottom: 6%;
+    width: 55%;
+    padding: 6px;
+    border: 2px solid #d4bd8a;
+    border-radius: 12px 12px 12px 3px;
+    background: linear-gradient(115deg, #fff9e8, #f3e4bc);
+    box-shadow: 0 4px 5px #3a201b55;
+    rotate: 2deg;
+  }
+  .landscape-kitchen .customer-order-preview > div {
+    position: relative;
+    min-height: 0;
+    height: 100%;
+    background: #cbb27c22;
+    border-radius: 7px;
+  }
+  .landscape-kitchen .customer-order-preview > div:only-child {
+    grid-column: 1/-1;
+  }
+  .landscape-kitchen .customer-order-preview .burger-stack {
+    bottom: 0;
+    width: 230px;
+    height: 160px;
+    transform: translateX(-50%) scale(0.28);
+    transform-origin: center bottom;
+  }
+  .landscape-kitchen .customer-order-preview .plate {
+    display: none;
+  }
+  .landscape-kitchen .customer-order-preview b {
+    position: absolute;
+    right: 1px;
+    bottom: 0;
+    z-index: 12;
+    background: #fff4cf;
+    border-radius: 6px;
+    padding: 1px 3px;
+    font-size: 9px;
+    color: #8e4d2a;
+  }
+  .landscape-kitchen .customer-order-preview > small {
+    position: absolute;
+    right: 2px;
+    top: -5px;
+    background: #9c4d36;
+    color: #fff3cc;
+    padding: 3px;
+    border-radius: 50%;
+    font-size: 9px;
+  }
+  .landscape-kitchen .customer-card.current .customer-order-preview {
+    display: none;
+  }
+  .landscape-kitchen .service-ticket {
+    position: absolute;
+    left: calc(16% + var(--selected-slot) * 32%);
+    top: 13%;
+    width: 18%;
+    height: 31%;
+    display: flex;
+    padding: 0;
+    border: 0;
+    gap: 0;
+    background: none;
+    z-index: 12;
+  }
+  .landscape-kitchen .service-ticket .ticket {
+    width: 100%;
+    height: 100%;
+    padding: 6px;
+    display: flex;
+    flex-direction: column;
+    border: 2px solid #c6a66b;
+    border-radius: 11px 11px 11px 3px;
+    background: linear-gradient(115deg, #fff9e8, #f3e4bc);
+    box-shadow: 0 4px 7px #4a281b66;
+    rotate: -1deg;
+    overflow: visible;
+  }
+  .landscape-kitchen .service-ticket .ticket-caption {
+    font-size: 6px;
+    line-height: 1.1;
+    white-space: nowrap;
+    letter-spacing: 0;
+    color: #ac8454;
+    margin: 0;
+  }
+  .landscape-kitchen .service-ticket h2 {
+    display: block;
+    font-size: 10px;
+    line-height: 1;
+    margin: 3px 22px 4px 0;
+    color: #704b2e;
+    min-height: 10px;
+  }
+  .landscape-kitchen .service-ticket .order-lines-wrap {
+    flex: 1;
+    min-height: 0;
+  }
+  .landscape-kitchen .service-ticket .order-lines {
+    margin: 0;
+    height: 100%;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-auto-rows: minmax(0, 1fr);
+    gap: 3px;
+  }
+  .landscape-kitchen .service-ticket .order-line,
+  .landscape-kitchen
+    .service-ticket
+    .order-lines:has(> :nth-child(3))
+    .order-line {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    padding: 1px;
+    min-height: 0;
+    border: 1px solid transparent;
+    border-radius: 7px;
+    background: #dfc99433;
+    overflow: hidden;
+    box-shadow: none;
+  }
+  .landscape-kitchen .service-ticket .order-line.current {
+    background: #fff3ca;
+    border-color: #c17b35;
+  }
+  .landscape-kitchen .service-ticket .order-line.fulfilled {
+    border-color: #9aa75e;
+    background: #dce3ad;
+  }
+  .landscape-kitchen .service-ticket .order-line-art,
+  .landscape-kitchen
+    .service-ticket
+    .order-lines:has(> :nth-child(3))
+    .order-line-art {
+    display: block;
+    width: 100%;
+    height: 100%;
+    max-height: none;
+    position: relative;
+  }
+  .landscape-kitchen .service-ticket .order-line-art .burger-stack {
+    transform: translateX(-50%) scale(0.25);
+    bottom: -2px;
+    width: 230px;
+    height: 160px;
+    transform-origin: center bottom;
+  }
+  .landscape-kitchen .service-ticket .order-line-name {
+    display: none;
+  }
+  .landscape-kitchen .service-ticket .order-line strong {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    z-index: 10;
+    font-size: 8px;
+    padding: 1px 3px;
+    border-radius: 5px;
+    background: #fff2ceeb;
+    color: #9a562c;
+  }
+  .landscape-kitchen .service-ticket .timer {
+    position: absolute;
+    top: -7px;
+    right: -8px;
+    width: 30px;
+    height: 32px;
+    border: 2px solid #bb8b42;
+    border-radius: 10px;
+    padding: 2px;
+    font-size: 15px;
+    background: linear-gradient(#fff6ce, #e9c16b);
+    box-shadow: 0 2px 3px #5d351f55;
+    line-height: 1;
+  }
+  .landscape-kitchen .service-ticket .timer small {
+    font-size: 6px;
+    line-height: 1;
+  }
+  .landscape-kitchen .service-ticket .line-pager {
+    height: 19px;
+    font-size: 8px;
+    margin: 2px 0 0;
+    gap: 3px;
+    justify-content: center;
+  }
+  .landscape-kitchen .service-ticket .line-pager button {
+    width: 25px;
+    height: 18px;
+    padding: 0;
+    min-height: 0;
+  }
+  .landscape-kitchen .service-ticket:has(.line-pager) .order-lines {
+    height: calc(100% - 21px);
+  }
+  .landscape-kitchen .ghost-pace {
+    position: absolute;
+    bottom: 2%;
+    right: 2%;
+    height: 18px;
+    width: 29%;
+    gap: 3px;
+    font-size: 8px;
+    color: #fff0c9;
+    border: 1px solid #d0ac6c88;
+    padding: 2px 5px;
+    border-radius: 6px;
+    background: #4e231fc9;
+  }
+  .landscape-kitchen .ghost-pace > svg {
+    width: 12px;
+    height: 12px;
+  }
+  .landscape-kitchen .ghost-pace em {
+    font-size: 12px;
+    line-height: 1;
+  }
+  .landscape-kitchen .ghost-pace > span {
+    white-space: nowrap;
+  }
+  .landscape-kitchen .customer-goodbye {
+    top: 14%;
+    width: 14%;
+    height: 27%;
+    z-index: 22;
+  }
+  .landscape-kitchen .customer-goodbye .customer-render {
+    display: block;
+  }
+  .landscape-kitchen .customer-goodbye > span {
+    width: max-content;
+    margin: auto;
+  }
+  .landscape-kitchen .assembly,
+  .landscape-kitchen .service-assembly {
+    position: absolute;
+    left: 38%;
+    top: 49%;
+    width: 24%;
+    height: 37%;
+    min-height: 0;
+    margin: 0;
+    border: 0;
+    border-radius: 0;
+    background: none;
+    z-index: 7;
+    overflow: visible;
+  }
+  .landscape-kitchen .assembly > .kitchen-backdrop {
+    display: none;
+  }
+  .landscape-kitchen .assembly::before {
+    content: "";
+    position: absolute;
+    inset: 24% -1% 2%;
+    border: 2px solid #b8753744;
+    border-bottom: 4px solid #9d5f32;
+    border-radius: 18px;
+    background: linear-gradient(100deg, #e6b26899, #f6d59b88, #d99d56aa);
+    box-shadow:
+      0 8px 10px #7b422333,
+      inset 0 2px #ffe4b388;
+    transform: perspective(400px) rotateX(15deg);
+  }
+  .landscape-kitchen .assembly-title {
+    position: absolute;
+    inset: 0 0 auto;
+    height: 26px;
+    padding: 0;
+    color: #6a4128;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    font-size: 7px;
+    letter-spacing: 0.5px;
+    z-index: 9;
+  }
+  .landscape-kitchen .assembly-title > span:first-child {
+    padding: 4px 7px;
+    border-radius: 6px;
+    background: #ffedc9db;
+    box-shadow: 0 2px 3px #4f2f1833;
+    max-width: calc(100% - 31px);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .landscape-kitchen .assembly-title > span + span {
+    display: none;
+  }
+  .landscape-kitchen .undo-ingredient {
+    flex: none;
+    width: 26px;
+    height: 25px;
+    min-height: 0;
+    margin: 0;
+    background: linear-gradient(#fff6de, #e7ca93);
+    border: 1px solid #be975e;
+    border-bottom-width: 3px;
+    color: #926438;
+    border-radius: 8px;
+    font-size: 19px;
+  }
+  .landscape-kitchen .assembly > .burger-stack {
+    bottom: 6px;
+    filter: drop-shadow(0 6px 5px #56291455);
+  }
+  .landscape-kitchen .assembly .empty {
+    position: absolute;
+    top: auto;
+    left: 50%;
+    right: auto;
+    bottom: 17%;
+    width: max-content;
+    padding: 4px 7px;
+    border-radius: 7px;
+    background: #fff4d9cc;
+    color: #93693c;
+    transform: translateX(-50%);
+    gap: 0;
+    line-height: 1;
+    backdrop-filter: none;
+  }
+  .landscape-kitchen .empty > span:not(.sr-only) {
+    display: none;
+  }
+  .landscape-kitchen .empty small {
+    font-size: 8px;
+  }
+  .landscape-kitchen .ingredient-feedback {
+    top: 25%;
+    left: 50%;
+    width: max-content;
+    max-width: 100%;
+    font-size: 9px;
+    padding: 5px 7px;
+    z-index: 11;
+    background: #fff8dcee;
+    color: #7c5731;
+  }
+  .landscape-kitchen .assembly-error {
+    position: absolute;
+    left: -12%;
+    right: -12%;
+    top: auto;
+    bottom: 0;
+    padding: 5px;
+    font-size: 9px;
+    border-radius: 8px;
+    z-index: 15;
+    color: #9f382b;
+    background: #fff5e6f5;
+  }
+  .landscape-kitchen .workstation,
+  .landscape-kitchen .service-workstation {
+    position: absolute;
+    inset: 48% 2% 13%;
+    padding: 0;
+    display: block;
+    background: none;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+    z-index: 5;
+    overflow: visible;
+    min-height: 0;
+  }
+  .landscape-kitchen .workstation .section-line {
+    display: none;
+  }
+  .landscape-kitchen .ingredient-grid {
+    display: grid;
+    grid-template-columns: repeat(8, minmax(0, 1fr));
+    grid-template-rows: repeat(2, minmax(0, 1fr));
+    gap: 5px 7px;
+    width: 100%;
+    height: 100%;
+    padding: 0;
+    margin: 0;
+  }
+  .landscape-kitchen .ingredient {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 0;
+    min-width: 0;
+    padding: 0 1px 1px;
+    border: 0;
+    border-radius: 7px;
+    background: none;
+    box-shadow: none;
+    overflow: visible;
+    transition:
+      filter 0.15s,
+      scale 0.15s;
+  }
+  .landscape-kitchen .ingredient:hover {
+    filter: brightness(1.08);
+  }
+  .landscape-kitchen .ingredient:active {
+    scale: 0.94;
+  }
+  .landscape-kitchen .ingredient.selected {
+    background: none;
+    border: 0;
+    box-shadow: none;
+  }
+  .landscape-kitchen .ingredient-pan {
+    position: relative;
+    flex: 1;
+    min-height: 0;
+    width: 100%;
+    height: auto;
+    border: 3px solid #b8b6a9;
+    border-top-color: #e9e6d5;
+    border-bottom: 5px solid #626c68;
+    border-radius: 12px 12px 17px 17px;
+    background:
+      radial-gradient(ellipse at 50% 20%, #f6e9cd, #c6bda6 45%, #888e8077),
+      linear-gradient(#b3b8ad, #676b62);
+    box-shadow:
+      0 5px 5px #3e281655,
+      inset 0 3px 5px #3b3e3233,
+      inset 0 -2px #f6efda88;
+    transform: perspective(500px) rotateX(9deg);
+  }
+  .landscape-kitchen .ingredient.selected .ingredient-pan {
+    border-color: #c5d5a0;
+    border-top-color: #edf4c6;
+    box-shadow:
+      0 0 0 2px #668246,
+      0 5px 6px #3e281655,
+      inset 0 2px 5px #3b3e3233;
+  }
+  .landscape-kitchen .ingredient-pan > .food-art {
+    width: 100%;
+    height: 100%;
+    max-height: 115px;
+    filter: drop-shadow(0 3px 1px #65411855) saturate(1.1);
+  }
+  .landscape-kitchen .ingredient .check {
+    right: -2px;
+    top: -4px;
+    width: 17px;
+    height: 17px;
+    border: 1px solid #fff0ca;
+    background: #7e8066;
+    color: #ffedbe;
+    font-size: 11px;
+    box-shadow: 0 1px 3px #3f321c55;
+    z-index: 3;
+  }
+  .landscape-kitchen .ingredient.selected .check {
+    background: #658342;
+    color: #fffad5;
+  }
+  .landscape-kitchen .ingredient strong {
+    flex: none;
+    width: max-content;
+    max-width: 100%;
+    margin: 2px 0 0;
+    padding: 2px 6px;
+    border: 1px solid #d0ab77;
+    border-radius: 5px;
+    font-size: 9px;
+    color: #6c4a2a;
+    background: linear-gradient(#fff2d8, #dfc395);
+    line-height: 1;
+    box-shadow: 0 2px 2px #66482e44;
+    white-space: nowrap;
+  }
+  .landscape-kitchen [data-ingredient="seeds"] {
+    grid-area: 1/1;
+  }
+  .landscape-kitchen [data-ingredient="mini"] {
+    grid-area: 1/2;
+  }
+  .landscape-kitchen [data-ingredient="brioche"] {
+    grid-area: 1/3;
+  }
+  .landscape-kitchen [data-ingredient="fillet"] {
+    grid-area: 2/1;
+  }
+  .landscape-kitchen [data-ingredient="tender"] {
+    grid-area: 2/2;
+  }
+  .landscape-kitchen [data-ingredient="bacon"] {
+    grid-area: 2/3;
+  }
+  .landscape-kitchen [data-ingredient="lettuce"] {
+    grid-area: 1/6;
+  }
+  .landscape-kitchen [data-ingredient="tomato"] {
+    grid-area: 1/7;
+  }
+  .landscape-kitchen [data-ingredient="cheese"] {
+    grid-area: 1/8;
+  }
+  .landscape-kitchen [data-ingredient="mayo"] {
+    grid-area: 2/6;
+  }
+  .landscape-kitchen [data-ingredient="bbq"] {
+    grid-area: 2/7;
+  }
+  .landscape-kitchen [data-ingredient="cheddar"] {
+    grid-area: 2/8;
+  }
+  .landscape-kitchen .ingredient-grid.fries-grid {
+    grid-template-columns: repeat(8, minmax(0, 1fr));
+    grid-template-rows: 1fr;
+  }
+  .landscape-kitchen [data-ingredient="fries-small"] {
+    grid-area: 1/1;
+  }
+  .landscape-kitchen [data-ingredient="fries-medium"] {
+    grid-area: 1/2;
+  }
+  .landscape-kitchen [data-ingredient="fries-large"] {
+    grid-area: 1/3;
+  }
+  .landscape-kitchen .fries-grid .ingredient-pan > svg {
+    max-height: 150px;
+  }
+  .landscape-kitchen .service-controls {
+    position: absolute;
+    left: 2%;
+    right: 2%;
+    bottom: 2.5%;
+    height: 9%;
+    min-height: 31px;
+    display: flex;
+    align-items: stretch;
+    justify-content: center;
+    gap: 7px;
+    z-index: 16;
+  }
+  .landscape-kitchen .tray-meter {
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    height: 100%;
+    min-width: 85px;
+    padding: 4px 8px;
+    border: 1px solid #d8ae65;
+    border-radius: 9px;
+    background: linear-gradient(#fff1d1, #d7b980);
+    color: #6c462a;
+    box-shadow: 0 3px #5b332855;
+    gap: 5px;
+    font-size: 12px;
+  }
+  .landscape-kitchen .tray-meter i {
+    background: #a78b6266;
+  }
+  .landscape-kitchen .tray-meter i.occupied {
+    background: #798d46;
+  }
+  .landscape-kitchen .service-controls button {
+    width: 13.5%;
+    height: 100%;
+    min-width: 82px;
+    padding: 3px 6px;
+    border-radius: 9px;
+    font-size: 11px;
+    gap: 4px;
+    margin: 0;
+  }
+  .landscape-kitchen .service-controls .prepare-button {
+    border: 1px solid #e5c58c;
+    border-bottom: 3px solid #9f6d36;
+    background: linear-gradient(#fff4d6, #ddba74);
+    color: #764e29;
+    box-shadow: 0 2px 4px #5d2a1c44;
+  }
+  .landscape-kitchen .service-controls .deliver-button {
+    border: 1px solid #ffc7a2;
+    border-bottom: 3px solid #6c251f;
+    background: linear-gradient(#d75f40, #aa372c);
+    box-shadow: 0 2px 4px #5d2a1c44;
+    color: #fff3cf;
+  }
+  .landscape-kitchen .prepare-button > svg {
+    width: 18px;
+    height: 18px;
+  }
+  .landscape-kitchen .service-controls button:disabled {
+    opacity: 0.6;
+    filter: saturate(0.5);
+  }
+  .landscape-kitchen .service-interlude {
+    position: absolute;
+    top: 15%;
+    left: 35%;
+    width: 30%;
+    height: 30%;
+    color: #fff2d4;
+    text-shadow: 0 2px 3px #4a271e;
+    font-size: 11px;
+    z-index: 2;
+  }
+  .landscape-kitchen .service-interlude > svg {
+    height: 80%;
+    width: 100%;
+  }
+  .landscape-kitchen .service-package {
+    inset: 0;
+  }
+  .landscape-kitchen .service-package > .burger-stack {
+    bottom: 5px;
+    transform: translateX(-50%) scale(0.6);
+  }
+  .landscape-kitchen .prepared-tray {
+    position: absolute;
+    top: 30px;
+    bottom: 5px;
+    left: 0;
+    right: 0;
+    gap: 4px;
+    padding: 0;
+    background: none;
+  }
+  .landscape-kitchen .tray-product {
+    min-height: 0;
+    padding: 0;
+    border: 0;
+    background: #fff1cc77;
+    border-radius: 10px;
+  }
+  .landscape-kitchen .tray-product small {
+    display: none;
+  }
+  .landscape-kitchen .tray-product > div {
+    min-height: 0;
+  }
+  .landscape-kitchen .tray-product strong {
+    font-size: 11px;
+  }
+  /* O treino livre usa a mesma bancada e conserva o seu fluxo de validação. */
+  .landscape-kitchen:not(.service-game) .order-board {
+    position: absolute;
+    top: 12%;
+    left: 35%;
+    width: 30%;
+    height: 33%;
+    min-height: 0;
+    display: flex;
+    gap: 0;
+    padding: 0;
+    border: 0;
+    background: none;
+    z-index: 10;
+  }
+  .landscape-kitchen:not(.service-game) .customer {
+    width: 40%;
+    height: 100%;
+    border: 0;
+    border-radius: 0;
+    background: none;
+    box-shadow: none;
+    overflow: visible;
+  }
+  .landscape-kitchen:not(.service-game) .customer svg {
+    filter: drop-shadow(0 4px 3px #421e1966);
+  }
+  .landscape-kitchen:not(.service-game) .ticket {
+    flex: 1;
+    height: 95%;
+    min-width: 0;
+    padding: 6px;
+    border: 2px solid #c8a66e;
+    border-radius: 12px;
+    background: linear-gradient(115deg, #fff9e8, #f3e4bc);
+    box-shadow: 0 4px 6px #3f221b66;
+    display: flex;
+    flex-direction: column;
+    rotate: -1deg;
+  }
+  .landscape-kitchen:not(.service-game) .ticket-caption {
+    font-size: 6px;
+    letter-spacing: 0;
+    line-height: 1;
+    white-space: nowrap;
+  }
+  .landscape-kitchen:not(.service-game) .ticket h1 {
+    font-size: 12px;
+    margin: 3px 20px 3px 0;
+    line-height: 1;
+    letter-spacing: 0;
+  }
+  .landscape-kitchen:not(.service-game) .ticket-note {
+    position: absolute;
+    bottom: 7px;
+    right: 7px;
+    background: #fff3d4cc;
+    border-radius: 5px;
+    padding: 2px;
+    font-size: 9px;
+  }
+  .landscape-kitchen .training-product-preview {
+    position: relative;
+    display: block;
+    flex: 1;
+    min-height: 0;
+  }
+  .landscape-kitchen .training-product-preview .burger-stack {
+    bottom: -4px;
+    transform: translateX(-50%) scale(0.4);
+    transform-origin: center bottom;
+  }
+  .landscape-kitchen .training-product-preview .plate {
+    display: none;
+  }
+  .landscape-kitchen:not(.service-game) .timer {
+    position: absolute;
+    top: -6px;
+    right: -9px;
+    width: 33px;
+    height: 34px;
+    padding: 2px;
+    font-size: 17px;
+    line-height: 1;
+    border-width: 2px;
+    border-radius: 10px;
+  }
+  .landscape-kitchen:not(.service-game) .timer small {
+    font-size: 6px;
+  }
+  .landscape-kitchen:not(.service-game) .patience {
+    bottom: 0;
+    left: 0;
+    right: 61%;
+    height: 4px;
+    background: #fff1c8;
+    border: 1px solid #a68146;
+  }
+  .landscape-kitchen:not(.service-game) .serve-bar {
+    position: absolute;
+    left: 36%;
+    right: 36%;
+    bottom: 2.5%;
+    height: 9%;
+    min-height: 31px;
+    display: flex;
+    padding: 0;
+    gap: 0;
+    border: 0;
+    background: none;
+    z-index: 16;
+  }
+  .landscape-kitchen:not(.service-game) .serve-button {
+    height: 100%;
+    min-height: 0;
+    width: 100%;
+    margin: 0;
+    padding: 3px 9px;
+    font-size: 12px;
+    border: 1px solid #ffd9af;
+    border-bottom: 3px solid #6a251e;
+    background: linear-gradient(#d86142, #aa372c);
+    box-shadow: 0 3px #54251c;
+    border-radius: 10px;
+  }
+  .landscape-kitchen:not(.service-game) .serve-hint {
+    position: absolute;
+    right: 140%;
+    bottom: 0;
+    display: flex;
+    align-items: center;
+    height: 100%;
+    min-width: 70px;
+    padding: 5px 9px;
+    border-radius: 8px;
+    font-size: 11px;
+    white-space: nowrap;
+    border: 1px solid #cba069;
+    background: linear-gradient(#fff2d6, #ddbe85);
+    color: #795431;
+    box-shadow: 0 2px 4px #4b251c66;
+  }
+  .landscape-kitchen:not(.service-game) .order-lines-wrap {
+    flex: 1;
+    min-height: 0;
+  }
+  .landscape-kitchen:not(.service-game) .order-lines {
+    margin: 0;
+    height: 100%;
+    gap: 2px;
+    grid-auto-rows: minmax(0, 1fr);
+  }
+  .landscape-kitchen:not(.service-game) .order-line {
+    min-height: 0;
+    padding: 1px;
+    display: flex;
+    position: relative;
+  }
+  .landscape-kitchen:not(.service-game) .order-line-name {
+    display: none;
+  }
+  .landscape-kitchen:not(.service-game) .order-line-art {
+    flex: 1;
+    width: auto;
+    height: 100%;
+  }
+  .landscape-kitchen:not(.service-game) .order-line-art .burger-stack {
+    transform: translateX(-50%) scale(0.2);
+    bottom: -2px;
+  }
+  .landscape-kitchen:not(.service-game) .order-line strong {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    font-size: 8px;
+    background: #ffefc9dd;
+    border-radius: 4px;
+    z-index: 9;
+  }
+  .landscape-kitchen:not(.service-game) .combo-counter {
+    position: absolute;
+    bottom: -3px;
+    right: 4px;
+    background: #fff0c8;
+    font-size: 7px;
+    line-height: 1;
+    padding: 2px 4px;
+    border-radius: 4px;
+    z-index: 3;
+  }
+  .landscape-kitchen:not(.service-game) .line-pager {
+    height: 17px;
+    gap: 4px;
+    font-size: 8px;
+    margin: 1px 0 0;
+  }
+  .landscape-kitchen:not(.service-game) .line-pager button {
+    height: 17px;
+    min-height: 0;
+    width: 23px;
+    padding: 0;
+  }
+  .landscape-kitchen:not(.service-game):has(.line-pager) .order-lines {
+    height: calc(100% - 18px);
+  }
+  .mastery-toast {
+    top: 44px;
+    padding: 6px 12px;
+  }
+  @keyframes scene-customer-arrive {
+    from {
+      opacity: 0;
+      transform: translateY(20px) scale(0.9);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+}
+@media (orientation: landscape) and (min-height: 600px) {
+  .app:is(.screen-service, .screen-game) > .topbar {
+    height: 42px;
+    right: 12px;
+    top: 10px;
+    gap: 8px;
+  }
+  .app:is(.screen-service, .screen-game) .tool-button,
+  .app:is(.screen-service, .screen-game) .exit-button {
+    width: 42px;
+    height: 42px;
+  }
+  .landscape-kitchen .queue-heading {
+    top: 10px;
+    left: 12px;
+    right: 165px;
+    height: 42px;
+  }
+  .landscape-kitchen .queue-heading h1,
+  .landscape-kitchen .queue-heading > span {
+    height: 40px;
+    padding: 8px 15px;
+    font-size: 17px;
+    border-radius: 13px;
+  }
+  .landscape-kitchen .queue-heading .queue-next {
+    height: 34px;
+    font-size: 12px;
+  }
+  .landscape-kitchen .customer-info {
+    height: 25px;
+    padding: 3px 7px;
+  }
+  .landscape-kitchen .customer-info > strong {
+    font-size: 11px;
+  }
+  .landscape-kitchen .customer-patience {
+    height: 5px;
+  }
+  .landscape-kitchen .service-ticket {
+    top: 13%;
+  }
+  .landscape-kitchen .service-ticket .ticket {
+    padding: 12px;
+    border-width: 3px;
+  }
+  .landscape-kitchen .service-ticket .ticket-caption {
+    font-size: 9px;
+  }
+  .landscape-kitchen .service-ticket h2 {
+    font-size: 17px;
+    line-height: 1.1;
+    min-height: 19px;
+    margin: 4px 25px 8px 0;
+  }
+  .landscape-kitchen .service-ticket .timer {
+    width: 43px;
+    height: 46px;
+    font-size: 24px;
+  }
+  .landscape-kitchen .service-ticket .timer small {
+    font-size: 8px;
+  }
+  .landscape-kitchen .service-ticket .order-line-art .burger-stack {
+    transform: translateX(-50%) scale(0.42);
+  }
+  .landscape-kitchen .service-ticket .order-line strong {
+    font-size: 13px;
+    padding: 3px 5px;
+  }
+  .landscape-kitchen .customer-order-preview .burger-stack {
+    transform: translateX(-50%) scale(0.45);
+  }
+  .landscape-kitchen .customer-order-preview b {
+    font-size: 14px;
+    padding: 3px 6px;
+  }
+  .landscape-kitchen .ingredient-grid {
+    gap: 12px;
+  }
+  .landscape-kitchen .ingredient-pan {
+    border-width: 5px;
+    border-bottom-width: 8px;
+    border-radius: 18px;
+  }
+  .landscape-kitchen .ingredient strong {
+    padding: 4px 9px;
+    font-size: 12px;
+    margin-top: 4px;
+  }
+  .landscape-kitchen .ingredient-pan > .food-art {
+    max-height: 175px;
+  }
+  .landscape-kitchen .ingredient .check {
+    width: 24px;
+    height: 24px;
+    font-size: 14px;
+  }
+  .landscape-kitchen .assembly-title {
+    height: 36px;
+    font-size: 10px;
+  }
+  .landscape-kitchen .undo-ingredient {
+    width: 35px;
+    height: 33px;
+    font-size: 25px;
+  }
+  .landscape-kitchen .service-controls button {
+    font-size: 16px;
+  }
+  .landscape-kitchen .tray-meter {
+    font-size: 17px;
+  }
+  .landscape-kitchen .ghost-pace {
+    height: 25px;
+    font-size: 11px;
+  }
+}
+/* O retrato surge sem deslocar a área de toque no modo vertical. */
+.customer-card {
+  animation: customer-appear 0.3s ease-out both;
+}
+@keyframes customer-appear {
+  from {
+    opacity: 0.2;
+    scale: 0.97;
+  }
+  to {
+    opacity: 1;
+    scale: 1;
+  }
+}
+@media (orientation: landscape) {
+  .landscape-kitchen .customer-card {
+    animation-name: scene-customer-arrive;
+  }
+  .landscape-kitchen .queue-avatar > svg {
+    animation: customer-breathe 4s ease-in-out infinite;
+    transform-origin: center bottom;
+  }
+  .landscape-kitchen .customer-card:nth-child(2) .queue-avatar > svg {
+    animation-delay: -1.4s;
+  }
+  .landscape-kitchen .customer-card:nth-child(3) .queue-avatar > svg {
+    animation-delay: -2.8s;
+  }
+  .landscape-kitchen .customer-order-preview .burger-stack {
+    bottom: calc(50% - 22px);
+  }
+  .landscape-kitchen .service-ticket .order-line-art .burger-stack {
+    bottom: calc(50% - 18px);
+  }
+  .landscape-kitchen .tray-product {
+    min-width: 0;
+    overflow: hidden;
+    grid-template-rows: minmax(0, 1fr) auto;
+    gap: 1px;
+  }
+  .landscape-kitchen .prepared-tray:has(.tray-product:nth-child(3)) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-rows: repeat(2, minmax(0, 1fr));
+    align-items: stretch;
+  }
+  .landscape-kitchen
+    .prepared-tray:has(.tray-product:nth-child(3))
+    .burger-stack {
+    transform: translateX(-50%) scale(0.2);
+  }
+  @keyframes customer-breathe {
+    0%,
+    100% {
+      transform: scaleY(1);
+    }
+    50% {
+      transform: scaleY(1.015) translateY(-1px);
+    }
+  }
+}
+@media (orientation: landscape) and (min-height: 600px) {
+  .landscape-kitchen .customer-order-preview .burger-stack {
+    bottom: calc(50% - 35px);
+  }
+  .landscape-kitchen .service-ticket .order-line-art .burger-stack {
+    bottom: calc(50% - 28px);
+  }
+  .landscape-kitchen
+    .prepared-tray:has(.tray-product:nth-child(3))
+    .burger-stack {
+    transform: translateX(-50%) scale(0.35);
+  }
+}

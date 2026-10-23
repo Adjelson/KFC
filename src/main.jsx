@@ -55,6 +55,8 @@ import "./style.css";
 import "./challenges.css";
 import "./map-worlds.css";
 import "./service.css";
+import { KitchenScene, preloadKitchenScene } from "./KitchenScene.jsx";
+import "./landscape.css";
 
 const name = ingredientName;
 function readBest() {
@@ -194,11 +196,15 @@ function App() {
     lastTick = useRef(-1),
     actionNumber = useRef(0);
 
+  const immersiveKitchen = ["game", "service", "loading"].includes(screen);
   const horizontalKitchen =
     settings.landscape && ["game", "service", "loading"].includes(screen);
   useEffect(() => {
-    kitchenOrientation(horizontalKitchen);
-  }, [horizontalKitchen]);
+    kitchenOrientation(horizontalKitchen, immersiveKitchen);
+  }, [horizontalKitchen, immersiveKitchen]);
+  useEffect(() => {
+    preloadKitchenScene();
+  }, []);
   useEffect(() => {
     sound.configure(settings);
     saveSettings(settings);
@@ -299,7 +305,7 @@ function App() {
     let cancelled = false,
       timer;
     // Wait for local font preparation; the round's deadline is created only afterwards.
-    Promise.resolve(document.fonts?.ready)
+    Promise.all([document.fonts?.ready, preloadKitchenScene()])
       .catch(() => {})
       .then(() => {
         if (cancelled) return;
@@ -758,9 +764,10 @@ function App() {
         )}
         {screen === "game" && (
           <div
-            className={`kitchen ${isCombo ? "has-combo" : ""} ${serving ? "is-serving" : ""}`}
+            className={`kitchen landscape-kitchen ${isCombo ? "has-combo" : ""} ${serving ? "is-serving" : ""}`}
             aria-busy={serving}
           >
+            <KitchenScene />
             <section className="order-board" aria-label="Pedido do cliente">
               <div className="customer" aria-hidden="true">
                 <Customer number={round} />
@@ -782,9 +789,17 @@ function App() {
                     disabled={serving}
                   />
                 ) : (
-                  <span className="ticket-note" aria-label="1 produto">
-                    {recipe.kind === "fries" ? "🍟" : "🍔"} × 1
-                  </span>
+                  <>
+                    <div
+                      className="training-product-preview"
+                      aria-hidden="true"
+                    >
+                      <Burger items={recipe.items} compact />
+                    </div>
+                    <span className="ticket-note" aria-label="1 produto">
+                      {recipe.kind === "fries" ? "🍟" : "🍔"} × 1
+                    </span>
+                  </>
                 )}
                 {isCombo && (
                   <span
